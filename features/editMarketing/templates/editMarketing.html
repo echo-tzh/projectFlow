@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Content Editor - ProjectFlow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.47059;
+        }
+
+        .admin-header {
+            background: #fff;
+            border-bottom: 1px solid #d2d2d7;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .admin-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+
+        .admin-subtitle {
+            font-size: 17px;
+            color: #86868b;
+        }
+
+        .content-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f5f5f7;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        .add-button {
+            background: #0071e3;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .add-button:hover {
+            background: #0077ed;
+        }
+
+        /* Item Grid */
+        .items-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .item-card {
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fafafa;
+            transition: all 0.3s ease;
+            cursor: move;
+        }
+
+        .item-card:hover {
+            border-color: #0071e3;
+            background: #fff;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .item-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 5px;
+        }
+
+        .item-status {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #d1f2eb;
+            color: #00875a;
+        }
+
+        .status-inactive {
+            background: #ffe5e5;
+            color: #de350b;
+        }
+
+        .status-popular {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-featured {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .item-content {
+            margin-bottom: 15px;
+        }
+
+        .item-meta {
+            font-size: 14px;
+            color: #86868b;
+            margin-bottom: 8px;
+        }
+
+        .item-text {
+            font-size: 16px;
+            color: #1d1d1f;
+            line-height: 1.4;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-button {
+            padding: 6px 12px;
+            border: 1px solid #d2d2d7;
+            border-radius: 6px;
+            background: white;
+            color: #1d1d1f;
+            text-decoration: none;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            border-color: #0071e3;
+            color: #0071e3;
+        }
+
+        .action-button.edit {
+            border-color: #0071e3;
+            color: #0071e3;
+        }
+
+        .action-button.delete {
+            border-color: #ff3b30;
+            color: #ff3b30;
+        }
+
+        .action-button.feature {
+            border-color: #30d158;
+            color: #30d158;
+        }
+
+        /* Reviews specific styling */
+        .reviews-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .reviews-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #e5e5e7;
+        }
+
+        .review-stars {
+            color: #ff9500;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .flash-success {
+            background: #d1f2eb;
+            color: #00875a;
+            border: 1px solid #79e2d2;
+        }
+
+        .flash-error {
+            background: #ffe5e5;
+            color: #de350b;
+            border: 1px solid #ffbdad;
+        }
+
+        /* Drag and drop styling */
+        .sortable-ghost {
+            opacity: 0.4;
+        }
+
+        .sortable-chosen {
+            border-color: #0071e3 !important;
+            background: #f0f8ff !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .reviews-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .item-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .item-actions {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="admin-container">
+            <h1 class="admin-title">Marketing Content Editor - ProjectFlow</h1>
+            <p class="admin-subtitle">Insert Photo, pricing plans, and customer reviews</p>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Hero Slides Section -->
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Hero Slides</h2>
+                <a href="{{ url_for('edit_marketing_bp.add_hero_slide') }}" class="add-button">+ Add Hero Slide</a>
+            </div>
+            
+            <div class="items-grid" id="hero-slides">
+                {% for slide in hero_slides %}
+                    <div class="item-card" data-id="{{ slide.id }}">
+                        <div class="item-header">
+                            <div>
+                                <div class="item-title">{{ slide.headline or 'Untitled Slide' }}</div>
+                                <div class="item-meta">Order: {{ slide.display_order }}</div>
+                            </div>
+                            <div class="item-status">
+                                {% if slide.is_active %}
+                                    <span class="status-badge status-active">Active</span>
+                                {% else %}
+                                    <span class="status-badge status-inactive">Inactive</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="item-content">
+                            <div class="item-meta">{{ slide.eyebrow_text }} • {{ slide.primary_cta_text }}</div>
+                            <div class="item-text">{{ slide.subhead[:100] }}{% if slide.subhead and slide.subhead|length > 100 %}...{% endif %}</div>
+                        </div>
+                        
+                        <div class="item-actions">
+                            <a href="{{ url_for('edit_marketing_bp.edit_hero_slide', slide_id=slide.id) }}" class="action-button edit">Edit</a>
+                            <form method="POST" action="{{ url_for('edit_marketing_bp.delete_hero_slide', slide_id=slide.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this slide?')">
+                                <button type="submit" class="action-button delete">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Plans Section -->
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Pricing Plans</h2>
+                <a href="{{ url_for('edit_marketing_bp.add_plan') }}" class="add-button">+ Add Plan</a>
+            </div>
+            
+            <div class="items-grid" id="plans">
+                {% for plan in plans %}
+                    <div class="item-card" data-id="{{ plan.id }}">
+                        <div class="item-header">
+                            <div>
+                                <div class="item-title">{{ plan.name }}</div>
+                                <div class="item-meta">Order: {{ plan.display_order }} • 
+                                    {% if plan.price == 0 %}Free
+                                    {% elif plan.price %}${{ plan.price }}
+                                    {% else %}Custom{% endif %} {{ plan.billing_period }}
+                                </div>
+                            </div>
+                            <div class="item-status">
+                                {% if plan.is_active %}
+                                    <span class="status-badge status-active">Active</span>
+                                {% else %}
+                                    <span class="status-badge status-inactive">Inactive</span>
+                                {% endif %}
+                                {% if plan.is_popular %}
+                                    <span class="status-badge status-popular">Popular</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="item-content">
+                            <div class="item-text">{{ plan.features[:100] if plan.features }}{% if plan.features and plan.features|length > 100 %}...{% endif %}</div>
+                        </div>
+                        
+                        <div class="item-actions">
+                            <a href="{{ url_for('edit_marketing_bp.edit_plan', plan_id=plan.id) }}" class="action-button edit">Edit</a>
+                            <form method="POST" action="{{ url_for('edit_marketing_bp.delete_plan', plan_id=plan.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this plan?')">
+                                <button type="submit" class="action-button delete">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Customer Reviews</h2>
+                <a href="{{ url_for('edit_marketing_bp.add_review') }}" class="add-button">+ Add Review</a>
+            </div>
+            
+            <div class="reviews-container">
+                <!-- All Reviews -->
+                <div class="reviews-section">
+                    <h3 style="font-size: 18px; margin-bottom: 20px; color: #1d1d1f;">All Reviews</h3>
+                    <div class="items-grid" id="all-reviews">
+                        {% for review in all_reviews %}
+                            <div class="item-card" data-id="{{ review.id }}">
+                                <div class="item-header">
+                                    <div>
+                                        <div class="item-title">{{ review.author_name }}</div>
+                                        <div class="item-meta">{{ review.author_role }}</div>
+                                    </div>
+                                    <div class="item-status">
+                                        {% if review.is_featured %}
+                                            <span class="status-badge status-featured">Featured</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="item-content">
+                                    <div class="review-stars">
+                                        {% for i in range(review.rating) %}★{% endfor %}
+                                    </div>
+                                    <div class="item-text">{{ review.content[:80] }}{% if review.content|length > 80 %}...{% endif %}</div>
+                                </div>
+                                
+                                <div class="item-actions">
+                                    <a href="{{ url_for('edit_marketing_bp.edit_review', review_id=review.id) }}" class="action-button edit">Edit</a>
+                                    <form method="POST" action="{{ url_for('edit_marketing_bp.toggle_review_featured', review_id=review.id) }}" style="display: inline;">
+                                        <button type="submit" class="action-button feature">
+                                            {% if review.is_featured %}Unfeature{% else %}Feature{% endif %}
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('edit_marketing_bp.delete_review', review_id=review.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this review?')">
+                                        <button type="submit" class="action-button delete">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Featured Reviews -->
+                <div class="reviews-section">
+                    <h3 style="font-size: 18px; margin-bottom: 20px; color: #1d1d1f;">Featured Reviews (Shown on Marketing Page)</h3>
+                    <div class="items-grid" id="featured-reviews">
+                        {% for review in featured_reviews %}
+                            <div class="item-card" data-id="{{ review.id }}">
+                                <div class="item-header">
+                                    <div>
+                                        <div class="item-title">{{ review.author_name }}</div>
+                                        <div class="item-meta">Order: {{ review.display_order }} • {{ review.author_role }}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="item-content">
+                                    <div class="review-stars">
+                                        {% for i in range(review.rating) %}★{% endfor %}
+                                    </div>
+                                    <div class="item-text">{{ review.content[:80] }}{% if review.content|length > 80 %}...{% endif %}</div>
+                                </div>
+                                
+                                <div class="item-actions">
+                                    <a href="{{ url_for('edit_marketing_bp.edit_review', review_id=review.id) }}" class="action-button edit">Edit</a>
+                                    <form method="POST" action="{{ url_for('edit_marketing_bp.toggle_review_featured', review_id=review.id) }}" style="display: inline;">
+                                        <button type="submit" class="action-button">Unfeature</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        {% if not featured_reviews %}
+                            <div style="text-align: center; color: #86868b; padding: 40px;">
+                                <p>No featured reviews yet.</p>
+                                <p style="font-size: 14px; margin-top: 8px;">Use the "Feature" button on reviews to display them on the marketing page.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include SortableJS for drag-and-drop functionality -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script>
+        // Initialize drag-and-drop sorting
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hero slides sorting
+            const heroSlides = document.getElementById('hero-slides');
+            if (heroSlides) {
+                new Sortable(heroSlides, {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    onEnd: function(evt) {
+                        updateOrder('hero', heroSlides);
+                    }
+                });
+            }
+
+            // Plans sorting
+            const plans = document.getElementById('plans');
+            if (plans) {
+                new Sortable(plans, {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    onEnd: function(evt) {
+                        updateOrder('plan', plans);
+                    }
+                });
+            }
+
+            // Featured reviews sorting
+            const featuredReviews = document.getElementById('featured-reviews');
+            if (featuredReviews) {
+                new Sortable(featuredReviews, {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    onEnd: function(evt) {
+                        updateOrder('review', featuredReviews);
+                    }
+                });
+            }
+        });
+
+        function updateOrder(type, container) {
+            const items = container.querySelectorAll('.item-card');
+            const orderData = [];
+            
+            items.forEach((item, index) => {
+                orderData.push({
+                    id: parseInt(item.dataset.id),
+                    order: index + 1
+                });
+            });
+
+            // Send AJAX request to update order
+            fetch('/admin/marketing/reorder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    type: type,
+                    items: orderData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Order updated successfully');
+                } else {
+                    console.error('Failed to update order:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating order:', error);
+            });
+        }
+    </script>
+</body>
+</html>

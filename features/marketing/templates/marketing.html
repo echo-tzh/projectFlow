@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FYP Allocation Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.47059;
+            font-weight: 400;
+            letter-spacing: -0.022em;
+        }
+
+        /* Apple's exact navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(251, 251, 253, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            z-index: 9999;
+            height: 44px;
+        }
+
+        .nav-container {
+            max-width: 980px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 22px;
+            height: 100%;
+        }
+
+        .nav-logo {
+            font-size: 21px;
+            font-weight: 600;
+            color: #1d1d1f;
+            text-decoration: none;
+            letter-spacing: -0.022em;
+        }
+
+        .nav-items {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-link {
+            color: #424245;
+            text-decoration: none;  
+            font-size: 12px;
+            font-weight: 400;
+            transition: color 0.3s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-link:hover {
+            color: #1d1d1f;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .nav-cta {
+            background: #0071e3;
+            color: #fff;
+            padding: 4px 11px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            min-width: 23px;
+            text-align: center;
+        }
+
+        .nav-cta:hover {
+            background: #0077ed;
+        }
+
+        /* Hero Section - Exact Apple Style */
+        .hero {
+            background: #000;
+            color: #f5f5f7;
+            margin-top: 44px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-slide {
+            min-height: 692px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px 40px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+        }
+
+        .hero-slide.active {
+            opacity: 1;
+        }
+
+        .hero-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        .slide-1::before {
+            background: radial-gradient(50% 50% at 50% 50%, rgba(0, 122, 255, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
+        }
+
+        .slide-2::before {
+            background: radial-gradient(50% 50% at 50% 50%, rgba(255, 59, 48, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
+        }
+
+        .slide-3::before {
+            background: radial-gradient(50% 50% at 50% 50%, rgba(48, 209, 88, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
+        }
+
+        .hero-content {
+            max-width: 980px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .hero-eyebrow {
+            font-size: 21px;
+            line-height: 1.19048;
+            font-weight: 600;
+            letter-spacing: 0.011em;
+            color: #f56500;
+            margin-bottom: 8px;
+        }
+
+        .hero-headline {
+            font-size: 56px;
+            line-height: 1.07143;
+            font-weight: 600;
+            letter-spacing: -0.005em;
+            margin-bottom: 18px;
+            background: linear-gradient(135deg, #f5f5f7 30%, #86868b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subhead {
+            font-size: 28px;
+            line-height: 1.14286;
+            font-weight: 400;
+            letter-spacing: 0.007em;
+            color: #a1a1a6;
+            margin-bottom: 18px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-cta-group {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .cta-primary {
+            background: #0071e3;
+            color: #fff;
+            padding: 12px 23px;
+            border-radius: 980px;
+            text-decoration: none;
+            font-size: 17px;
+            line-height: 1.23536;
+            font-weight: 400;
+            min-width: 28px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-primary:hover {
+            background: #0077ed;
+            transform: scale(1.05);
+        }
+
+        .cta-secondary {
+            color: #0071e3;
+            text-decoration: none;
+            font-size: 21px;
+            line-height: 1.381;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .cta-secondary::after {
+            content: '';
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid #0071e3;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .cta-secondary:hover {
+            color: #0077ed;
+        }
+
+        .cta-secondary:hover::after {
+            border-left-color: #0077ed;
+            right: -25px;
+        }
+
+        /* Apple's exact slide indicators */
+        .slide-indicators {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 9px;
+            z-index: 10;
+        }
+
+        .slide-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .slide-dot.active {
+            background: #fff;
+            width: 36px;
+            border-radius: 3px;
+        }
+
+        /* Section with Apple's exact spacing */
+        .section {
+            background: #f5f5f7;
+            padding: 100px 0 110px;
+        }
+
+        .section-container {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        .section-eyebrow {
+            font-size: 21px;
+            line-height: 1.19048;
+            font-weight: 600;
+            letter-spacing: 0.011em;
+            color: #bf4800;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .section-headline {
+            font-size: 48px;
+            line-height: 1.08349;
+            font-weight: 600;
+            letter-spacing: -0.003em;
+            color: #1d1d1f;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .section-subhead {
+            font-size: 21px;
+            line-height: 1.381;
+            font-weight: 400;
+            letter-spacing: 0.011em;
+            color: #86868b;
+            text-align: center;
+            margin-bottom: 50px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Plans Grid - Apple Card Style */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .plan-card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.28, 0.11, 0.32, 1);
+            position: relative;
+            border: 1px solid #d2d2d7;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .plan-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .plan-card.popular {
+            border: 2px solid #0071e3;
+            transform: scale(1.05);
+        }
+
+        .plan-card.popular::before {
+            content: 'Most Popular';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            background: #0071e3;
+            color: white;
+            padding: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 18px 18px 0 0;
+        }
+
+        .plan-name {
+            font-size: 24px;
+            line-height: 1.16667;
+            font-weight: 600;
+            letter-spacing: 0.009em;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+
+        .plan-price {
+            font-size: 48px;
+            line-height: 1.08349;
+            font-weight: 600;
+            letter-spacing: -0.003em;
+            color: #1d1d1f;
+            margin-bottom: 0;
+        }
+
+        .plan-period {
+            font-size: 17px;
+            line-height: 1.23536;
+            font-weight: 400;
+            color: #86868b;
+            margin-bottom: 30px;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 40px;
+            text-align: left;
+        }
+
+        .plan-features li {
+            padding: 6px 0;
+            font-size: 17px;
+            line-height: 1.47059;
+            font-weight: 400;
+            color: #1d1d1f;
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .plan-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #30d158;
+            font-weight: 600;
+        }
+
+        /* Reviews Section */
+        .reviews {
+            background: #fff;
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .review-card {
+            background: #f5f5f7;
+            border-radius: 18px;
+            padding: 30px;
+            transition: all 0.4s cubic-bezier(0.28, 0.11, 0.32, 1);
+        }
+
+        .review-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .review-stars {
+            color: #ff9500;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .review-text {
+            font-size: 19px;
+            line-height: 1.42105;
+            font-weight: 400;
+            color: #1d1d1f;
+            margin-bottom: 20px;
+        }
+
+        .review-author {
+            font-size: 17px;
+            line-height: 1.23536;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .review-role {
+            font-size: 14px;
+            line-height: 1.42857;
+            font-weight: 400;
+            color: #86868b;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1068px) {
+            .nav-container {
+                max-width: 692px;
+            }
+            
+            .hero-content, .section-container {
+                max-width: 692px;
+            }
+            
+            .hero-headline {
+                font-size: 44px;
+            }
+            
+            .section-headline {
+                font-size: 40px;
+            }
+        }
+
+        @media (max-width: 734px) {
+            .nav-container {
+                padding: 0 16px;
+            }
+            
+            .nav-items {
+                display: none;
+            }
+            
+            .hero-slide {
+                padding: 40px 20px;
+                min-height: 500px;
+            }
+            
+            .hero-headline {
+                font-size: 32px;
+            }
+            
+            .hero-subhead {
+                font-size: 21px;
+            }
+            
+            .section-container {
+                padding: 0 20px;
+            }
+            
+            .section-headline {
+                font-size: 32px;
+            }
+            
+            .hero-cta-group {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+
+        /* Apple's smooth animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.8s cubic-bezier(0.28, 0.11, 0.32, 1) forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Apple's exact navigation structure -->
+    <nav class="nav" id="ac-globalnav">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">ProjectFlow</a>
+            <div class="nav-items">
+                <a href="#" class="nav-link">Features</a>
+                <a href="#" class="nav-link">Pricing</a>
+                <a href="#" class="nav-link">Support</a>
+            </div>
+            <div class="nav-actions">
+                <a href="#" class="nav-link">Sign In</a>
+                <a href="#" class="nav-cta">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        {% if hero_slides %}
+            {% for slide in hero_slides %}
+                <div class="hero-slide {% if loop.first %}active{% endif %} slide-{{ loop.index }}">
+                    <div class="hero-content">
+                        <h1 class="hero-eyebrow">{{ slide.eyebrow_text or 'Revolutionary' }}</h1>
+                        <h2 class="hero-headline">{{ slide.headline or 'Transform Your Project Allocation' }}</h2>
+                        <p class="hero-subhead">{{ slide.subhead or 'Effortlessly match students with supervisors using intelligent algorithms' }}</p>
+                        <div class="hero-cta-group">
+                            <a href="{{ slide.primary_cta_link or '#' }}" class="cta-primary">{{ slide.primary_cta_text or 'Get Started' }}</a>
+                            <a href="{{ slide.secondary_cta_link or '#' }}" class="cta-secondary">{{ slide.secondary_cta_text or 'Learn more' }}</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <!-- Fallback slides if no hero_slides in database -->
+            <div class="hero-slide active slide-1">
+                <div class="hero-content">
+                    <h1 class="hero-eyebrow">Revolutionary</h1>
+                    <h2 class="hero-headline">Transform Your Project Allocation</h2>
+                    <p class="hero-subhead">Effortlessly match students with supervisors using intelligent algorithms</p>
+                    <div class="hero-cta-group">
+                        <a href="#" class="cta-primary">Get Started</a>
+                        <a href="#" class="cta-secondary">Learn more</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-slide slide-2">
+                <div class="hero-content">
+                    <h1 class="hero-eyebrow">Intelligent</h1>
+                    <h2 class="hero-headline">AI-Powered Matching</h2>
+                    <p class="hero-subhead">Advanced algorithms ensure perfect project-student compatibility</p>
+                    <div class="hero-cta-group">
+                        <a href="#" class="cta-primary">Try It Free</a>
+                        <a href="#" class="cta-secondary">See it in action</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-slide slide-3">
+                <div class="hero-content">
+                    <h1 class="hero-eyebrow">Seamless</h1>
+                    <h2 class="hero-headline">Complete Management</h2>
+                    <p class="hero-subhead">From project creation to final assignments — all in one place</p>
+                    <div class="hero-cta-group">
+                        <a href="#" class="cta-primary">Start Free Trial</a>
+                        <a href="#" class="cta-secondary">Request demo</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <div class="slide-indicators">
+            {% if hero_slides %}
+                {% for slide in hero_slides %}
+                    <div class="slide-dot {% if loop.first %}active{% endif %}" data-slide="{{ loop.index0 }}"></div>
+                {% endfor %}
+            {% else %}
+                <div class="slide-dot active" data-slide="0"></div>
+                <div class="slide-dot" data-slide="1"></div>
+                <div class="slide-dot" data-slide="2"></div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Plans Section -->
+    <section class="section">
+        <div class="section-container">
+            <h2 class="section-eyebrow">Pricing</h2>
+            <h3 class="section-headline">Choose the plan that's right for you</h3>
+            <p class="section-subhead">Get started with our free plan or upgrade for advanced features and unlimited access</p>
+            
+            <div class="plans-grid">
+                {% if plans %}
+                    {% for plan in plans %}
+                        <div class="plan-card {% if plan.is_popular %}popular{% endif %}">
+                            <h4 class="plan-name">{{ plan.name }}</h4>
+                            <div class="plan-price">
+                                {% if plan.price == 0 %}
+                                    Free
+                                {% elif plan.price %}
+                                    ${{ plan.price }}
+                                {% else %}
+                                    Custom
+                                {% endif %}
+                            </div>
+                            <div class="plan-period">{{ plan.billing_period or 'forever' }}</div>
+                            {% if plan.features %}
+                                <ul class="plan-features">
+                                    {% for feature in plan.features.split(',') %}
+                                        <li>{{ feature.strip() }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            <a href="{{ plan.cta_link or '#' }}" class="cta-primary">{{ plan.cta_text or 'Get Started' }}</a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Fallback plans if no plans in database -->
+                    <div class="plan-card">
+                        <h4 class="plan-name">Academic Basic</h4>
+                        <div class="plan-price">Free</div>
+                        <div class="plan-period">forever</div>
+                        <ul class="plan-features">
+                            <li>Up to 50 students</li>
+                            <li>Basic project matching</li>
+                            <li>Email notifications</li>
+                            <li>Standard support</li>
+                        </ul>
+                        <a href="#" class="cta-primary">Start Free</a>
+                    </div>
+                    
+                    <div class="plan-card popular">
+                        <h4 class="plan-name">Institution Pro</h4>
+                        <div class="plan-price">$49</div>
+                        <div class="plan-period">per semester</div>
+                        <ul class="plan-features">
+                            <li>Up to 500 students</li>
+                            <li>AI-powered matching</li>
+                            <li>Advanced analytics</li>
+                            <li>Priority support</li>
+                            <li>Custom workflows</li>
+                        </ul>
+                        <a href="#" class="cta-primary">Start Trial</a>
+                    </div>
+                    
+                    <div class="plan-card">
+                        <h4 class="plan-name">University Enterprise</h4>
+                        <div class="plan-price">Custom</div>
+                        <div class="plan-period">pricing</div>
+                        <ul class="plan-features">
+                            <li>Unlimited students</li>
+                            <li>Multi-department support</li>
+                            <li>Advanced integrations</li>
+                            <li>Dedicated support</li>
+                            <li>Custom development</li>
+                        </ul>
+                        <a href="#" class="cta-primary">Contact Sales</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="section reviews">
+        <div class="section-container">
+            <h2 class="section-eyebrow">Reviews</h2>
+            <h3 class="section-headline">Trusted by educators worldwide</h3>
+            <p class="section-subhead">See what academic professionals are saying about our platform</p>
+            
+            <div class="reviews-grid">
+                {% if reviews %}
+                    {% for review in reviews %}
+                        <div class="review-card">
+                            <div class="review-stars">
+                                {% for i in range(review.rating or 5) %}★{% endfor %}
+                            </div>
+                            <p class="review-text">"{{ review.content }}"</p>
+                            <div class="review-author">{{ review.author_name }}</div>
+                            <div class="review-role">{{ review.author_role }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Fallback reviews if no reviews in database -->
+                    <div class="review-card">
+                        <div class="review-stars">★★★★★</div>
+                        <p class="review-text">"This system revolutionized our FYP allocation process. What used to take weeks now takes minutes."</p>
+                        <div class="review-author">Dr. Sarah Chen</div>
+                        <div class="review-role">Computer Science Department Head, Tech University</div>
+                    </div>
+                    
+                    <div class="review-card">
+                        <div class="review-stars">★★★★★</div>
+                        <p class="review-text">"The intelligent matching algorithm significantly improved student-supervisor compatibility."</p>
+                        <div class="review-author">Prof. Michael Rodriguez</div>
+                        <div class="review-role">Engineering Faculty, State Institute</div>
+                    </div>
+                    
+                    <div class="review-card">
+                        <div class="review-stars">★★★★★</div>
+                        <p class="review-text">"Incredibly user-friendly interface. Our staff adapted to it within days."</p>
+                        <div class="review-author">Lisa Thompson</div>
+                        <div class="review-role">Academic Administrator, City College</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="background: #1d1d1f; color: #f5f5f7; padding: 40px 0; text-align: center;">
+        <div class="section-container">
+            <p style="font-size: 14px; color: #86868b;">© {{ current_year }} FYP Allocation Pro. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Hero Slider with Apple's exact timing and easing
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.hero-slide');
+        const dots = document.querySelectorAll('.slide-dot');
+        
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+        
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+        
+        // Auto-advance slides every 6 seconds (Apple's timing)
+        if (slides.length > 1) {
+            setInterval(nextSlide, 6000);
+        }
+        
+        // Dot navigation
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentSlide = index;
+                showSlide(currentSlide);
+            });
+        });
+        
+        // Apple's intersection observer for animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, { 
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+        
+        document.querySelectorAll('.plan-card, .review-card').forEach(el => {
+            observer.observe(el);
+        });
+        
+        // Apple's navigation scroll effect
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.nav');
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll > 44) {
+                nav.style.background = 'rgba(251, 251, 253, 0.72)';
+                nav.style.backdropFilter = 'saturate(180%) blur(20px)';
+            } else {
+                nav.style.background = 'rgba(251, 251, 253, 0.8)';
+                nav.style.backdropFilter = 'saturate(180%) blur(20px)';
+            }
+            
+            lastScroll = currentScroll;
+        });
+    </script>
+</body>
+</html>
