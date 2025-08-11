@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from werkzeug.security import generate_password_hash
-from shared.models import db, School, User
+from shared.models import db, School, User, Role  # Added Role import
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 
@@ -16,51 +16,65 @@ def create_school():
         school_name = request.form.get('school_name')
         admin_email = request.form.get('admin_email')
         admin_password = request.form.get('admin_password')
-
-        # Basic form validation
-        if not school_name or not admin_email or not admin_password:
+        confirm_password = request.form.get('confirm_password')
+        
+        if not all([school_name, admin_email, admin_password, confirm_password]):
             flash('All fields are required.', 'error')
             return redirect(url_for('createSchool.create_school'))
-
-        # Check for existing school name
+        
+        if admin_password != confirm_password:
+            flash('Passwords do not match.', 'error')
+            return redirect(url_for('createSchool.create_school'))
+        
         existing_school = School.query.filter_by(name=school_name).first()
         if existing_school:
             flash('A school with this name already exists. Please choose a different name.', 'error')
             return redirect(url_for('createSchool.create_school'))
-
-        # Check for existing admin email
+        
         existing_admin = User.query.filter_by(email=admin_email).first()
         if existing_admin:
             flash('An admin account with this email already exists. Please use a different email.', 'error')
             return redirect(url_for('createSchool.create_school'))
-
-        # If all checks pass, create the school and admin user
+        
         try:
-            # Create school
+            # 1. Get or create the educational_admin role
+            edu_admin_role = Role.query.filter_by(name='educational_admin').first()
+            if not edu_admin_role:
+                edu_admin_role = Role(
+                    name='educational_admin', 
+                    description='Educational Administrator'
+                )
+                db.session.add(edu_admin_role)
+                db.session.flush()  # Ensure role gets an ID
+            
+            # 2. Create the new School object
             school = School(name=school_name, created_at=datetime.utcnow())
             db.session.add(school)
-            db.session.flush()  # Use flush to get the school ID before committing
-
-            # Create educational admin user
+            # Flush the session to get the school.id
+            db.session.flush()
+            
+            # 3. Create the User object (without role field)
             hashed_password = generate_password_hash(admin_password)
             admin_user = User(
                 email=admin_email,
                 password_hash=hashed_password,
-                role='educational_admin'
+                school_id=school.id
             )
             db.session.add(admin_user)
+            db.session.flush()  # Ensure user gets an ID
+            
+            # 4. Assign the educational_admin role to the user
+            admin_user.roles.append(edu_admin_role)
+            
+            # 5. Commit all changes
             db.session.commit()
-
+            
             flash('School and admin account created successfully!', 'success')
-            return redirect(url_for('login'))
-
+            return redirect(url_for('login_bp.login'))
+            
         except IntegrityError:
-            # This is a fallback to catch any unexpected database integrity errors,
-            # such as a race condition where another user creates the same school
-            # or admin email between our check and the commit.
             db.session.rollback()
-            flash('An error occurred while creating the school. Please try again.', 'error')
+            flash('An unexpected error occurred. Please try again.', 'error')
             return redirect(url_for('createSchool.create_school'))
-
-    # Render the form on GET requests
+    
     return render_template('createSchool.html')

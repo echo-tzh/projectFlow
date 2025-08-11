@@ -2,7 +2,30 @@ from database import db
 from datetime import datetime
 
 # ------------------------
-# Existing Models
+# Association Table for Many-to-Many User-Role Relationship
+# ------------------------
+user_roles = db.Table('user_roles',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('role_id', db.Integer, db.ForeignKey('roles.id'), primary_key=True),
+    db.Column('assigned_at', db.DateTime, default=datetime.utcnow)
+)
+
+# ------------------------
+# New Role Model
+# ------------------------
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)  # e.g., 'student', 'supervisor', 'admin', 'coordinator'
+    description = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)
+
+    # Relationship back to users
+    users = db.relationship('User', secondary=user_roles, back_populates='roles', lazy='dynamic')
+
+# ------------------------
+# Updated Models
 # ------------------------
 class User(db.Model):
     __tablename__ = 'users'
@@ -10,13 +33,15 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=True)  # Added for better identification
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(700), nullable=False)
-    role = db.Column(db.String(50), nullable=False)  # e.g., student, supervisor, admin, coordinator
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationship to School
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=True)
 
-    # Relationships
+    # Many-to-Many relationship with roles
+    roles = db.relationship('Role', secondary=user_roles, back_populates='users', lazy='dynamic')
+
+    # Other relationships
     photos = db.relationship('MarketingPhoto', backref='uploader', lazy=True)
     projects = db.relationship('Project', backref='creator', lazy=True)  # For coordinators
 
@@ -69,7 +94,7 @@ class Review(db.Model):
     display_order = db.Column(db.Integer, default=0)
 
 # ------------------------
-# New Models for Project Flow
+# Project Flow Models
 # ------------------------
 class School(db.Model):
     __tablename__ = 'schools'

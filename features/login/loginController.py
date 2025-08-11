@@ -17,11 +17,27 @@ def login():
         # You must use check_password_hash to securely compare them.
         if user and check_password_hash(user.password_hash, password):
             session['user_id'] = user.id
-            session['role'] = user.role
+            
+            # Get all role names for the user
+            role_names = [role.name for role in user.roles]
+            session['roles'] = role_names  # Store as list
+            
+            # For backward compatibility, store primary role as 'role'
+            # You can customize this logic based on your needs
+            if role_names:
+                session['role'] = role_names[0]  # First role as primary
+            else:
+                session['role'] = None
+                
             flash('Login successful!', 'success')
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('educational_admin.dashboard'))
         else:
             # For security, use a generic error message for both invalid email and password.
             flash('Invalid email or password.', 'danger')
-            
+    
     return render_template('login.html')
+@login_bp.route('/logout')
+def logout():
+    session.clear()  # Remove all session data (user_id, roles, etc.)
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('login_bp.login'))  # Redirect to login page
