@@ -10,6 +10,8 @@
     /* Reset */
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
@@ -17,13 +19,87 @@
         Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
       background: #f5f5f7;
       color: #1d1d1f;
-      margin: 0;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
+      flex-direction: column; /* Allows content to be pushed down by nav */
       align-items: center;
       justify-content: center;
       padding: 20px;
+      padding-top: 64px; /* Space for the fixed navigation bar */
     }
+
+    /* --- Navigation Bar CSS (copied from marketing page) --- */
+    .nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(251, 251, 253, 0.8);
+        backdrop-filter: saturate(180%) blur(20px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        z-index: 9999;
+        height: 44px;
+    }
+
+    .nav-container {
+        max-width: 980px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 22px;
+        height: 100%;
+    }
+
+    .nav-logo {
+        font-size: 21px;
+        font-weight: 600;
+        color: #1d1d1f;
+        text-decoration: none;
+        letter-spacing: -0.022em;
+    }
+
+    .nav-items {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+    }
+
+    .nav-link {
+        color: #424245;
+        text-decoration: none;  
+        font-size: 12px;
+        font-weight: 400;
+        transition: color 0.3s ease;
+        letter-spacing: -0.01em;
+    }
+
+    .nav-link:hover {
+        color: #1d1d1f;
+    }
+
+    .nav-actions {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .nav-cta {
+        background: #0071e3;
+        color: #fff;
+        padding: 4px 11px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 400;
+        transition: all 0.3s ease;
+        min-width: 23px;
+        text-align: center;
+    }
+
+    .nav-cta:hover {
+        background: #0077ed;
+    }
+    /* --- End of Navigation Bar CSS --- */
 
     .login-container {
       background: white;
@@ -33,6 +109,16 @@
       max-width: 400px;
       width: 100%;
       text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     h2 {
@@ -47,8 +133,7 @@
       gap: 20px;
     }
 
-    input[type="email"],
-    input[type="password"] {
+    input {
       padding: 14px 16px;
       font-size: 17px;
       border: 1.5px solid #d2d2d7;
@@ -56,8 +141,7 @@
       transition: border-color 0.3s ease;
     }
 
-    input[type="email"]:focus,
-    input[type="password"]:focus {
+    input:focus {
       outline: none;
       border-color: #0071e3;
       box-shadow: 0 0 0 3px rgba(0,113,227,0.2);
@@ -116,25 +200,40 @@
   </style>
 </head>
 <body>
-  <div class="login-container">
-    <h2>Login</h2>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="flash-message {{ category }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-    <form method="POST" novalidate>
-      <input type="email" name="email" placeholder="Email" required autocomplete="email" />
-      <input type="password" name="password" placeholder="Password" required autocomplete="current-password" />
-      <button type="submit">Sign In</button>
-    </form>
+    <nav class="nav" id="ac-globalnav">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-logo">ProjectFlow</a>
+            <div class="nav-items">
+                <a href="{{ url_for('index') }}#features" class="nav-link">Features</a>
+                <a href="{{ url_for('index') }}#pricing" class="nav-link">Pricing</a>
+                <a href="{{ url_for('index') }}#support" class="nav-link">Support</a>
+            </div>
+            <div class="nav-actions">
+                <a href="{{ url_for('login_bp.login') }}" class="nav-link">Sign In</a>
+                <a href="{{ url_for('createSchool.create_school') }}" class="nav-cta">Get Started</a>
+            </div>
+        </div>
+    </nav>
     
-    <a href="{{ url_for('index') }}" class="back-link">← Go back to marketing page</a>
-  </div>
-  </div>
-</body>
+    <div class="login-container">
+        <h2>Login</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST" novalidate>
+            <input type="email" name="email" placeholder="Email" required autocomplete="email" />
+            <input type="password" name="password" placeholder="Password" required autocomplete="current-password" />
+            <button type="submit">Sign In</button>
+        </form>
+
+        <a href="{{ url_for('index') }}" class="back-link">← Go back to marketing page</a>
+    </div>
+
+    </body>
 </html>
