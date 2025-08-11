@@ -6,6 +6,8 @@ from features.marketing.marketingController import marketing_bp
 from features.editMarketing.editMarketingController import edit_marketing_bp
 from flask_cors import CORS
 
+from features.createSchool.createSchoolController import create_school_bp
+
 
 
 app = Flask(__name__)
@@ -20,10 +22,21 @@ app.register_blueprint(login_bp)
 #register blueprint for marketingController
 app.register_blueprint(marketing_bp)
 app.register_blueprint(edit_marketing_bp)
+app.register_blueprint(create_school_bp)
+
+
 
 @app.route('/')
 def index():
+    return redirect('/marketing')
+
+@app.route('/loggin')
+def login():
     return redirect('/login')
+
+@app.route('/create-school') 
+def setup_school():
+    return redirect('/createSchool') 
 
 @app.route('/dashboard')
 def dashboard():

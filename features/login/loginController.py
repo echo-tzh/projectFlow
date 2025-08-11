@@ -11,12 +11,17 @@ def login():
         password = request.form['password']
         
         user = User.query.filter_by(email=email).first()
-        if user and user.password_hash == password:  # <-- compare plain text
+        
+        # Correctly check the password hash
+        # The password from the form is plain text, while user.password_hash is a hash.
+        # You must use check_password_hash to securely compare them.
+        if user and check_password_hash(user.password_hash, password):
             session['user_id'] = user.id
             session['role'] = user.role
             flash('Login successful!', 'success')
             return redirect(url_for('dashboard'))
         else:
+            # For security, use a generic error message for both invalid email and password.
             flash('Invalid email or password.', 'danger')
             
     return render_template('login.html')

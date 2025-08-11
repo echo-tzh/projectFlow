@@ -101,6 +101,18 @@
       color: #a60a0a;
       border: 1px solid #a60a0a;
     }
+
+    .back-link {
+        margin-top: 24px;
+        font-size: 15px;
+        color: #0071e3;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .back-link:hover {
+        color: #005bb5;
+    }
   </style>
 </head>
 <body>
@@ -120,6 +132,9 @@
       <input type="password" name="password" placeholder="Password" required autocomplete="current-password" />
       <button type="submit">Sign In</button>
     </form>
+    
+    <a href="{{ url_for('index') }}" class="back-link">← Go back to marketing page</a>
+  </div>
   </div>
 </body>
 </html>
