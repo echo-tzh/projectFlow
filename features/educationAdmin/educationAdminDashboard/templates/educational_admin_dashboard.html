@@ -25,6 +25,79 @@
             padding: 0 20px;
         }
 
+        /* Flash Messages Styles */
+        .flash-messages {
+            margin: 20px 0;
+        }
+
+        .flash-message {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInDown 0.3s ease-out;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .flash-message.success {
+            background: rgba(52, 199, 89, 0.1);
+            color: #30d158;
+            border-color: rgba(52, 199, 89, 0.3);
+        }
+
+        .flash-message.error {
+            background: rgba(255, 59, 48, 0.1);
+            color: #ff3b30;
+            border-color: rgba(255, 59, 48, 0.3);
+        }
+
+        .flash-message.warning {
+            background: rgba(255, 149, 0, 0.1);
+            color: #ff9500;
+            border-color: rgba(255, 149, 0, 0.3);
+        }
+
+        .flash-message.info {
+            background: rgba(0, 122, 255, 0.1);
+            color: #007aff;
+            border-color: rgba(0, 122, 255, 0.3);
+        }
+
+        .flash-icon {
+            font-size: 18px;
+        }
+
+        .flash-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+
+        .flash-close:hover {
+            opacity: 1;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .header {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(20px);
@@ -226,11 +299,14 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
         }
         
         .card-action:hover {
             background: #0056CC;
             transform: translateY(-1px);
+            color: white;
         }
         
         .stats-section {
@@ -321,6 +397,11 @@
         .manager .card-icon { background: linear-gradient(45deg, #007AFF, #5856D6); }
         .employee .card-icon { background: linear-gradient(45deg, #34C759, #00C7BE); }
         .student .card-icon { background: linear-gradient(45deg, #5856D6, #AF52DE); }
+        
+        /* Different gradient for the second card */
+        .card:nth-child(2) .card-icon {
+            background: linear-gradient(45deg, #007AFF, #5856D6);
+        }
     </style>
 </head>
 <body class="admin">
@@ -344,6 +425,27 @@
 
     <main class="main-content">
         <div class="container">
+            <!-- Flash Messages Section -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }}">
+                                <span class="flash-icon">
+                                    {% if category == 'success' %}✅
+                                    {% elif category == 'error' %}❌
+                                    {% elif category == 'warning' %}⚠️
+                                    {% else %}ℹ️
+                                    {% endif %}
+                                </span>
+                                <span>{{ message }}</span>
+                                <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
             <section class="welcome-section">
                 <h1 class="welcome-title">Welcome, {{ school_name }}</h1>
                 <p class="welcome-subtitle">{{ school_name }} Educational Admin</p>
@@ -351,17 +453,39 @@
             </section>
 
             <div class="dashboard-grid" id="dashboardGrid">
-                <div class="card" style="animation-delay: 0s;">
+
+
+                <div class="card" style="animation-delay: 0.1s;">
                     <div class="card-icon">
-                        <span role="img" aria-label="calendar">🗓️</span>
+                        <span role="img" aria-label="list">📋</span>
                     </div>
-                    <h3 class="card-title">Create Timeframe</h3>
-                    <p class="card-description">Set up the timeline for a new academic year's final year projects.</p>
-                    <button class="card-action">Create Timeframe</button>
+                    <h3 class="card-title">View All Timeframes</h3>
+                    <p class="card-description">Browse and manage all existing academic year timeframes and their schedules.</p>
+
+                <a href="{{ url_for('manage_timeframe_bp.manage_timeframes') }}" class="card-action">
+                    Manage Timeframes
+                </a>
                 </div>
             </div>
             
         </div>
     </main>
+
+    <script>
+        // Auto-hide flash messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(message) {
+                setTimeout(function() {
+                    if (message.parentElement) {
+                        message.style.animation = 'slideInDown 0.3s ease-out reverse';
+                        setTimeout(function() {
+                            message.remove();
+                        }, 300);
+                    }
+                }, 5000);
+            });
+        });
+    </script>
 </body>
 </html>

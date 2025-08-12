@@ -110,9 +110,11 @@ class School(db.Model):
 class Timeframe(db.Model):
     __tablename__ = 'timeframes'
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255),nullable = False)
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=False)
 
