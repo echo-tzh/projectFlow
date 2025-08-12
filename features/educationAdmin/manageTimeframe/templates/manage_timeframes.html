@@ -613,7 +613,7 @@
                                     </div>
                                     <div class="info-item">
                                         <span class="info-icon">👥</span>
-                                        <span>Users: <span class="projects-count">{{ timeframe.users.count() if timeframe.users else 0 }}</span></span>
+                                        <span>Users: <span class="projects-count">{{ timeframe.users|length if timeframe.users else 0 }}</span></span>
                                     </div>
                                     <div class="info-item">
                                         <span class="info-icon">📚</span>
