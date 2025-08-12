@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Load Data - ProjectFlow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #1d1d1f;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            color: #6e6e73;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .timeframe-selector {
+            margin-bottom: 40px;
+        }
+
+        .timeframe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .timeframe-card {
+            padding: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .timeframe-card:hover {
+            border-color: #007AFF;
+        }
+
+        .timeframe-card.active {
+            border-color: #007AFF;
+            background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(0, 122, 255, 0.05) 100%);
+        }
+
+        .timeframe-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1d1d1f;
+        }
+
+        .timeframe-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            color: #6e6e73;
+            font-size: 0.95rem;
+        }
+
+        .timeframe-dates {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-badge {
+            background: rgba(0, 122, 255, 0.1);
+            color: #007AFF;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .upload-section {
+            display: none;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .upload-section.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .upload-area {
+            padding: 48px 32px;
+            text-align: center;
+            border: 3px dashed #d1d1d6;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #007AFF;
+            background: rgba(0, 122, 255, 0.02);
+        }
+
+        .upload-area.dragover {
+            border-color: #007AFF;
+            background: rgba(0, 122, 255, 0.05);
+        }
+
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 24px;
+            opacity: 0.6;
+        }
+
+        .upload-text h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1d1d1f;
+        }
+
+        .upload-text p {
+            color: #6e6e73;
+            font-size: 1rem;
+            margin-bottom: 24px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: #007AFF;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(0, 0, 0, 0.05);
+            color: #1d1d1f;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-success {
+            background: #34C759;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #28a745;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(52, 199, 89, 0.3);
+        }
+
+        .actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .current-users {
+            margin-top: 40px;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .user-card {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .user-info h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #1d1d1f;
+        }
+
+        .user-info p {
+            font-size: 0.9rem;
+            color: #6e6e73;
+            margin-bottom: 2px;
+        }
+
+        .user-roles {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .role-badge {
+            background: rgba(52, 199, 89, 0.1);
+            color: #34C759;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .alerts {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .alert {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #007AFF;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert.success {
+            border-left-color: #34C759;
+        }
+
+        .alert.error {
+            border-left-color: #FF3B30;
+        }
+
+        .alert.warning {
+            border-left-color: #FF9500;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1d1d1f;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 122, 255, 0.1);
+            border-top: 4px solid #007AFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6e6e73;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            opacity: 0.3;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .timeframe-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .users-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Load Data</h1>
+            <p>Import users into your timeframes with ease. Upload Excel files and manage your team effortlessly.</p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alerts">
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Timeframe Selection -->
+        {% if not timeframe %}
+        <div class="timeframe-selector">
+            <div class="card">
+                <div style="padding: 32px;">
+                    <h2 class="section-title">Select Timeframe</h2>
+                    <p style="color: #6e6e73; margin-bottom: 32px;">Choose which timeframe you want to load users into.</p>
+                    
+                    {% if timeframes %}
+                        <div class="timeframe-grid">
+                            {% for tf in timeframes %}
+                            <div class="timeframe-card" onclick="selectTimeframe({{ tf.id }})">
+                                <h3>{{ tf.name }}</h3>
+                                <div class="timeframe-info">
+                                    <div class="timeframe-dates">
+                                        <span class="date-badge">{{ tf.start_date.strftime('%b %d, %Y') }}</span>
+                                        <span style="color: #d1d1d6;">→</span>
+                                        <span class="date-badge">{{ tf.end_date.strftime('%b %d, %Y') }}</span>
+                                    </div>
+                                    <p>{{ tf.school.name if tf.school else 'No school assigned' }}</p>
+                                    <p>{{ tf.users.count() if tf.users else 0 }} users loaded</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                            <h3>No timeframes available</h3>
+                            <p>Create a timeframe first to load users into it.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Upload Section -->
+        {% if timeframe %}
+        <div class="upload-section active">
+            <div class="card">
+                <div style="padding: 32px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px;">
+                        <div>
+                            <h2 class="section-title">{{ timeframe.name }}</h2>
+                            <p style="color: #6e6e73;">{{ timeframe.start_date.strftime('%B %d, %Y') }} - {{ timeframe.end_date.strftime('%B %d, %Y') }}</p>
+                        </div>
+                        <a href="{{ url_for('load_data.index') }}" class="btn btn-secondary">
+                            ← Back to Timeframes
+                        </a>
+                    </div>
+
+                    <!-- File Upload Area -->
+                    <form id="uploadForm" action="{{ url_for('load_data.upload_excel', timeframe_id=timeframe.id) }}" method="post" enctype="multipart/form-data">
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-icon">
+                                <svg viewBox="0 0 24 24" fill="currentColor" style="color: #007AFF;">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                </svg>
+                            </div>
+                            <div class="upload-text">
+                                <h3>Drop your Excel file here</h3>
+                                <p>or click to browse from your computer</p>
+                                <input type="file" name="file" id="fileInput" class="file-input" accept=".xlsx,.xls" required>
+                            </div>
+                        </div>
+
+                        <div class="actions">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
+                                </svg>
+                                Choose File
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="uploadBtn" disabled>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
+                                </svg>
+                                Upload & Process
+                            </button>
+                            <a href= "{{ url_for('load_data.download_template') }}" class="btn btn-success">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                </svg>
+                                Download Template
+                            </a>
+                        </div>
+                    </form>
+
+                    <!-- Loading State -->
+                    <div class="loading" id="loadingState">
+                        <div class="spinner"></div>
+                        <p>Processing your file...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Users -->
+            {% if users %}
+            <div class="current-users">
+                <div class="card">
+                    <div style="padding: 32px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+                            <h2 class="section-title">Users in {{ timeframe.name }} ({{ users|length }})</h2>
+                            <a href="{{ url_for('load_data.view_users', timeframe_id=timeframe.id) }}" class="btn btn-primary">
+                                View All Users
+                            </a>
+                        </div>
+                        
+                        <div class="users-grid">
+                            {% for user in users[:6] %}
+                            <div class="user-card">
+                                <div class="user-info">
+                                    <h4>{{ user.name or 'No name' }}</h4>
+                                    <p>{{ user.email }}</p>
+                                    {% if user.student_staff_id %}<p>ID: {{ user.student_staff_id }}</p>{% endif %}
+                                    {% if user.course %}<p>{{ user.course }}</p>{% endif %}
+                                </div>
+                                <div class="user-roles">
+                                    {% for role in user.roles %}
+                                        <span class="role-badge">{{ role.name }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if users|length > 6 %}
+                        <div style="text-align: center; margin-top: 24px;">
+                            <p style="color: #6e6e73;">And {{ users|length - 6 }} more users...</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // File upload functionality
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadForm = document.getElementById('uploadForm');
+        const loadingState = document.getElementById('loadingState');
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                updateUploadButton();
+            }
+        });
+
+        // File selection
+        fileInput.addEventListener('change', updateUploadButton);
+
+        function updateUploadButton() {
+            if (fileInput.files && fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
+                    </svg>
+                    Upload "${file.name}"
+                `;
+            } else {
+                uploadBtn.disabled = true;
+                uploadBtn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
+                    </svg>
+                    Upload & Process
+                `;
+            }
+        }
+
+        // Form submission with loading state
+        uploadForm.addEventListener('submit', () => {
+            loadingState.style.display = 'block';
+            uploadArea.style.display = 'none';
+        });
+
+        // Timeframe selection
+        function selectTimeframe(timeframeId) {
+            window.location.href = `/load_data/select_timeframe/${timeframeId}`;
+        }
+
+        // Auto-hide alerts
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+    </script>
+
+    <style>
+        @keyframes slideOut {
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+    </style>
+</body>
+</html>

@@ -9,6 +9,11 @@ from features.createSchool.createSchoolController import create_school_bp
 from features.educationAdmin.educationAdminDashboard.educationAdminDashboardController import educational_admin_bp
 from features.educationAdmin.manageTimeframe.manageTimeframeController import manage_timeframe_bp
 
+from features.educationAdmin.load_data.loadDataController import load_data_bp
+
+#
+
+
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
@@ -21,6 +26,7 @@ app.register_blueprint(edit_marketing_bp)
 app.register_blueprint(create_school_bp)
 app.register_blueprint(educational_admin_bp)
 app.register_blueprint(manage_timeframe_bp)
+app.register_blueprint(load_data_bp)
 
 @app.route('/')
 def index():

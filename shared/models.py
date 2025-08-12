@@ -11,6 +11,15 @@ user_roles = db.Table('user_roles',
 )
 
 # ------------------------
+# Association Table for Many-to-Many User-Timeframe Relationship
+# ------------------------
+user_timeframes = db.Table('user_timeframes',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('timeframe_id', db.Integer, db.ForeignKey('timeframes.id'), primary_key=True),
+    db.Column('assigned_at', db.DateTime, default=datetime.utcnow)
+)
+
+# ------------------------
 # New Role Model
 # ------------------------
 class Role(db.Model):
@@ -33,6 +42,8 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=True)  # Added for better identification
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(700), nullable=False)
+    course = db.Column(db.String(200), nullable=True)  # Course studying
+    student_staff_id = db.Column(db.String(50), nullable=True)  # Student/Staff ID (not primary key)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationship to School
@@ -40,10 +51,15 @@ class User(db.Model):
 
     # Many-to-Many relationship with roles
     roles = db.relationship('Role', secondary=user_roles, back_populates='users', lazy='dynamic')
+    
+    # Many-to-Many relationship with timeframes
+    timeframes = db.relationship('Timeframe', secondary=user_timeframes, backref='users', lazy='dynamic')
 
     # Other relationships
     photos = db.relationship('MarketingPhoto', backref='uploader', lazy=True)
     projects = db.relationship('Project', backref='creator', lazy=True)  # For coordinators
+
+
 
 class MarketingPhoto(db.Model):
     __tablename__ = 'marketing_photos'
@@ -110,16 +126,16 @@ class School(db.Model):
 class Timeframe(db.Model):
     __tablename__ = 'timeframes'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255),nullable = False)
+    name = db.Column(db.String(255), nullable=False)
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
 
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=False)
 
     # Relationships
     projects = db.relationship('Project', backref='timeframe', lazy=True)
+
 
 class Project(db.Model):
     __tablename__ = 'projects'
