@@ -364,6 +364,90 @@
             margin-bottom: 24px;
         }
 
+        /* Role Selection Styles */
+        .btn-link {
+            background: none;
+            border: none;
+            color: #007AFF;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0;
+            text-decoration: none;
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .role-checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .role-checkbox {
+            display: none;
+        }
+
+        .role-checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            user-select: none;
+            width: 100%;
+        }
+
+        .role-checkbox-label:hover {
+            background: rgba(0, 122, 255, 0.05);
+        }
+
+        .role-checkbox-custom {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d1d6;
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .role-checkbox:checked + .role-checkbox-label .role-checkbox-custom {
+            background: #007AFF;
+            border-color: #007AFF;
+        }
+
+        .role-checkbox:checked + .role-checkbox-label .role-checkbox-custom::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .role-checkbox:checked + .role-checkbox-label {
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .role-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -379,6 +463,10 @@
             }
 
             .users-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .roles-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -456,8 +544,41 @@
                         </a>
                     </div>
 
+                    <!-- Role Selection Section -->
+                    <div class="card" style="margin-bottom: 32px; background: rgba(255, 255, 255, 0.7);">
+                        <div style="padding: 24px;">
+                            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; color: #1d1d1f;">Role Selection</h3>
+                            <p style="color: #6e6e73; font-size: 0.95rem; margin-bottom: 24px;">Select which roles are allowed for this upload. Only users with selected roles will be processed.</p>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                                    <button type="button" class="btn-link" onclick="selectAllRoles()">Select All</button>
+                                    <span style="color: #d1d1d6;">|</span>
+                                    <button type="button" class="btn-link" onclick="selectNoRoles()">Select None</button>
+                                </div>
+                                
+                                <div class="roles-grid" id="rolesGrid">
+                                    {% for role in available_roles %}
+                                    <div class="role-checkbox-item">
+                                        <input type="checkbox" name="allowed_roles" value="{{ role }}" 
+                                               id="role_{{ role.replace(' ', '_') }}" class="role-checkbox"
+                                               {% if loop.index <= 3 %}checked{% endif %}>
+                                        <label for="role_{{ role.replace(' ', '_') }}" class="role-checkbox-label">
+                                            <span class="role-checkbox-custom"></span>
+                                            <span class="role-name">{{ role.title() }}</span>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- File Upload Area -->
                     <form id="uploadForm" action="{{ url_for('load_data.upload_excel', timeframe_id=timeframe.id) }}" method="post" enctype="multipart/form-data">
+                        <!-- Hidden role checkboxes for form submission -->
+                        <div id="hiddenRoleInputs"></div>
+                        
                         <div class="upload-area" id="uploadArea">
                             <div class="upload-icon">
                                 <svg viewBox="0 0 24 24" fill="currentColor" style="color: #007AFF;">
@@ -602,10 +723,46 @@
         }
 
         // Form submission with loading state
-        uploadForm.addEventListener('submit', () => {
+        uploadForm.addEventListener('submit', (e) => {
+            // Check if at least one role is selected
+            const checkedRoles = document.querySelectorAll('.role-checkbox:checked');
+            if (checkedRoles.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one role to allow for this upload.');
+                return;
+            }
+
+            // Update hidden inputs with selected roles
+            updateHiddenRoleInputs();
+            
             loadingState.style.display = 'block';
             uploadArea.style.display = 'none';
         });
+
+        // Role selection functions
+        function selectAllRoles() {
+            const checkboxes = document.querySelectorAll('.role-checkbox');
+            checkboxes.forEach(cb => cb.checked = true);
+        }
+
+        function selectNoRoles() {
+            const checkboxes = document.querySelectorAll('.role-checkbox');
+            checkboxes.forEach(cb => cb.checked = false);
+        }
+
+        function updateHiddenRoleInputs() {
+            const hiddenContainer = document.getElementById('hiddenRoleInputs');
+            hiddenContainer.innerHTML = '';
+            
+            const checkedRoles = document.querySelectorAll('.role-checkbox:checked');
+            checkedRoles.forEach(checkbox => {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'allowed_roles';
+                hiddenInput.value = checkbox.value;
+                hiddenContainer.appendChild(hiddenInput);
+            });
+        }
 
         // Timeframe selection
         function selectTimeframe(timeframeId) {

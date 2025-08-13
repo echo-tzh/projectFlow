@@ -11,6 +11,9 @@ load_data_bp = Blueprint('load_data', __name__, url_prefix='/load_data', templat
 
 ALLOWED_EXTENSIONS = {'xlsx', 'xls'}
 
+# Define all possible roles that can be selected
+ALL_POSSIBLE_ROLES = ['assessor', 'supervisor', 'student', 'academic coordinator', 'subject head']
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -44,12 +47,23 @@ def select_timeframe(timeframe_id):
     return render_template(
         'loadData.html',
         timeframe=timeframe,
-        users=users_in_timeframe
+        users=users_in_timeframe,
+        available_roles=ALL_POSSIBLE_ROLES  # Pass available roles to template
     )
 
 @load_data_bp.route('/upload/<int:timeframe_id>', methods=['POST'])
 def upload_excel(timeframe_id):
     timeframe = Timeframe.query.get_or_404(timeframe_id)
+    
+    # Get selected roles from form checkboxes
+    selected_roles = request.form.getlist('allowed_roles')
+    
+    if not selected_roles:
+        flash('Please select at least one role to allow in the upload', 'error')
+        return redirect(url_for('load_data.select_timeframe', timeframe_id=timeframe_id))
+    
+    # Convert to lowercase for consistent comparison
+    allowed_roles = [role.lower() for role in selected_roles]
     
     if 'file' not in request.files:
         flash('No file selected', 'error')
@@ -72,6 +86,8 @@ def upload_excel(timeframe_id):
             success_count = 0
             error_count = 0
             error_details = []
+            role_skipped_count = 0
+            role_skip_details = []
             
             for index, row in df.iterrows():
                 try:
@@ -86,10 +102,11 @@ def upload_excel(timeframe_id):
                         error_count += 1
                         continue
                     
-                    allowed_roles = ['assessor', 'supervisor', 'student', 'academic coordinator', 'subject head']
+                    # Check if role is allowed - if not, skip this role but continue processing user
                     if role_name.lower() not in allowed_roles:
-                        error_details.append(f'Row {index + 2}: Invalid role "{role_name}"')
-                        error_count += 1
+                        role_skip_details.append(f'Row {index + 2}: Skipped role "{role_name}" for {email} (not in allowed roles)')
+                        role_skipped_count += 1
+                        # Don't process this row, but don't count it as an error
                         continue
                     
                     existing_user = User.query.filter_by(email=email).first()
@@ -130,9 +147,17 @@ def upload_excel(timeframe_id):
             
             db.session.commit()
             
-            flash(f'Successfully processed {success_count} users', 'success')
+            flash(f'Successfully processed {success_count} users with roles: {", ".join(selected_roles)}', 'success')
+            
+            if role_skipped_count > 0:
+                flash(f'{role_skipped_count} role assignments were skipped (roles not allowed)', 'warning')
+                for skip in role_skip_details[:5]:
+                    flash(skip, 'warning')
+                if len(role_skip_details) > 5:
+                    flash(f'... and {len(role_skip_details) - 5} more roles skipped', 'warning')
+            
             if error_count > 0:
-                flash(f'{error_count} errors occurred', 'warning')
+                flash(f'{error_count} rows had errors and were not processed', 'error')
                 for err in error_details[:5]:
                     flash(err, 'error')
                 if len(error_details) > 5:
