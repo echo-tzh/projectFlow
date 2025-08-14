@@ -15,7 +15,12 @@ class Config:
     POSTGRES_HOST = os.environ.get('POSTGRES_HOST') or 'localhost'
     POSTGRES_PORT = int(os.environ.get('POSTGRES_PORT') or 5432)
     POSTGRES_USER = os.environ.get('POSTGRES_USER') or 'postgres'
-    POSTGRES_PASSWORD = os.environ.get('POSTGRES_PASSWORD') or '123' if '123' else '0000'
+    POSTGRES_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
+    if not POSTGRES_PASSWORD:
+        POSTGRES_PASSWORD = '123'
+    if not POSTGRES_PASSWORD:
+        POSTGRES_PASSWORD = '0000'
+
 
     
     # MySQL configuration
