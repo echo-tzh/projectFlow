@@ -12,6 +12,8 @@ from features.educationAdmin.load_data.loadDataController import load_data_bp
 from features.dashboard.dashboardController import universal_dashboard_bp
 
 
+
+
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
