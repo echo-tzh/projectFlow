@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Educational Admin Dashboard</title>
+    <title>{{ current_role_display }} Dashboard</title>
     <style>
         /* Apple-Inspired Styles */
         * {
@@ -125,13 +125,13 @@
         .nav-links {
             display: flex;
             align-items: center;
+            gap: 20px;
         }
 
         .nav-link {
             font-size: 16px;
             color: #666;
             text-decoration: none;
-            margin-right: 20px;
             transition: color 0.2s ease;
         }
         
@@ -162,6 +162,7 @@
             transform: scale(1.05);
         }
 
+        /* Role Selector Styles */
         .role-selector {
             position: relative;
             margin: 0 16px;
@@ -176,11 +177,22 @@
             color: #007AFF;
             cursor: pointer;
             transition: all 0.2s ease;
+            min-width: 150px;
         }
 
         .role-dropdown:hover {
             background: rgba(255, 255, 255, 1);
             transform: translateY(-1px);
+        }
+
+        .role-badge {
+            display: inline-block;
+            background: rgba(0, 122, 255, 0.1);
+            color: #007AFF;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
         }
         
         .logout-btn {
@@ -227,7 +239,7 @@
             margin-bottom: 8px;
         }
         
-        .role-badge {
+        .role-badge-display {
             display: inline-block;
             background: rgba(0, 122, 255, 0.1);
             color: #007AFF;
@@ -342,30 +354,18 @@
             color: #666;
             font-size: 14px;
         }
+
+        /* Role-specific styling for different gradients */
+        .educational_admin .card-icon { background: linear-gradient(45deg, #FF3B30, #FF9500); }
+        .student .card-icon { background: linear-gradient(45deg, #5856D6, #AF52DE); }
+        .supervisor .card-icon { background: linear-gradient(45deg, #007AFF, #5856D6); }
+        .coordinator .card-icon { background: linear-gradient(45deg, #34C759, #00C7BE); }
+        .assessor .card-icon { background: linear-gradient(45deg, #FF9500, #FFCC02); }
+        .subject_head .card-icon { background: linear-gradient(45deg, #007AFF, #34C759); }
         
-        .quick-actions {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 50;
-        }
-        
-        .fab {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+        /* Different gradient for the second card */
+        .card:nth-child(2) .card-icon {
             background: linear-gradient(45deg, #007AFF, #5856D6);
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .fab:hover {
-            transform: scale(1.1) rotate(90deg);
-            box-shadow: 0 12px 30px rgba(0, 122, 255, 0.3);
         }
         
         @keyframes fadeInUp {
@@ -392,31 +392,67 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
-        
-        .admin .card-icon { background: linear-gradient(45deg, #FF3B30, #FF9500); }
-        .manager .card-icon { background: linear-gradient(45deg, #007AFF, #5856D6); }
-        .employee .card-icon { background: linear-gradient(45deg, #34C759, #00C7BE); }
-        .student .card-icon { background: linear-gradient(45deg, #5856D6, #AF52DE); }
-        
-        /* Different gradient for the second card */
-        .card:nth-child(2) .card-icon {
-            background: linear-gradient(45deg, #007AFF, #5856D6);
+
+        .coming-soon-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 60px 32px;
+            border: 2px dashed #e0e0e0;
+            text-align: center;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .coming-soon-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.6;
+        }
+
+        .coming-soon-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .coming-soon-description {
+            color: #888;
+            line-height: 1.5;
         }
     </style>
 </head>
-<body class="admin">
+<body class="{{ current_role }}">
     <header class="header">
         <div class="container">
             <nav class="nav">
-                <a href="{{ url_for('educational_admin.dashboard') }}" class="logo">ProjectFlow</a>
+                <a href="{{ url_for('universal_dashboard.dashboard') }}" class="logo">ProjectFlow</a>
                 <div class="nav-links">
                     <a href="#" class="nav-link">Settings</a>
                     <a href="#" class="nav-link">Help</a>
+                    
+                    <!-- Role Selector - Only show if user has multiple roles -->
+                    {% if user_roles|length > 1 %}
+                        <div class="role-selector">
+                            <select class="role-dropdown" id="roleSelector" onchange="switchRole()">
+                                {% for role in user_roles %}
+                                    <option value="{{ role.name }}" 
+                                            {% if role.name == current_role %}selected{% endif %}>
+                                        {{ role.display_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% else %}
+                        <span class="role-badge">{{ current_role_display }}</span>
+                    {% endif %}
+                    
                     <a href="{{ url_for('login_bp.logout') }}" class="logout-btn">Logout</a>
                 </div>
                 <div class="user-info">
                     <div class="avatar">
-                        {{ user.name[0]|upper }}
+                        {{ user.name[0]|upper if user.name else user.email[0]|upper }}
                     </div>
                 </div>
             </nav>
@@ -448,26 +484,54 @@
 
             <section class="welcome-section">
                 <h1 class="welcome-title">Welcome, {{ school_name }}</h1>
-                <p class="welcome-subtitle">{{ school_name }} Educational Admin</p>
-                <span class="role-badge" id="roleBadge">Educational Admin</span>
+                <p class="welcome-subtitle">{{ school_name }} Dashboard</p>
+                <span class="role-badge-display">{{ current_role_display }}</span>
             </section>
 
-            <div class="dashboard-grid" id="dashboardGrid">
-
-
-                <div class="card" style="animation-delay: 0.1s;">
-                    <div class="card-icon">
-                        <span role="img" aria-label="list">📋</span>
+            <!-- Role-Specific Dashboard Content -->
+            {% if current_role == 'educational_admin' %}
+                <!-- Educational Admin Dashboard -->
+                <div class="dashboard-grid">
+                    <div class="card" style="animation-delay: 0.1s;">
+                        <div class="card-icon">
+                            <span role="img" aria-label="calendar">📅</span>
+                        </div>
+                        <h3 class="card-title">Manage Timeframes</h3>
+                        <p class="card-description">Create and manage academic year timeframes and their schedules.</p>
+                        <a href="{{ url_for('manage_timeframe_bp.manage_timeframes') }}" class="card-action">
+                            Manage Timeframes
+                        </a>
                     </div>
-                    <h3 class="card-title">View All Timeframes</h3>
-                    <p class="card-description">Browse and manage all existing academic year timeframes and their schedules.</p>
 
-                <a href="{{ url_for('manage_timeframe_bp.manage_timeframes') }}" class="card-action">
-                    Manage Timeframes
-                </a>
+
+      
+
+                <!-- Stats Section for Educational Admin 
+
+                {% if stats %}
+                <div class="stats-section">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ stats.total_timeframes or 0 }}</div>
+                        <div class="stat-label">Total Timeframes</div>
+                    </div>
+
+ -->
+                {% endif %}
+               
+
+            {% else %}
+                <!-- Coming Soon for Other Roles -->
+                <div class="dashboard-grid">
+                    <div class="coming-soon-card">
+                        <div class="coming-soon-icon">🚧</div>
+                        <h3 class="coming-soon-title">Dashboard Coming Soon</h3>
+                        <p class="coming-soon-description">
+                            The {{ current_role_display }} dashboard is currently under development. 
+                            We're working hard to bring you an amazing experience!
+                        </p>
+                    </div>
                 </div>
-            </div>
-            
+            {% endif %}
         </div>
     </main>
 
@@ -486,6 +550,40 @@
                 }, 5000);
             });
         });
+
+        // Role switching functionality
+        function switchRole() {
+            const roleSelector = document.getElementById('roleSelector');
+            const selectedRole = roleSelector.value;
+            
+            // Show loading state (optional)
+            roleSelector.disabled = true;
+            
+            fetch('/switch-role', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    role: selectedRole
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirect to dashboard to refresh content
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert(data.message || 'Error switching role');
+                    roleSelector.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error switching role. Please try again.');
+                roleSelector.disabled = false;
+            });
+        }
     </script>
 </body>
 </html>
