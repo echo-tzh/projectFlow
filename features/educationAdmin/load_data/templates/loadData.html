@@ -227,12 +227,39 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(52, 199, 89, 0.3);
         }
+        
+        .btn-warning {
+            background: #FF9500;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e68a00;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 149, 0, 0.3);
+        }
 
         .actions {
             display: flex;
             gap: 16px;
             justify-content: center;
             flex-wrap: wrap;
+        }
+        
+        .notification-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .notification-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
 
         .current-users {
@@ -448,6 +475,41 @@
             color: #1d1d1f;
         }
 
+        /* Email Confirmation Box Styles */
+        .email-confirmation {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: 24px;
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .email-confirmation.show {
+            display: flex;
+        }
+
+        .email-confirmation p {
+            font-size: 0.95rem;
+            color: #4a4a4f;
+        }
+        
+        .email-confirmation .actions {
+            justify-content: flex-start;
+        }
+        
+        .email-form {
+            margin: 0;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -479,7 +541,6 @@
             <p>Import users into timeframes. Upload Excel file to input the data.</p>
         </div>
 
-        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div class="alerts">
@@ -490,7 +551,6 @@
             {% endif %}
         {% endwith %}
 
-        <!-- Timeframe Selection -->
         {% if not timeframe %}
         <div class="timeframe-selector">
             <div class="card">
@@ -529,7 +589,6 @@
         </div>
         {% endif %}
 
-        <!-- Upload Section -->
         {% if timeframe %}
         <div class="upload-section active">
             <div class="card">
@@ -544,7 +603,6 @@
                         </a>
                     </div>
 
-                    <!-- Role Selection Section -->
                     <div class="card" style="margin-bottom: 32px; background: rgba(255, 255, 255, 0.7);">
                         <div style="padding: 24px;">
                             <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; color: #1d1d1f;">Role Selection</h3>
@@ -574,9 +632,7 @@
                         </div>
                     </div>
 
-                    <!-- File Upload Area -->
                     <form id="uploadForm" action="{{ url_for('load_data.upload_excel', timeframe_id=timeframe.id) }}" method="post" enctype="multipart/form-data">
-                        <!-- Hidden role checkboxes for form submission -->
                         <div id="hiddenRoleInputs"></div>
                         
                         <div class="upload-area" id="uploadArea">
@@ -614,7 +670,6 @@
                         </div>
                     </form>
 
-                    <!-- Loading State -->
                     <div class="loading" id="loadingState">
                         <div class="spinner"></div>
                         <p>Processing your file...</p>
@@ -622,16 +677,44 @@
                 </div>
             </div>
 
-            <!-- Current Users -->
             {% if users %}
             <div class="current-users">
                 <div class="card">
                     <div style="padding: 32px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
-                            <h2 class="section-title">Users in {{ timeframe.name }} ({{ users|length }})</h2>
-                            <a href="{{ url_for('load_data.view_users', timeframe_id=timeframe.id) }}" class="btn btn-primary">
-                                View All Users
-                            </a>
+                        <div class="notification-actions">
+                            <div>
+                                <h2 class="section-title">Users in {{ timeframe.name }} ({{ users|length }})</h2>
+                                <p style="color: #6e6e73; font-size: 0.95rem;">Review and send emails to notify all users in this timeframe</p>
+                            </div>
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                <button type="button" class="btn btn-warning" onclick="showEmailConfirmation()">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C2.89,4 20,4.89 20,4Z"/>
+                                    </svg>
+                                    Notify all related users by email
+                                </button>
+                                <a href="{{ url_for('load_data.view_users', timeframe_id=timeframe.id) }}" class="btn btn-primary">
+                                    View All Users
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="email-confirmation" id="emailConfirmation">
+                            <p><strong>📧 Notify all related via Emails</strong></p>
+                            <p>This will send emails to all {{ users|length }} users in this timeframe. Each user will receive their login credentials and system information.</p>
+                            <div class="actions">
+                                <form class="email-form" method="post" action="{{ url_for('load_data.send_welcome_notifications', timeframe_id=timeframe.id) }}">
+                                    <button type="submit" class="btn btn-warning">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                                        </svg>
+                                        Yes, Send Emails
+                                    </button>
+                                </form>
+                                <button type="button" class="btn btn-secondary" onclick="hideEmailConfirmation()">
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
                         
                         <div class="users-grid">
@@ -672,6 +755,7 @@
         const uploadBtn = document.getElementById('uploadBtn');
         const uploadForm = document.getElementById('uploadForm');
         const loadingState = document.getElementById('loadingState');
+        const emailConfirmation = document.getElementById('emailConfirmation');
 
         // Click to upload
         uploadArea.addEventListener('click', () => {
@@ -762,6 +846,15 @@
                 hiddenInput.value = checkbox.value;
                 hiddenContainer.appendChild(hiddenInput);
             });
+        }
+
+        // Email confirmation functions
+        function showEmailConfirmation() {
+            emailConfirmation.classList.add('show');
+        }
+
+        function hideEmailConfirmation() {
+            emailConfirmation.classList.remove('show');
         }
 
         // Timeframe selection

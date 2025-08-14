@@ -43,71 +43,7 @@ def get_current_role(user):
     
     return None
 
-def get_dashboard_data(user, current_role):
-    """Get role-specific dashboard data - STATS ONLY"""
-    data = {
-        'stats': {}
-    }
-    
-    if current_role == 'educational_admin':
-        # Educational Admin specific data
-        school = user.school
-        if school:
-            data['stats'] = {
-                'total_timeframes': Timeframe.query.filter_by(school_id=school.id).count(),
-                'total_projects': Project.query.join(Timeframe).filter(Timeframe.school_id == school.id).count(),
-                'active_users': User.query.filter_by(school_id=school.id).count(),
-                'school_name': school.name
-            }
-    
-    elif current_role == 'student':
-        # Student specific data
-        user_projects = Project.query.join(Timeframe).join(User.timeframes).filter(User.id == user.id).all()
-        data['stats'] = {
-            'my_projects': len(user_projects),
-            'completed_projects': 0,  # You can add completion logic
-            'pending_submissions': 0,  # Add submission logic
-            'current_timeframe': user.timeframes.first().name if user.timeframes.first() else 'No timeframe'
-        }
-    
-    elif current_role == 'supervisor':
-        # Supervisor specific data
-        data['stats'] = {
-            'students_supervised': 0,  # Add logic to count supervised students
-            'projects_to_review': 0,   # Add logic for pending reviews
-            'feedback_given': 0,       # Add logic for feedback count
-            'active_timeframes': user.timeframes.count()
-        }
-    
-    elif current_role == 'coordinator':
-        # Academic Coordinator specific data
-        coordinator_projects = Project.query.filter_by(created_by=user.id).all()
-        data['stats'] = {
-            'projects_created': len(coordinator_projects),
-            'active_projects': len([p for p in coordinator_projects]),  # Add active logic
-            'total_students': 0,  # Add logic to count students in coordinator's projects
-            'timeframes_managed': user.timeframes.count()
-        }
-    
-    elif current_role == 'assessor':
-        # Assessor specific data
-        data['stats'] = {
-            'projects_to_assess': 0,    # Add logic for pending assessments
-            'assessments_completed': 0,  # Add logic for completed assessments
-            'average_score_given': 0,    # Add logic for average scores
-            'active_timeframes': user.timeframes.count()
-        }
-    
-    elif current_role == 'subject_head':
-        # Subject Head specific data
-        data['stats'] = {
-            'subjects_managed': 0,       # Add logic for subjects under management
-            'faculty_supervised': 0,     # Add logic for faculty count
-            'projects_overseen': 0,      # Add logic for projects in subject area
-            'pending_approvals': 0       # Add logic for pending approvals
-        }
-    
-    return data
+
 
 @universal_dashboard_bp.route('/dashboard')
 @login_required
@@ -124,7 +60,7 @@ def dashboard():
                   for role in user.roles]
     
     # Get role-specific dashboard data
-    dashboard_data = get_dashboard_data(user, current_role)
+
     
     # Get school name for display
     school_name = user.school.name if user.school else 'Your Institution'
@@ -135,7 +71,7 @@ def dashboard():
                          current_role_display=next((role.description or role.name for role in user.roles if role.name == current_role), current_role),
                          user_roles=user_roles,
                          school_name=school_name,
-                         stats=dashboard_data['stats'])
+                         )
 
 @universal_dashboard_bp.route('/switch-role', methods=['POST'])
 @login_required

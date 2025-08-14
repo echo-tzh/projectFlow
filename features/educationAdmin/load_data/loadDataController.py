@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file
+from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file, jsonify
 import pandas as pd
 import secrets
 import string
 from werkzeug.security import generate_password_hash
 from shared.models import db, User, Role, Timeframe
+from shared.service.email_service import send_welcome_emails
 import io
 
 # Corrected: Add template_folder to tell Flask where to find templates
@@ -14,17 +15,23 @@ ALLOWED_EXTENSIONS = {'xlsx', 'xls'}
 # Define all possible roles that can be selected
 ALL_POSSIBLE_ROLES = ['assessor', 'supervisor', 'student', 'academic coordinator', 'subject head']
 
+# 🔑 Global dictionary to temporarily hold passwords for new users
+# This is a security compromise to meet the workflow requirement.
+# Passwords are only stored here after upload and are cleared after sending emails.
+passwords_for_email = {}
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def generate_password(length=8):
-    characters = string.ascii_letters + string.digits
+# This is the single, secure function for generating passwords.
+def generate_random_password(length=12):
+    characters = string.ascii_letters + string.digits + string.punctuation
     return ''.join(secrets.choice(characters) for _ in range(length))
 
 def get_or_create_role(role_name):
     role = Role.query.filter_by(name=role_name.lower()).first()
     if not role:
-        role = Role(name=role_name.lower(), description=f"Auto-created role: {role_name}")
+        role = Role(name=role_name.lower(), description=f"{role_name}")
         db.session.add(role)
         db.session.flush()
     return role
@@ -35,7 +42,6 @@ def index():
     if latest_timeframe:
         return redirect(url_for('load_data.select_timeframe', timeframe_id=latest_timeframe.id))
     flash('No timeframes available', 'warning')
-    # Corrected: Use relative path
     return render_template('noTimeframes.html')
 
 @load_data_bp.route('/select_timeframe/<int:timeframe_id>')
@@ -43,26 +49,22 @@ def select_timeframe(timeframe_id):
     timeframe = Timeframe.query.get_or_404(timeframe_id)
     users_in_timeframe = timeframe.users
     
-    # Corrected: Use relative path
     return render_template(
         'loadData.html',
         timeframe=timeframe,
         users=users_in_timeframe,
-        available_roles=ALL_POSSIBLE_ROLES  # Pass available roles to template
+        available_roles=ALL_POSSIBLE_ROLES
     )
 
 @load_data_bp.route('/upload/<int:timeframe_id>', methods=['POST'])
 def upload_excel(timeframe_id):
     timeframe = Timeframe.query.get_or_404(timeframe_id)
-    
-    # Get selected roles from form checkboxes
     selected_roles = request.form.getlist('allowed_roles')
     
     if not selected_roles:
         flash('Please select at least one role to allow in the upload', 'error')
         return redirect(url_for('load_data.select_timeframe', timeframe_id=timeframe_id))
     
-    # Convert to lowercase for consistent comparison
     allowed_roles = [role.lower() for role in selected_roles]
     
     if 'file' not in request.files:
@@ -88,6 +90,9 @@ def upload_excel(timeframe_id):
             error_details = []
             role_skipped_count = 0
             role_skip_details = []
+
+            # ➡️ Clear any old passwords from the dictionary
+            passwords_for_email.clear()
             
             for index, row in df.iterrows():
                 try:
@@ -102,11 +107,9 @@ def upload_excel(timeframe_id):
                         error_count += 1
                         continue
                     
-                    # Check if role is allowed - if not, skip this role but continue processing user
                     if role_name.lower() not in allowed_roles:
                         role_skip_details.append(f'Row {index + 2}: Skipped role "{role_name}" for {email} (not in allowed roles)')
                         role_skipped_count += 1
-                        # Don't process this row, but don't count it as an error
                         continue
                     
                     existing_user = User.query.filter_by(email=email).first()
@@ -122,8 +125,11 @@ def upload_excel(timeframe_id):
                         if not any(r.id == role.id for r in existing_user.roles):
                             existing_user.roles.append(role)
                     else:
-                        password = generate_password()
-                        password_hash = generate_password_hash(password)
+                        # 🔑 Generate password ONCE and store it
+                        temp_password = generate_random_password()
+                        passwords_for_email[email] = temp_password
+                        
+                        password_hash = generate_password_hash(temp_password)
                         new_user = User(
                             name=name,
                             email=email,
@@ -138,7 +144,7 @@ def upload_excel(timeframe_id):
                         role = get_or_create_role(role_name)
                         new_user.roles.append(role)
                         
-                        flash(f'New user created: {email} with password: {password}', 'info')
+                        flash(f'New user created: {email}', 'info')
                     
                     success_count += 1
                 except Exception as e:
@@ -171,6 +177,36 @@ def upload_excel(timeframe_id):
     
     return redirect(url_for('load_data.select_timeframe', timeframe_id=timeframe_id))
 
+
+#Pass the passwordd over to the send_welcome_emails method
+@load_data_bp.route('/send_welcome_emails/<int:timeframe_id>', methods=['POST'])
+def send_welcome_notifications(timeframe_id):
+    """Send welcome emails to all users in the specified timeframe using the pre-generated passwords."""
+    try:
+        timeframe = Timeframe.query.get_or_404(timeframe_id)
+        users_in_timeframe = timeframe.users
+
+
+        # 📧 Step 1: Call the email service with the pre-generated passwords
+        # This will send the emails using the passwords generated during the upload.
+        result = send_welcome_emails(users_in_timeframe, timeframe, passwords=passwords_for_email)
+        
+        if result['success']:
+            flash(f'Successfully sent welcome emails to {result["sent_count"]} users!', 'success')
+            if result['failed_count'] > 0:
+                flash(f'{result["failed_count"]} emails failed to send. Check logs for details.', 'warning')
+        else:
+            flash(f'Failed to send emails: {result["error"]}', 'error')
+        
+        # 🔒 Security step: Clear the passwords from memory after sending emails
+        passwords_for_email.clear()
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error sending emails: {str(e)}', 'error')
+    
+    return redirect(url_for('load_data.select_timeframe', timeframe_id=timeframe_id))
+
 @load_data_bp.route('/view/<int:timeframe_id>')
 def view_users(timeframe_id):
     timeframe = Timeframe.query.get_or_404(timeframe_id)
@@ -181,7 +217,6 @@ def view_users(timeframe_id):
         for role in user.roles:
             users_by_role.setdefault(role.name, []).append(user)
     
-    # Corrected: Use relative path
     return render_template(
         'viewUsers.html',
         timeframe=timeframe,
@@ -192,21 +227,16 @@ def view_users(timeframe_id):
 @load_data_bp.route('/download_template')
 def download_template():
     """Generates and serves a blank Excel template for user import."""
-    # Define the required column headers
     columns = ['ID', 'name', 'course studying', 'email', 'role']
 
-    # Create an empty DataFrame with the specified columns
     df = pd.DataFrame(columns=columns)
 
-    # Use an in-memory byte stream to save the Excel file
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=False, sheet_name='Users')
 
-    # Move the stream position to the beginning before sending
     output.seek(0)
 
-    # Use send_file to serve the file for download
     return send_file(
         output,
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
