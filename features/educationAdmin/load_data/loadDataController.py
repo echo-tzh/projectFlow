@@ -187,7 +187,7 @@ def send_welcome_notifications(timeframe_id):
         users_in_timeframe = timeframe.users
 
 
-        # 📧 Step 1: Call the email service with the pre-generated passwords
+        # Step 1: Call the email service with the pre-generated passwords
         # This will send the emails using the passwords generated during the upload.
         result = send_welcome_emails(users_in_timeframe, timeframe, passwords=passwords_for_email)
         

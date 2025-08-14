@@ -1,7 +1,7 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from flask import current_app
+
 import logging
 from typing import List, Dict, Any
 import os
@@ -51,19 +51,19 @@ class EmailService:
             logger.error(f"Failed to send email to {to_email}: {str(e)}")
             return False
 
-def generate_welcome_email_content(user, timeframe, password=None) -> Dict[str, str]:
+def generate_welcome_email_content(user, timeframe, school_name, password=None) -> Dict[str, str]:
     """Generate welcome email content for a user"""
     
     # Get user's roles
     roles = ", ".join([role.name.title() for role in user.roles])
     
-    subject = f"Welcome! You are eligible for - {timeframe.name} Final Year Project"
+    subject = f"Welcome to {school_name} - {timeframe.name} Final Year Project"
     
     # Text version
     text_body = f"""
 Hello {user.name or user.email},
 
-Welcome to ProjectFlow! You have been added to the timeframe: {timeframe.name}
+Welcome to ProjectFlow at {school_name}! You are eligible for Final Year Project for {timeframe.name}
 
 Your Account Details:
 - Email: {user.email}*
@@ -71,6 +71,7 @@ Your Account Details:
 - Student/Staff ID: {user.student_staff_id or 'Not specified'}
 - Course: {user.course or 'Not specified'}
 - Role(s): {roles}
+- Institution: {school_name}
 - Timeframe: {timeframe.name}
 - Period: {timeframe.start_date.strftime('%B %d, %Y')} - {timeframe.end_date.strftime('%B %d, %Y')}
 
@@ -86,24 +87,31 @@ Your login password is: {password}
 
 
 Best regards,
-ProjectFlow 
+ProjectFlow Team
+{school_name}
 """
-    
+    else:
+        text_body += f"""
 
+
+Best regards,
+ProjectFlow Team
+{school_name}
+"""
     
     return {
         'subject': subject,
         'text_body': text_body,
-        
     }
 
-def send_welcome_emails(users: List, timeframe, passwords: Dict = None) -> Dict[str, Any]:
+def send_welcome_emails(users: List, timeframe, school_name, passwords: Dict = None) -> Dict[str, Any]:
     """
     Send welcome emails to a list of users
     
     Args:
         users: List of User objects
         timeframe: Timeframe object
+        school_name: Name of the school/institution
         passwords: Optional dict mapping user emails to their passwords
     
     Returns:
@@ -130,7 +138,7 @@ def send_welcome_emails(users: List, timeframe, passwords: Dict = None) -> Dict[
             password = passwords.get(user.email) if passwords else None
             
             # Generate email content
-            email_content = generate_welcome_email_content(user, timeframe, password)
+            email_content = generate_welcome_email_content(user, timeframe, school_name, password)
             
             # Send email
             success = email_service.send_email(
