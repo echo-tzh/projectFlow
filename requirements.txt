@@ -367,7 +367,7 @@ websocket-client
 Werkzeug
 whatthepatch
 wheel==0.44.0
-widgetsnbextension
+widgetsnbextensio
 wrapt
 wurlitzer
 xarray

@@ -30,7 +30,7 @@ def login():
                 session['role'] = None
                 
             #flash('Login successful!', 'success')
-            return redirect(url_for('educational_admin.dashboard'))
+            return redirect(url_for('universal_dashboard.dashboard'))
         else:
             # For security, use a generic error message for both invalid email and password.
             flash('Invalid email or password.', 'danger')

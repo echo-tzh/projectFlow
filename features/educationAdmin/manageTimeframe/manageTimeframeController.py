@@ -43,7 +43,7 @@ def manage_timeframes():
     
     except Exception as e:
         flash(f'Error loading timeframes: {str(e)}', 'error')
-        return redirect(url_for('educational_admin.dashboard'))
+        return redirect(url_for('universal_dashboard.dashboard'))
 
 
 @manage_timeframe_bp.route('/create-timeframe', methods=['POST'])
