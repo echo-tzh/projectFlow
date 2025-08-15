@@ -4,7 +4,6 @@ import secrets
 import string
 from werkzeug.security import generate_password_hash
 from shared.models import db, User, Role, Timeframe
-from shared.service.email_service import send_welcome_emails
 import io
 
 # Corrected: Add template_folder to tell Flask where to find templates
@@ -78,7 +77,8 @@ def upload_excel(timeframe_id):
     
     if file and allowed_file(file.filename):
         try:
-            df = pd.read_excel(file)
+            # Read Excel file and ensure ID column is treated as string to avoid .0 issues
+            df = pd.read_excel(file, dtype={'ID': str})
             required_columns = ['ID', 'name', 'course studying', 'email', 'role']
             missing_columns = [col for col in required_columns if col not in df.columns]
             if missing_columns:
@@ -174,36 +174,6 @@ def upload_excel(timeframe_id):
             flash(f'Error processing file: {str(e)}', 'error')
     else:
         flash('Invalid file type. Please upload an Excel file (.xlsx or .xls)', 'error')
-    
-    return redirect(url_for('load_data.select_timeframe', timeframe_id=timeframe_id))
-
-
-#Pass the passwordd over to the send_welcome_emails method
-@load_data_bp.route('/send_welcome_emails/<int:timeframe_id>', methods=['POST'])
-def send_welcome_notifications(timeframe_id):
-    """Send welcome emails to all users in the specified timeframe using the pre-generated passwords."""
-    try:
-        timeframe = Timeframe.query.get_or_404(timeframe_id)
-        users_in_timeframe = timeframe.users
-
-
-        # 📧 Step 1: Call the email service with the pre-generated passwords
-        # This will send the emails using the passwords generated during the upload.
-        result = send_welcome_emails(users_in_timeframe, timeframe, passwords=passwords_for_email)
-        
-        if result['success']:
-            flash(f'Successfully sent welcome emails to {result["sent_count"]} users!', 'success')
-            if result['failed_count'] > 0:
-                flash(f'{result["failed_count"]} emails failed to send. Check logs for details.', 'warning')
-        else:
-            flash(f'Failed to send emails: {result["error"]}', 'error')
-        
-        # 🔒 Security step: Clear the passwords from memory after sending emails
-        passwords_for_email.clear()
-        
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error sending emails: {str(e)}', 'error')
     
     return redirect(url_for('load_data.select_timeframe', timeframe_id=timeframe_id))
 

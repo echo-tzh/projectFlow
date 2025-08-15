@@ -10,6 +10,7 @@ from features.createSchool.createSchoolController import create_school_bp
 from features.educationAdmin.manageTimeframe.manageTimeframeController import manage_timeframe_bp
 from features.educationAdmin.load_data.loadDataController import load_data_bp
 from features.dashboard.dashboardController import universal_dashboard_bp
+from features.educationAdmin.load_data.sendWelcomeEmailController import send_welcome_email_bp
 
 
 
@@ -28,7 +29,7 @@ app.register_blueprint(create_school_bp)
 app.register_blueprint(manage_timeframe_bp)
 app.register_blueprint(load_data_bp)
 app.register_blueprint(universal_dashboard_bp)
-
+app.register_blueprint(send_welcome_email_bp)
 @app.route('/')
 def index():
     return redirect(url_for('marketing_bp.marketing'))

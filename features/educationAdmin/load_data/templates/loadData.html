@@ -701,8 +701,8 @@
                             <p><strong>📧 Notify all related via Emails</strong></p>
                             <p>This will send emails to all {{ users|length }} users in this timeframe. Each user will receive their login credentials and system information.</p>
                             <div class="actions">
-                                <form class="email-form" method="post" action="{{ url_for('load_data.send_welcome_notifications', timeframe_id=timeframe.id) }}">
-                                    <button type="submit" class="btn btn-warning">
+                                <form class="email-form" id="emailForm" method="post" action="{{ url_for('send_welcome_email.send_welcome_notifications', timeframe_id=timeframe.id) }}">
+                                    <button type="submit" class="btn btn-warning" id="sendEmailBtn">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                             <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
                                         </svg>
@@ -713,6 +713,12 @@
                                     Cancel
                                 </button>
                             </div>
+                        </div>
+
+                        <div class="loading" id="emailLoadingState" style="display: none;">
+                            <div class="spinner"></div>
+                            <p>Sending emails to {{ users|length }} users...</p>
+                            <p style="font-size: 0.9em; color: #6e6e73; margin-top: 8px;">This may take a few moments</p>
                         </div>
                         
                         <div class="users-grid">
@@ -754,6 +760,9 @@
         const uploadForm = document.getElementById('uploadForm');
         const loadingState = document.getElementById('loadingState');
         const emailConfirmation = document.getElementById('emailConfirmation');
+        const emailForm = document.getElementById('emailForm');
+        const emailLoadingState = document.getElementById('emailLoadingState');
+        const sendEmailBtn = document.getElementById('sendEmailBtn');
 
         // Click to upload
         uploadArea.addEventListener('click', () => {
@@ -821,6 +830,20 @@
             uploadArea.style.display = 'none';
         });
 
+        // Email form submission with loading state
+        emailForm.addEventListener('submit', (e) => {
+            // Show loading state
+            emailLoadingState.style.display = 'block';
+            emailConfirmation.style.display = 'none';
+            
+            // Disable the button to prevent double submission
+            sendEmailBtn.disabled = true;
+            sendEmailBtn.innerHTML = `
+                <div class="spinner" style="width: 16px; height: 16px; margin-right: 8px;"></div>
+                Sending...
+            `;
+        });
+
         // Role selection functions
         function selectAllRoles() {
             const checkboxes = document.querySelectorAll('.role-checkbox');
@@ -849,10 +872,30 @@
         // Email confirmation functions
         function showEmailConfirmation() {
             emailConfirmation.classList.add('show');
+            // Reset email form state in case user canceled previously
+            emailLoadingState.style.display = 'none';
+            emailConfirmation.style.display = 'block';
+            sendEmailBtn.disabled = false;
+            sendEmailBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                </svg>
+                Yes, Send Emails
+            `;
         }
 
         function hideEmailConfirmation() {
             emailConfirmation.classList.remove('show');
+            // Reset states
+            emailLoadingState.style.display = 'none';
+            emailConfirmation.style.display = 'block';
+            sendEmailBtn.disabled = false;
+            sendEmailBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                </svg>
+                Yes, Send Emails
+            `;
         }
 
         // Timeframe selection
