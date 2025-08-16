@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Outgoing Email - ProjectFlow</title>
+    <style>
+        /* Same CSS structure as your dashboard - simplified for email setup */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-checkbox {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .flash-messages {
+            margin-bottom: 2rem;
+        }
+
+        .flash-message {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .flash-message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .flash-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .flash-message.warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .test-section {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .test-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+
+        .help-text {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        .config-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f1f5f9;
+            border-radius: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-active {
+            background: #10b981;
+        }
+
+        .status-inactive {
+            background: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .main-content {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="{{ url_for('universal_dashboard.dashboard') }}" class="logo">ProjectFlow</a>
+            <a href="{{ url_for('universal_dashboard.dashboard') }}" class="back-btn">← Back to Dashboard</a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                <span class="flash-icon">
+                    {% if category == 'success' %}✅
+                    {% elif category == 'error' %}❌
+                    {% elif category == 'warning' %}⚠️
+                    {% else %}ℹ️{% endif %}
+                </span>
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Setup Outgoing Email</h1>
+            <p class="page-subtitle">Configure SMTP settings for {{ school.name }}</p>
+        </div>
+
+        <!-- Email Configuration Form -->
+        <div class="card">
+            <!-- Configuration Status -->
+            {% if email_config %}
+            <div class="config-status">
+                <div class="status-indicator status-active"></div>
+                <span><strong>Email configured:</strong> {{ email_config.from_email }} ({{ email_config.smtp_server }})</span>
+            </div>
+            {% else %}
+            <div class="config-status">
+                <div class="status-indicator status-inactive"></div>
+                <span><strong>No email configuration found.</strong> Please set up your SMTP settings below.</span>
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('setup_email_bp.save_email_config') }}" id="emailConfigForm">
+                <!-- SMTP Server Settings -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="smtp_server">SMTP Server <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="smtp_server" name="smtp_server" 
+                               value="{{ email_config.smtp_server if email_config else 'smtp.gmail.com' }}" required>
+                        <div class="help-text">e.g., smtp.gmail.com, smtp.outlook.com</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="smtp_port">SMTP Port <span class="required">*</span></label>
+                        <input type="number" class="form-input" id="smtp_port" name="smtp_port" 
+                               value="{{ email_config.smtp_port if email_config else '587' }}" required>
+                        <div class="help-text">Usually 587 (TLS) or 465 (SSL)</div>
+                    </div>
+                </div>
+
+                <!-- Authentication -->
+                <div class="form-group">
+                    <label class="form-label" for="smtp_username">SMTP Username <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="smtp_username" name="smtp_username" 
+                           value="{{ email_config.smtp_username if email_config else '' }}" required>
+                    <div class="help-text">Usually your email address</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="smtp_password">SMTP Password <span class="required">*</span></label>
+                    <input type="password" class="form-input" id="smtp_password" name="smtp_password" 
+                           value="{{ email_config.smtp_password if email_config else '' }}" required>
+                    <div class="help-text">For Gmail, use an App Password instead of your regular password</div>
+                </div>
+
+                <!-- From Email Settings -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="from_email">From Email <span class="required">*</span></label>
+                        <input type="email" class="form-input" id="from_email" name="from_email" 
+                               value="{{ email_config.from_email if email_config else '' }}" required>
+                        <div class="help-text">Email address that appears in the "From" field</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="from_name">From Name</label>
+                        <input type="text" class="form-input" id="from_name" name="from_name" 
+                               value="{{ email_config.from_name if email_config else 'ProjectFlow Team' }}">
+                        <div class="help-text">Name that appears in the "From" field</div>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" class="form-checkbox" id="use_tls" name="use_tls" 
+                                   {% if email_config and email_config.use_tls %}checked{% elif not email_config %}checked{% endif %}>
+                            <label class="form-label" for="use_tls">Use TLS</label>
+                        </div>
+                        <div class="help-text">Recommended for most SMTP servers</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" class="form-checkbox" id="use_ssl" name="use_ssl" 
+                                   {% if email_config and email_config.use_ssl %}checked{% endif %}>
+                            <label class="form-label" for="use_ssl">Use SSL</label>
+                        </div>
+                        <div class="help-text">Alternative to TLS (usually port 465)</div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">
+                        {% if email_config %}Update Configuration{% else %}Save Configuration{% endif %}
+                    </button>
+                    {% if email_config %}
+                    <button type="button" class="btn btn-danger" onclick="deleteConfig()">Delete Configuration</button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+
+        <!-- Test Email Section -->
+        {% if email_config %}
+        <div class="card">
+            <div class="test-section">
+                <h3 class="test-title">Test Email Configuration</h3>
+                <div class="form-group">
+                    <label class="form-label" for="test_email">Test Email Address</label>
+                    <input type="email" class="form-input" id="test_email" name="test_email" 
+                           placeholder="Enter email to send test message">
+                    <div class="help-text">We'll send a test email to verify your configuration</div>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="sendTestEmail()">Send Test Email</button>
+            </div>
+        </div>
+        {% endif %}
+    </main>
+
+    <!-- Delete Confirmation Form -->
+    <form id="deleteForm" method="POST" action="{{ url_for('setup_email_bp.delete_email_config') }}" style="display: none;">
+    </form>
+
+    <script>
+        function deleteConfig() {
+            if (confirm('Are you sure you want to delete this email configuration? This action cannot be undone.')) {
+                document.getElementById('deleteForm').submit();
+            }
+        }
+
+        function sendTestEmail() {
+            const testEmail = document.getElementById('test_email').value;
+            if (!testEmail) {
+                alert('Please enter a test email address.');
+                return;
+            }
+
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Sending...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('test_email', testEmail);
+
+            fetch('{{ url_for("setup_email_bp.test_email_config") }}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error testing email configuration. Please try again.');
+            })
+            .finally(() => {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            });
+        }
+
+        // Auto-hide flash messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(message) {
+                setTimeout(function() {
+                    if (message.parentElement) {
+                        message.style.opacity = '0';
+                        setTimeout(function() {
+                            message.remove();
+                        }, 300);
+                    }
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>

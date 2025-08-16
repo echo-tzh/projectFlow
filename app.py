@@ -6,14 +6,11 @@ from features.marketing.marketingController import marketing_bp
 from features.editMarketing.editMarketingController import edit_marketing_bp
 from flask_cors import CORS
 from features.createSchool.createSchoolController import create_school_bp
-
 from features.educationAdmin.manageTimeframe.manageTimeframeController import manage_timeframe_bp
 from features.educationAdmin.load_data.loadDataController import load_data_bp
 from features.dashboard.dashboardController import universal_dashboard_bp
 from features.educationAdmin.load_data.sendWelcomeEmailController import send_welcome_email_bp
-
-
-
+from features.educationAdmin.setupEmail.setupEmailController import setup_email_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -25,11 +22,13 @@ app.register_blueprint(login_bp)
 app.register_blueprint(marketing_bp)
 app.register_blueprint(edit_marketing_bp)
 app.register_blueprint(create_school_bp)
- # Corrected: Registered the blueprint
+# Corrected: Registered the blueprint
 app.register_blueprint(manage_timeframe_bp)
 app.register_blueprint(load_data_bp)
 app.register_blueprint(universal_dashboard_bp)
 app.register_blueprint(send_welcome_email_bp)
+app.register_blueprint(setup_email_bp)
+
 @app.route('/')
 def index():
     return redirect(url_for('marketing_bp.marketing'))

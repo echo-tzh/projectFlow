@@ -34,6 +34,35 @@ class Role(db.Model):
     users = db.relationship('User', secondary=user_roles, back_populates='roles', lazy='dynamic')
 
 # ------------------------
+# Email Configuration Model
+# ------------------------
+class EmailConfig(db.Model):
+    __tablename__ = 'email_configs'
+    id = db.Column(db.Integer, primary_key=True)
+    smtp_server = db.Column(db.String(255), nullable=False, default='smtp.gmail.com')
+    smtp_port = db.Column(db.Integer, nullable=False, default=587)
+    smtp_username = db.Column(db.String(255), nullable=False)
+    smtp_password = db.Column(db.String(500), nullable=False)  # Should be encrypted in production
+    from_email = db.Column(db.String(255), nullable=False)
+    from_name = db.Column(db.String(100), nullable=True, default='ProjectFlow Team')
+    
+    # Additional settings
+    use_tls = db.Column(db.Boolean, default=True)
+    use_ssl = db.Column(db.Boolean, default=False)
+    
+    # Tie to school
+    school_id = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=False)
+    
+    # Metadata
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    
+    def __repr__(self):
+        return f'<EmailConfig {self.from_email} - {self.school.name if self.school else "No School"}>'
+
+# ------------------------
 # Updated Models
 # ------------------------
 class User(db.Model):
@@ -58,6 +87,7 @@ class User(db.Model):
     # Other relationships
     photos = db.relationship('MarketingPhoto', backref='uploader', lazy=True)
     projects = db.relationship('Project', backref='creator', lazy=True)  # For coordinators
+    email_configs = db.relationship('EmailConfig', backref='creator', lazy=True)
 
 
 
@@ -122,6 +152,7 @@ class School(db.Model):
     # Relationships
     users = db.relationship('User', backref='school', lazy=True)
     timeframes = db.relationship('Timeframe', backref='school', lazy=True)
+    email_config = db.relationship('EmailConfig', backref='school', lazy=True)
 
 class Timeframe(db.Model):
     __tablename__ = 'timeframes'
