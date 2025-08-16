@@ -593,7 +593,7 @@
     <div class="container">
         <div class="header">
             <h1>Load Data</h1>
-            <p>Import users into timeframes. Upload Excel file to input the data.</p>
+            <p>Import users into Course Term. Upload Excel file to input the data.</p>
         </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -654,7 +654,7 @@
                             <p style="color: #6e6e73;">{{ timeframe.start_date.strftime('%B %d, %Y') }} - {{ timeframe.end_date.strftime('%B %d, %Y') }}</p>
                         </div>
                         <a href="{{ url_for('manage_timeframes_redirect') }}" class="btn btn-secondary">
-                            ← Back to Timeframes
+                            ← Back to Course Term
                         </a>
                     </div>
 
