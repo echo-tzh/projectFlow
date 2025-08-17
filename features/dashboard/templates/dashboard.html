@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -92,6 +93,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -121,7 +123,7 @@
             color: #007AFF;
             text-decoration: none;
         }
-        
+
         .nav-links {
             display: flex;
             align-items: center;
@@ -134,7 +136,7 @@
             text-decoration: none;
             transition: color 0.2s ease;
         }
-        
+
         .nav-link:hover {
             color: #007AFF;
         }
@@ -167,7 +169,7 @@
             position: relative;
             margin: 0 16px;
         }
-        
+
         .role-dropdown {
             background: rgba(255, 255, 255, 0.9);
             border: 1px solid #e0e0e0;
@@ -194,7 +196,7 @@
             font-size: 14px;
             font-weight: 500;
         }
-        
+
         .logout-btn {
             background: rgba(0, 122, 255, 0.05);
             color: #007AFF;
@@ -206,23 +208,23 @@
             text-decoration: none;
             transition: all 0.2s ease;
         }
-        
+
         .logout-btn:hover {
             background: rgba(0, 122, 255, 0.1);
             transform: translateY(-1px);
         }
-        
+
         .main-content {
             padding: 40px 0;
         }
-        
+
         .welcome-section {
             text-align: center;
             margin-bottom: 60px;
             opacity: 0;
             animation: fadeInUp 0.8s ease forwards;
         }
-        
+
         .welcome-title {
             font-size: 48px;
             font-weight: 700;
@@ -232,13 +234,13 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
+
         .welcome-subtitle {
             font-size: 20px;
             color: #888;
             margin-bottom: 8px;
         }
-        
+
         .role-badge-display {
             display: inline-block;
             background: rgba(0, 122, 255, 0.1);
@@ -248,7 +250,7 @@
             font-size: 14px;
             font-weight: 500;
         }
-        
+
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -267,16 +269,24 @@
             opacity: 0;
             animation: fadeInUp 0.8s ease forwards;
         }
-        
-        .card:nth-child(2) { animation-delay: 0.1s; }
-        .card:nth-child(3) { animation-delay: 0.2s; }
-        .card:nth-child(4) { animation-delay: 0.3s; }
-        
+
+        .card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
         .card:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
         }
-        
+
         .card-icon {
             width: 50px;
             height: 50px;
@@ -289,19 +299,19 @@
             color: white;
             background: linear-gradient(45deg, #FF3B30, #FF9500);
         }
-        
+
         .card-title {
             font-size: 20px;
             font-weight: 600;
             margin-bottom: 10px;
         }
-        
+
         .card-description {
             color: #888;
             line-height: 1.5;
             margin-bottom: 20px;
         }
-        
+
         .card-action {
             background: #007AFF;
             color: white;
@@ -314,20 +324,20 @@
             text-decoration: none;
             display: inline-block;
         }
-        
+
         .card-action:hover {
             background: #0056CC;
             transform: translateY(-1px);
             color: white;
         }
-        
+
         .stats-section {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-top: 40px;
         }
-        
+
         .stat-card {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(20px);
@@ -338,56 +348,74 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             transition: transform 0.2s ease;
         }
-        
+
         .stat-card:hover {
             transform: translateY(-4px);
         }
-        
+
         .stat-number {
             font-size: 28px;
             font-weight: 700;
             color: #007AFF;
             margin-bottom: 8px;
         }
-        
+
         .stat-label {
             color: #666;
             font-size: 14px;
         }
 
         /* Role-specific styling for different gradients */
-        .educational_admin .card-icon { background: linear-gradient(45deg, #FF3B30, #FF9500); }
-        .student .card-icon { background: linear-gradient(45deg, #5856D6, #AF52DE); }
-        .supervisor .card-icon { background: linear-gradient(45deg, #007AFF, #5856D6); }
-        .coordinator .card-icon { background: linear-gradient(45deg, #34C759, #00C7BE); }
-        .assessor .card-icon { background: linear-gradient(45deg, #FF9500, #FFCC02); }
-        .subject_head .card-icon { background: linear-gradient(45deg, #007AFF, #34C759); }
-        
+        .educational_admin .card-icon {
+            background: linear-gradient(45deg, #FF3B30, #FF9500);
+        }
+
+        .student .card-icon {
+            background: linear-gradient(45deg, #5856D6, #AF52DE);
+        }
+
+        .supervisor .card-icon {
+            background: linear-gradient(45deg, #007AFF, #5856D6);
+        }
+
+        .coordinator .card-icon {
+            background: linear-gradient(45deg, #34C759, #00C7BE);
+        }
+
+        .assessor .card-icon {
+            background: linear-gradient(45deg, #FF9500, #FFCC02);
+        }
+
+        .subject_head .card-icon {
+            background: linear-gradient(45deg, #007AFF, #34C759);
+        }
+
         /* Different gradient for the second card */
         .card:nth-child(2) .card-icon {
             background: linear-gradient(45deg, #007AFF, #5856D6);
         }
-        
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
+
         @media (max-width: 768px) {
             .welcome-title {
                 font-size: 32px;
             }
-            
+
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .stats-section {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -423,157 +451,197 @@
         }
     </style>
 </head>
+
 <body class="{{ current_role }}">
-<header class="header">
-<div class="container">
-<nav class="nav">
-<a href="{{ url_for('universal_dashboard.dashboard') }}" class="logo">ProjectFlow</a>
-<div class="nav-links">
-<a href="#" class="nav-link">Settings</a>
-<a href="#" class="nav-link">Help</a>
- {% if user_roles|length > 1 %}
-<div class="role-selector">
-<select class="role-dropdown" id="roleSelector" onchange="switchRole()">
- {% for role in user_roles %}
-<option value="{{ role.name }}"
-{% if role.name == current_role %}selected{% endif %}>
- {{ role.display_name }}
-</option>
- {% endfor %}
-</select>
-</div>
- {% else %}
-<span class="role-badge">{{ current_role_display }}</span>
- {% endif %}
-<a href="{{ url_for('login_bp.logout') }}" class="logout-btn">Logout</a>
-</div>
-<div class="user-info">
-<div class="avatar">
- {{ user.name[0]|upper if user.name else user.email[0]|upper }}
-</div>
-</div>
-</nav>
-</div>
-</header>
-<main class="main-content">
-<div class="container">
- {% with messages = get_flashed_messages(with_categories=true) %}
- {% if messages %}
-<div class="flash-messages">
- {% for category, message in messages %}
-<div class="flash-message {{ category }}">
-<span class="flash-icon">
- {% if category == 'success' %}
- ✅
- {% elif category == 'error' %}
- ❌
- {% elif category == 'warning' %}
- ⚠️
- {% else %}ℹ️
- {% endif %}
-</span>
-<span>{{ message }}</span>
-<button class="flash-close" onclick="this.parentElement.remove()">×</button>
-</div>
- {% endfor %}
-</div>
- {% endif %}
- {% endwith %}
-<section class="welcome-section">
-<h1 class="welcome-title">
- Welcome,
- {% if user.school and user.school.name %}
- {{ user.school.name }}
- {% else %}
- {{ user.name }}
- {% endif %}
-</h1>
-<p class="welcome-subtitle">{{ current_role_display }} Dashboard</p>
-<span class="role-badge-display">{{ current_role_display }}</span>
-</section>
- {% if current_role == 'educational_admin' %}
-<div class="dashboard-grid">
-<div class="card" style="animation-delay: 0.1s;">
-<div class="card-icon">
-<span role="img" aria-label="calendar">📅</span>
-</div>
-<h3 class="card-title">Manage Course Term</h3>
-<p class="card-description">Create and manage course terms.</p>
-<a href="{{ url_for('manage_timeframe_bp.manage_timeframes') }}" class="card-action">
- Manage Course Term
-</a>
-</div>
-<div class="card" style="animation-delay: 0.2s;">
-<div class="card-icon">
-<span role="img" aria-label="email">📧</span>
-</div>
-<h3 class="card-title">Setup Outgoing Email</h3>
-<p class="card-description">Configure SMTP settings for sending emails from your school.</p>
-<a href="{{ url_for('setup_email_bp.setup_email') }}" class="card-action">
- Configure Email
-</a>
-</div>
-</div>
- {% else %}
-<div class="dashboard-grid">
-<div class="coming-soon-card">
-<div class="coming-soon-icon">🚧</div>
-<h3 class="coming-soon-title">Dashboard Coming Soon</h3>
-<p class="coming-soon-description">
- The {{ current_role_display }} dashboard is currently under development.
- We're working hard to bring you an amazing experience!
-</p>
-</div>
-</div>
- {% endif %}
-</div>
-</main>
-<script>
-// Auto-hide flash messages after 5 seconds
-document.addEventListener('DOMContentLoaded', function() {
-const flashMessages = document.querySelectorAll('.flash-message');
-flashMessages.forEach(function(message) {
-setTimeout(function() {
-if (message.parentElement) {
-message.style.animation = 'slideInDown 0.3s ease-out reverse';
-setTimeout(function() {
-message.remove();
- }, 300);
- }
- }, 5000);
- });
- });
-// Role switching functionality
-function switchRole() {
-const roleSelector = document.getElementById('roleSelector');
-const selectedRole = roleSelector.value;
-// Show loading state (optional)
-roleSelector.disabled = true;
-fetch('/switch-role', {
-method: 'POST',
-headers: {
-'Content-Type': 'application/json',
- },
-body: JSON.stringify({
-role: selectedRole
- })
- })
- .then(response => response.json())
- .then(data => {
-if (data.success) {
-// Redirect to dashboard to refresh content
-window.location.href = data.redirect_url;
- } else {
-alert(data.message || 'Error switching role');
-roleSelector.disabled = false;
- }
- })
- .catch(error => {
-console.error('Error:', error);
-alert('Error switching role. Please try again.');
-roleSelector.disabled = false;
- });
- }
-</script>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="{{ url_for('universal_dashboard.dashboard') }}" class="logo">ProjectFlow</a>
+                <div class="nav-links">
+                    <a href="#" class="nav-link">Settings</a>
+                    <a href="#" class="nav-link">Help</a>
+                    {% if user_roles|length > 1 %}
+                    <div class="role-selector">
+                        <select class="role-dropdown" id="roleSelector" onchange="switchRole()">
+                            {% for role in user_roles %}
+                            <option value="{{ role.name }}" {% if role.name==current_role %}selected{% endif %}>
+                                {{ role.display_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% else %}
+                    <span class="role-badge">{{ current_role_display }}</span>
+                    {% endif %}
+                    <a href="{{ url_for('login_bp.logout') }}" class="logout-btn">Logout</a>
+                </div>
+                <div class="user-info">
+                    <div class="avatar">
+                        {{ user.name[0]|upper if user.name else user.email[0]|upper }}
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <main class="main-content">
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="flash-message {{ category }}">
+                    <span class="flash-icon">
+                        {% if category == 'success' %}
+                        ✅
+                        {% elif category == 'error' %}
+                        ❌
+                        {% elif category == 'warning' %}
+                        ⚠️
+                        {% else %}ℹ️
+                        {% endif %}
+                    </span>
+                    <span>{{ message }}</span>
+                    <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+            <section class="welcome-section">
+                <h1 class="welcome-title">
+                    Welcome,
+                    {% if user.school and user.school.name %}
+                    {{ user.school.name }}
+                    {% else %}
+                    {{ user.name }}
+                    {% endif %}
+                </h1>
+                <p class="welcome-subtitle">{{ current_role_display }} Dashboard</p>
+                <span class="role-badge-display">{{ current_role_display }}</span>
+            </section>
+            {% if current_role == 'educational_admin' %}
+            <div class="dashboard-grid">
+                <div class="card" style="animation-delay: 0.1s;">
+                    <div class="card-icon">
+                        <span role="img" aria-label="calendar">📅</span>
+                    </div>
+                    <h3 class="card-title">Manage Course Term</h3>
+                    <p class="card-description">Create and manage course terms.</p>
+                    <a href="{{ url_for('manage_timeframe_bp.manage_timeframes') }}" class="card-action">
+                        Manage Course Term
+                    </a>
+                </div>
+
+                <div class="card" style="animation-delay: 0.2s;">
+                    <div class="card-icon">
+                        <span role="img" aria-label="email">📧</span>
+                    </div>
+                    <h3 class="card-title">Setup Outgoing Email</h3>
+                    <p class="card-description">Configure SMTP settings for sending emails from your school.</p>
+                    <a href="{{ url_for('setup_email_bp.setup_email') }}" class="card-action">
+                        Configure Email
+                    </a>
+                </div>
+            </div>
+
+            {% elif current_role == 'student' %}
+            <div class="dashboard-grid">
+                <!-- View Project Listing -->
+                <div class="card" style="animation-delay: 0.1s;">
+                    <div class="card-icon">
+                        <span role="img" aria-label="list">🧾</span>
+                    </div>
+                    <h3 class="card-title">View Project Listing</h3>
+                    <p class="card-description">Browse all available projects for your current course term.</p>
+                    <!-- Button only; no navigation yet -->
+                    <button type="button" class="card-action">View Project Listing</button>
+                </div>
+
+                <!-- Submit Preferences -->
+                <div class="card" style="animation-delay: 0.2s;">
+                    <div class="card-icon">
+                        <span role="img" aria-label="preferences">📝</span>
+                    </div>
+                    <h3 class="card-title">Submit Preferences</h3>
+                    <p class="card-description">Rank your preferred projects to help us allocate a good match.</p>
+                    <!-- Button only; no navigation yet -->
+                    <button type="button" class="card-action">Submit Preferences</button>
+                </div>
+
+                <!-- View Allocation Results -->
+                <div class="card" style="animation-delay: 0.3s;">
+                    <div class="card-icon">
+                        <span role="img" aria-label="results">🎯</span>
+                    </div>
+                    <h3 class="card-title">View Allocation Results</h3>
+                    <p class="card-description">See your assigned project and supervisor once results are released.</p>
+                    <!-- Button only; no navigation yet -->
+                    <button type="button" class="card-action">View Allocation Results</button>
+                </div>
+            </div>
+
+            {% else %}
+            <div class="dashboard-grid">
+                <div class="coming-soon-card">
+                    <div class="coming-soon-icon">🚧</div>
+                    <h3 class="coming-soon-title">Dashboard Coming Soon</h3>
+                    <p class="coming-soon-description">
+                        The {{ current_role_display }} dashboard is currently under development.
+                        We're working hard to bring you an amazing experience!
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </main>
+    <script>
+        // Auto-hide flash messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function (message) {
+                setTimeout(function () {
+                    if (message.parentElement) {
+                        message.style.animation = 'slideInDown 0.3s ease-out reverse';
+                        setTimeout(function () {
+                            message.remove();
+                        }, 300);
+                    }
+                }, 5000);
+            });
+        });
+        // Role switching functionality
+        function switchRole() {
+            const roleSelector = document.getElementById('roleSelector');
+            const selectedRole = roleSelector.value;
+            // Show loading state (optional)
+            roleSelector.disabled = true;
+            fetch('/switch-role', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    role: selectedRole
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Redirect to dashboard to refresh content
+                        window.location.href = data.redirect_url;
+                    } else {
+                        alert(data.message || 'Error switching role');
+                        roleSelector.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error switching role. Please try again.');
+                    roleSelector.disabled = false;
+                });
+        }
+    </script>
 </body>
+
 </html>
