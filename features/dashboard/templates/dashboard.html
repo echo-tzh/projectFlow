@@ -554,7 +554,9 @@
                     <h3 class="card-title">View Project Listing</h3>
                     <p class="card-description">Browse all available projects for your current course term.</p>
                     <!-- Button only; no navigation yet -->
-                    <button type="button" class="card-action">View Project Listing</button>
+                    <a href="{{ url_for('student_projects.view_projects') }}" class="card-action">
+                        View Project Listing
+                    </a>
                 </div>
 
                 <!-- Submit Preferences -->

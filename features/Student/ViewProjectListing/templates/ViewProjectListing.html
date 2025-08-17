@@ -1,0 +1,200 @@
+<!-- features/Student/ViewProjectListing/templates/ViewProjectListing.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Browse Projects - ProjectFlow</title>
+  <style>
+    /* Base / reset */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      color: #1d1d1f;
+    }
+
+    /* === Match Universal Dashboard header/nav exactly === */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .header {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid #e0e0e0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      transition: all 0.3s ease;
+    }
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: 600;
+      color: #007AFF;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .nav-link {
+      font-size: 16px;
+      color: #666;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .nav-link:hover { color: #007AFF; }
+
+    /* Page content */
+    .main-content { padding: 40px 0; }
+    .page-header { text-align:center; margin-bottom:40px; }
+    .page-title {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: linear-gradient(45deg, #007AFF, #5856D6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .page-subtitle { font-size: 20px; color:#888; margin-bottom: 8px; }
+
+    .search-container { max-width: 500px; margin: 24px auto 40px; position: relative; }
+    .search-input {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid rgba(0, 0, 0, 0.06);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.9);
+      outline: none;
+    }
+    .search-input:focus {
+      border-color: rgba(0, 122, 255, 0.4);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+    .project-card {
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(20px);
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      transition: all 0.2s ease;
+    }
+    .project-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    .project-title { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+    .project-term  { font-size: 14px; color: #666; margin-bottom: 8px; }
+    .project-description {
+      color: #666;
+      line-height: 1.6;
+      margin-top: 8px;
+      font-size: 15px;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+
+    .no-results { text-align: center; padding: 60px 20px; color: #666; }
+    .no-results-icon { font-size: 64px; margin-bottom: 16px; opacity: .5; }
+
+    @media (max-width: 768px) {
+      .page-title { font-size: 32px; }
+      .projects-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="nav">
+        <a href="{{ url_for('universal_dashboard.dashboard') }}" class="logo">ProjectFlow</a>
+        <div class="nav-links">
+          <!-- Keep this a simple text link (same class as dashboard links) -->
+          <a href="{{ url_for('universal_dashboard.dashboard') }}" class="nav-link">← Dashboard</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container">
+      <div class="page-header">
+        <h1 class="page-title">Explore Projects</h1>
+        <p class="page-subtitle">Browse available projects for your term</p>
+      </div>
+
+      <div class="search-container">
+        <input id="searchInput" class="search-input" type="text"
+               placeholder="Search by title or description..." />
+      </div>
+
+      {% if projects and projects|length > 0 %}
+        <div id="projectsGrid" class="projects-grid">
+          {% for p in projects %}
+          <div class="project-card"
+               data-title="{{ p.title|lower }}"
+               data-description="{{ (p.description or '')|lower }}">
+            <div class="project-title">{{ p.title }}</div>
+            <div class="project-term">
+              {{ p.timeframe.name if p.timeframe else 'Unscheduled Term' }}
+            </div>
+            <div class="project-description">
+              {{ p.description if p.description else 'No description provided.' }}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <div id="noResults" class="no-results" style="display:none;">
+          <div class="no-results-icon">🔍</div>
+          <div>No projects match your search</div>
+        </div>
+      {% else %}
+        <div class="no-results">
+          <div class="no-results-icon">📝</div>
+          <div>No projects are available at the moment.</div>
+        </div>
+      {% endif %}
+    </div>
+  </main>
+
+  <script>
+    // Simple client-side search over rendered cards
+    const input = document.getElementById('searchInput');
+    const grid = document.getElementById('projectsGrid');
+    const noResults = document.getElementById('noResults');
+
+    function applySearch() {
+      if (!grid) return;
+      const term = (input.value || '').toLowerCase();
+      let visible = 0;
+      Array.from(grid.children).forEach(card => {
+        const t = card.getAttribute('data-title') || '';
+        const d = card.getAttribute('data-description') || '';
+        const show = !term || t.includes(term) || d.includes(term);
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      if (noResults) noResults.style.display = visible ? 'none' : 'block';
+    }
+    if (input) input.addEventListener('input', applySearch);
+  </script>
+</body>
+</html>

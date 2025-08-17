@@ -28,6 +28,10 @@ app.register_blueprint(load_data_bp)
 app.register_blueprint(universal_dashboard_bp)
 app.register_blueprint(send_welcome_email_bp)
 app.register_blueprint(setup_email_bp)
+# Student projects blueprint
+from features.Student.ViewProjectListing.viewProjectListingController import student_projects_bp
+app.register_blueprint(student_projects_bp, url_prefix="/student")
+
 
 @app.route('/')
 def index():
