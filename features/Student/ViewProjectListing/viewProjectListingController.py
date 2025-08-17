@@ -1,7 +1,7 @@
-# features/Student/ViewProjectListing/viewProjectListingController.py
+from datetime import date
 from flask import Blueprint, render_template, session, redirect, url_for, flash
 from functools import wraps
-from shared.models import User, Project, Timeframe  # uses your models
+from shared.models import User, Project, Timeframe
 from database import db
 
 student_projects_bp = Blueprint(
@@ -22,13 +22,32 @@ def login_required(f):
 @student_projects_bp.route("/projects", methods=["GET"])
 @login_required
 def view_projects():
-    """List available projects for the logged-in student's school."""
+    """List available projects for the logged-in student's *current* timeframe(s)."""
     user = User.query.get(session["user_id"])
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for("login_bp.logout"))
 
-    q = Project.query.join(Timeframe, Project.timeframe_id == Timeframe.id)
-    # scope to the student's school if present
-    if user and user.school_id:
+    # If user has dynamic relationship for timeframes, call .all()
+    user_timeframes = user.timeframes.all() if hasattr(user.timeframes, "all") else (user.timeframes or [])
+    user_tf_ids = [tf.id for tf in user_timeframes]
+
+    # today must be inside the timeframe window, and timeframe must belong to the student's school
+    q = (Project.query
+         .join(Timeframe, Project.timeframe_id == Timeframe.id))
+
+    if user.school_id:
         q = q.filter(Timeframe.school_id == user.school_id)
+
+    today = date.today()
+    q = q.filter(Timeframe.start_date <= today, Timeframe.end_date >= today)
+
+    # Require that the project is in a timeframe the student is assigned to
+    if user_tf_ids:
+        q = q.filter(Project.timeframe_id.in_(user_tf_ids))
+    else:
+        # If student isn't in any timeframe, show none (or you could relax this)
+        q = q.filter(False)
 
     projects = q.order_by(Project.created_at.desc()).all()
     return render_template("ViewProjectListing.html", projects=projects, user=user)
