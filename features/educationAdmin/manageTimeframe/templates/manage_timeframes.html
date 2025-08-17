@@ -1106,7 +1106,7 @@ body {
         }
 
         function openEditModal(id, name, startDate, endDate) {
-            document.getElementById('modalTitle').textContent = 'Edit Timeframe';
+            document.getElementById('modalTitle').textContent = 'Edit Course Term';
             document.getElementById('submitBtn').textContent = 'Update Timeframe';
             document.getElementById('timeframeForm').action = "{{ url_for('manage_timeframe_bp.edit_timeframe') }}";
             document.getElementById('timeframeId').value = id;
