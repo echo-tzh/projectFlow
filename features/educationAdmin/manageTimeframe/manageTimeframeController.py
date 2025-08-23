@@ -56,10 +56,18 @@ def create_timeframe():
         name = request.form.get('name', '').strip()
         start_date_str = request.form.get('start_date')
         end_date_str = request.form.get('end_date')
+        location = request.form.get('location', '').strip()
+        delivery_type = request.form.get('delivery_type')
         
         # Validation
-        if not all([name, start_date_str, end_date_str]):
+        if not all([name, start_date_str, end_date_str, location, delivery_type]):
             flash('All fields are required.', 'error')
+            return redirect(url_for('manage_timeframe_bp.manage_timeframes'))
+        
+        # Validate delivery_type
+        valid_delivery_types = ['on campus', 'off campus']
+        if delivery_type not in valid_delivery_types:
+            flash('Invalid delivery type selected.', 'error')
             return redirect(url_for('manage_timeframe_bp.manage_timeframes'))
         
         # Parse dates
@@ -104,6 +112,8 @@ def create_timeframe():
             name=name,
             start_date=start_date,
             end_date=end_date,
+            location=location,
+            delivery_type=delivery_type,
             school_id=school_id
         )
         
@@ -131,10 +141,18 @@ def edit_timeframe():
         name = request.form.get('name', '').strip()
         start_date_str = request.form.get('start_date')
         end_date_str = request.form.get('end_date')
+        location = request.form.get('location', '').strip()
+        delivery_type = request.form.get('delivery_type')
         
         # Validation
-        if not all([timeframe_id, name, start_date_str, end_date_str]):
+        if not all([timeframe_id, name, start_date_str, end_date_str, location, delivery_type]):
             flash('All fields are required.', 'error')
+            return redirect(url_for('manage_timeframe_bp.manage_timeframes'))
+        
+        # Validate delivery_type
+        valid_delivery_types = ['on campus', 'off campus']
+        if delivery_type not in valid_delivery_types:
+            flash('Invalid delivery type selected.', 'error')
             return redirect(url_for('manage_timeframe_bp.manage_timeframes'))
         
         # Parse dates
@@ -189,6 +207,8 @@ def edit_timeframe():
         timeframe.name = name
         timeframe.start_date = start_date
         timeframe.end_date = end_date
+        timeframe.location = location
+        timeframe.delivery_type = delivery_type
         
         # Save changes
         db.session.commit()
@@ -295,6 +315,8 @@ def timeframe_details(timeframe_id):
             'name': timeframe.name,
             'start_date': timeframe.start_date.strftime('%Y-%m-%d'),
             'end_date': timeframe.end_date.strftime('%Y-%m-%d'),
+            'location': timeframe.location,
+            'delivery_type': timeframe.delivery_type,
             'created_at': timeframe.created_at.strftime('%Y-%m-%d'),
             'project_count': project_count
         }

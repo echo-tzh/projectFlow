@@ -162,6 +162,10 @@ class Timeframe(db.Model):
     end_date = db.Column(db.Date, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    
+    location = db.Column(db.String(255), nullable=True)  # the location will be like UOW or SIM etc.
+    delivery_type = db.Column(db.Enum('on campus', 'off campus', name='delivery_type_enum'), nullable=False)
+
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=False)
 
     # Relationships
