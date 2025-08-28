@@ -317,7 +317,7 @@
                             <div class="roles-container">
                                 {% if user.roles %}
                                     {% for role in user.roles %}
-                                        <span class="role-badge">{{ role.name.title() }}</span>
+                                        <span class="role-badge">{{ role.description.title() }}</span>
                                     {% endfor %}
                                 {% else %}
                                     <span class="info-value">No roles assigned</span>
