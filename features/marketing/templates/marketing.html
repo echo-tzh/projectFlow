@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,7 +59,7 @@
 
         .nav-link {
             color: #424245;
-            text-decoration: none;  
+            text-decoration: none;
             font-size: 12px;
             font-weight: 400;
             transition: color 0.3s ease;
@@ -99,6 +100,8 @@
             margin-top: 44px;
             position: relative;
             overflow: hidden;
+            min-height: 692px;
+
         }
 
         .hero-slide {
@@ -128,6 +131,9 @@
             left: 0;
             right: 0;
             bottom: 0;
+            background-image: var(--bg-image);
+            background-size: cover;
+            background-position: center;
             opacity: 0.4;
             z-index: 0;
         }
@@ -467,15 +473,16 @@
             .nav-container {
                 max-width: 692px;
             }
-            
-            .hero-content, .section-container {
+
+            .hero-content,
+            .section-container {
                 max-width: 692px;
             }
-            
+
             .hero-headline {
                 font-size: 44px;
             }
-            
+
             .section-headline {
                 font-size: 40px;
             }
@@ -485,32 +492,32 @@
             .nav-container {
                 padding: 0 16px;
             }
-            
+
             .nav-items {
                 display: none;
             }
-            
+
             .hero-slide {
                 padding: 40px 20px;
                 min-height: 500px;
             }
-            
+
             .hero-headline {
                 font-size: 32px;
             }
-            
+
             .hero-subhead {
                 font-size: 21px;
             }
-            
+
             .section-container {
                 padding: 0 20px;
             }
-            
+
             .section-headline {
                 font-size: 32px;
             }
-            
+
             .hero-cta-group {
                 flex-direction: column;
                 gap: 20px;
@@ -523,6 +530,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -532,8 +540,100 @@
         .animate-in {
             animation: fadeInUp 0.8s cubic-bezier(0.28, 0.11, 0.32, 1) forwards;
         }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            margin-top: 44px;
+        }
+
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-height: 692px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px 40px;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+        }
+
+        .hero-slide.active {
+            opacity: 1;
+        }
+
+        .hero-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        .hero-slide .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .nav-button svg {
+            width: 16px;
+            height: 16px;
+            color: #fff;
+        }
+
+        .prev-button {
+            left: 40px;
+        }
+
+        .next-button {
+            right: 40px;
+        }
+
+        /* Adjust for smaller screens */
+        @media (max-width: 734px) {
+            .prev-button {
+                left: 20px;
+            }
+
+            .next-button {
+                right: 20px;
+            }
+        }
     </style>
 </head>
+
 <body>
     <!-- Apple's exact navigation structure -->
     <nav class="nav" id="ac-globalnav">
@@ -550,149 +650,140 @@
             </div>
         </div>
     </nav>
-
-    <!-- Hero Section -->
     <section class="hero">
-        {% if hero_slides %}
-            {% for slide in hero_slides %}
-                <div class="hero-slide {% if loop.first %}active{% endif %} slide-{{ loop.index }}">
-                    <div class="hero-content">
-                        <h1 class="hero-eyebrow">{{ slide.eyebrow_text or 'Revolutionary' }}</h1>
-                        <h2 class="hero-headline">{{ slide.headline or 'Transform Your Project Allocation' }}</h2>
-                        <p class="hero-subhead">{{ slide.subhead or 'Effortlessly match students with supervisors using intelligent algorithms' }}</p>
-                        <div class="hero-cta-group">
-                            <a href="{{ slide.primary_cta_link or '#' }}" class="cta-primary">{{ slide.primary_cta_text or 'Get Started' }}</a>
-                            <a href="{{ slide.secondary_cta_link or '#' }}" class="cta-secondary">{{ slide.secondary_cta_text or 'Learn more' }}</a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <!-- Fallback slides if no hero_slides in database -->
-            <div class="hero-slide active slide-1">
-                <div class="hero-content">
-                    <h1 class="hero-eyebrow">Revolutionary</h1>
-                    <h2 class="hero-headline">Transform Your Project Allocation</h2>
-                    <p class="hero-subhead">Effortlessly match students with supervisors using intelligent algorithms</p>
-                    <div class="hero-cta-group">
-                        <a href="#" class="cta-primary">Get Started</a>
-                        <a href="#" class="cta-secondary">Learn more</a>
-                    </div>
+        <div class="hero-slide active" data-bg="{{ url_for('static', filename='images/appleIntelligence.jpg') }}">
+            <div class="hero-content">
+                <h1 class="hero-eyebrow">Revolutionary</h1>
+                <h2 class="hero-headline">Transform Your Project Allocation</h2>
+                <p class="hero-subhead">Effortlessly match students with supervisors using intelligent algorithms</p>
+                <div class="hero-cta-group">
+                    <a href="#" class="cta-primary">Get Started</a>
+                    <a href="#" class="cta-secondary">Learn more</a>
                 </div>
             </div>
-            
-            <div class="hero-slide slide-2">
-                <div class="hero-content">
-                    <h1 class="hero-eyebrow">Intelligent</h1>
-                    <h2 class="hero-headline">AI-Powered Matching</h2>
-                    <p class="hero-subhead">Advanced algorithms ensure perfect project-student compatibility</p>
-                    <div class="hero-cta-group">
-                        <a href="#" class="cta-primary">Try It Free</a>
-                        <a href="#" class="cta-secondary">See it in action</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="hero-slide slide-3">
-                <div class="hero-content">
-                    <h1 class="hero-eyebrow">Seamless</h1>
-                    <h2 class="hero-headline">Complete Management</h2>
-                    <p class="hero-subhead">From project creation to final assignments — all in one place</p>
-                    <div class="hero-cta-group">
-                        <a href="#" class="cta-primary">Start Free Trial</a>
-                        <a href="#" class="cta-secondary">Request demo</a>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-        
-        <div class="slide-indicators">
-            {% if hero_slides %}
-                {% for slide in hero_slides %}
-                    <div class="slide-dot {% if loop.first %}active{% endif %}" data-slide="{{ loop.index0 }}"></div>
-                {% endfor %}
-            {% else %}
-                <div class="slide-dot active" data-slide="0"></div>
-                <div class="slide-dot" data-slide="1"></div>
-                <div class="slide-dot" data-slide="2"></div>
-            {% endif %}
         </div>
+
+        <div class="hero-slide" data-bg="{{ url_for('static', filename='images/slide2.jpg') }}">
+            <div class="hero-content">
+                <h1 class="hero-eyebrow">Intelligent</h1>
+                <h2 class="hero-headline">AI-Powered Matching</h2>
+                <p class="hero-subhead">Advanced algorithms ensure perfect project-student compatibility</p>
+                <div class="hero-cta-group">
+                    <a href="#" class="cta-primary">Try It Free</a>
+                    <a href="#" class="cta-secondary">See it in action</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-slide" data-bg="{{ url_for('static', filename='images/slide3.jpg') }}">
+            <div class="hero-content">
+                <h1 class="hero-eyebrow">Seamless</h1>
+                <h2 class="hero-headline">Complete Management</h2>
+                <p class="hero-subhead">From project creation to final assignments — all in one place</p>
+                <div class="hero-cta-group">
+                    <a href="#" class="cta-primary">Start Free Trial</a>
+                    <a href="#" class="cta-secondary">Request demo</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-indicators">
+            <div class="slide-dot active" data-slide="0"></div>
+            <div class="slide-dot" data-slide="1"></div>
+            <div class="slide-dot" data-slide="2"></div>
+        </div>
+
+        <button id="prev-btn" class="nav-button prev-button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        <button id="next-btn" class="nav-button next-button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
     </section>
+
+
 
     <!-- Plans Section -->
     <section class="section">
         <div class="section-container">
             <h2 class="section-eyebrow">Pricing</h2>
             <h3 class="section-headline">Choose the plan that's right for you</h3>
-            <p class="section-subhead">Get started with our free plan or upgrade for advanced features and unlimited access</p>
-            
+            <p class="section-subhead">Get started with our free plan or upgrade for advanced features and unlimited
+                access</p>
+
             <div class="plans-grid">
                 {% if plans %}
-                    {% for plan in plans %}
-                        <div class="plan-card {% if plan.is_popular %}popular{% endif %}">
-                            <h4 class="plan-name">{{ plan.name }}</h4>
-                            <div class="plan-price">
-                                {% if plan.price == 0 %}
-                                    Free
-                                {% elif plan.price %}
-                                    ${{ plan.price }}
-                                {% else %}
-                                    Custom
-                                {% endif %}
-                            </div>
-                            <div class="plan-period">{{ plan.billing_period or 'forever' }}</div>
-                            {% if plan.features %}
-                                <ul class="plan-features">
-                                    {% for feature in plan.features.split(',') %}
-                                        <li>{{ feature.strip() }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                            <a href="{{ plan.cta_link or '#' }}" class="cta-primary">{{ plan.cta_text or 'Get Started' }}</a>
-                        </div>
-                    {% endfor %}
+                {% for plan in plans %}
+                <div class="plan-card {% if plan.is_popular %}popular{% endif %}">
+                    <h4 class="plan-name">{{ plan.name }}</h4>
+                    <div class="plan-price">
+                        {% if plan.price == 0 %}
+                        Free
+                        {% elif plan.price %}
+                        ${{ plan.price }}
+                        {% else %}
+                        Custom
+                        {% endif %}
+                    </div>
+                    <div class="plan-period">{{ plan.billing_period or 'forever' }}</div>
+                    {% if plan.features %}
+                    <ul class="plan-features">
+                        {% for feature in plan.features.split(',') %}
+                        <li>{{ feature.strip() }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    <a href="{{ plan.cta_link or '#' }}" class="cta-primary">{{ plan.cta_text or 'Get Started' }}</a>
+                </div>
+                {% endfor %}
                 {% else %}
-                    <!-- Fallback plans if no plans in database -->
-                    <div class="plan-card">
-                        <h4 class="plan-name">Academic Basic</h4>
-                        <div class="plan-price">Free</div>
-                        <div class="plan-period">forever</div>
-                        <ul class="plan-features">
-                            <li>Up to 50 students</li>
-                            <li>Basic project matching</li>
-                            <li>Email notifications</li>
-                            <li>Standard support</li>
-                        </ul>
-                        <a href="#" class="cta-primary">Start Free</a>
-                    </div>
-                    
-                    <div class="plan-card popular">
-                        <h4 class="plan-name">Institution Pro</h4>
-                        <div class="plan-price">$49</div>
-                        <div class="plan-period">per semester</div>
-                        <ul class="plan-features">
-                            <li>Up to 500 students</li>
-                            <li>AI-powered matching</li>
-                            <li>Advanced analytics</li>
-                            <li>Priority support</li>
-                            <li>Custom workflows</li>
-                        </ul>
-                        <a href="#" class="cta-primary">Start Trial</a>
-                    </div>
-                    
-                    <div class="plan-card">
-                        <h4 class="plan-name">University Enterprise</h4>
-                        <div class="plan-price">Custom</div>
-                        <div class="plan-period">pricing</div>
-                        <ul class="plan-features">
-                            <li>Unlimited students</li>
-                            <li>Multi-department support</li>
-                            <li>Advanced integrations</li>
-                            <li>Dedicated support</li>
-                            <li>Custom development</li>
-                        </ul>
-                        <a href="#" class="cta-primary">Contact Sales</a>
-                    </div>
+                <!-- Fallback plans if no plans in database -->
+                <div class="plan-card">
+                    <h4 class="plan-name">Academic Basic</h4>
+                    <div class="plan-price">Free</div>
+                    <div class="plan-period">forever</div>
+                    <ul class="plan-features">
+                        <li>Up to 50 students</li>
+                        <li>Basic project matching</li>
+                        <li>Email notifications</li>
+                        <li>Standard support</li>
+                    </ul>
+                    <a href="#" class="cta-primary">Start Free</a>
+                </div>
+
+                <div class="plan-card popular">
+                    <h4 class="plan-name">Institution Pro</h4>
+                    <div class="plan-price">$49</div>
+                    <div class="plan-period">per semester</div>
+                    <ul class="plan-features">
+                        <li>Up to 500 students</li>
+                        <li>AI-powered matching</li>
+                        <li>Advanced analytics</li>
+                        <li>Priority support</li>
+                        <li>Custom workflows</li>
+                    </ul>
+                    <a href="#" class="cta-primary">Start Trial</a>
+                </div>
+
+                <div class="plan-card">
+                    <h4 class="plan-name">University Enterprise</h4>
+                    <div class="plan-price">Custom</div>
+                    <div class="plan-period">pricing</div>
+                    <ul class="plan-features">
+                        <li>Unlimited students</li>
+                        <li>Multi-department support</li>
+                        <li>Advanced integrations</li>
+                        <li>Dedicated support</li>
+                        <li>Custom development</li>
+                    </ul>
+                    <a href="#" class="cta-primary">Contact Sales</a>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -704,41 +795,44 @@
             <h2 class="section-eyebrow">Reviews</h2>
             <h3 class="section-headline">Trusted by educators worldwide</h3>
             <p class="section-subhead">See what academic professionals are saying about our platform</p>
-            
+
             <div class="reviews-grid">
                 {% if reviews %}
-                    {% for review in reviews %}
-                        <div class="review-card">
-                            <div class="review-stars">
-                                {% for i in range(review.rating or 5) %}★{% endfor %}
-                            </div>
-                            <p class="review-text">"{{ review.content }}"</p>
-                            <div class="review-author">{{ review.author_name }}</div>
-                            <div class="review-role">{{ review.author_role }}</div>
-                        </div>
-                    {% endfor %}
+                {% for review in reviews %}
+                <div class="review-card">
+                    <div class="review-stars">
+                        {% for i in range(review.rating or 5) %}★{% endfor %}
+                    </div>
+                    <p class="review-text">"{{ review.content }}"</p>
+                    <div class="review-author">{{ review.author_name }}</div>
+                    <div class="review-role">{{ review.author_role }}</div>
+                </div>
+                {% endfor %}
                 {% else %}
-                    <!-- Fallback reviews if no reviews in database -->
-                    <div class="review-card">
-                        <div class="review-stars">★★★★★</div>
-                        <p class="review-text">"This system revolutionized our FYP allocation process. What used to take weeks now takes minutes."</p>
-                        <div class="review-author">Dr. Sarah Chen</div>
-                        <div class="review-role">Computer Science Department Head, Tech University</div>
-                    </div>
-                    
-                    <div class="review-card">
-                        <div class="review-stars">★★★★★</div>
-                        <p class="review-text">"The intelligent matching algorithm significantly improved student-supervisor compatibility."</p>
-                        <div class="review-author">Prof. Michael Rodriguez</div>
-                        <div class="review-role">Engineering Faculty, State Institute</div>
-                    </div>
-                    
-                    <div class="review-card">
-                        <div class="review-stars">★★★★★</div>
-                        <p class="review-text">"Incredibly user-friendly interface. Our staff adapted to it within days."</p>
-                        <div class="review-author">Lisa Thompson</div>
-                        <div class="review-role">Academic Administrator, City College</div>
-                    </div>
+                <!-- Fallback reviews if no reviews in database -->
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">"This system revolutionized our FYP allocation process. What used to take
+                        weeks now takes minutes."</p>
+                    <div class="review-author">Dr. Sarah Chen</div>
+                    <div class="review-role">Computer Science Department Head, Tech University</div>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">"The intelligent matching algorithm significantly improved student-supervisor
+                        compatibility."</p>
+                    <div class="review-author">Prof. Michael Rodriguez</div>
+                    <div class="review-role">Engineering Faculty, State Institute</div>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">"Incredibly user-friendly interface. Our staff adapted to it within days."
+                    </p>
+                    <div class="review-author">Lisa Thompson</div>
+                    <div class="review-role">Academic Administrator, City College</div>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -747,16 +841,26 @@
     <!-- Footer -->
     <footer style="background: #1d1d1f; color: #f5f5f7; padding: 40px 0; text-align: center;">
         <div class="section-container">
-            <p style="font-size: 14px; color: #86868b;">© {{ current_year }} FYP Allocation Pro. All rights reserved.</p>
+            <p style="font-size: 14px; color: #86868b;">© {{ current_year }} FYP Allocation Pro. All rights reserved.
+            </p>
         </div>
     </footer>
 
     <script>
-        // Hero Slider with Apple's exact timing and easing
         let currentSlide = 0;
         const slides = document.querySelectorAll('.hero-slide');
         const dots = document.querySelectorAll('.slide-dot');
-        
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        // Make sure the image paths are rendered correctly from Flask
+        slides.forEach(slide => {
+            const bg = slide.dataset.bg;
+            if (bg) {
+                slide.style.setProperty('--bg-image', `url('${bg}')`);
+            }
+        });
+
         function showSlide(index) {
             slides.forEach((slide, i) => {
                 slide.classList.toggle('active', i === index);
@@ -765,47 +869,56 @@
                 dot.classList.toggle('active', i === index);
             });
         }
-        
+
         function nextSlide() {
             currentSlide = (currentSlide + 1) % slides.length;
             showSlide(currentSlide);
         }
-        
-        // Auto-advance slides every 6 seconds (Apple's timing)
-        if (slides.length > 1) {
-            setInterval(nextSlide, 6000);
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
         }
-        
-        // Dot navigation
+
+        // Stop auto-play when a user interacts with the buttons or dots
+        let autoSlide = setInterval(nextSlide, 6000);
+        function stopAutoSlide() {
+            clearInterval(autoSlide);
+        }
+
+        // Add event listeners for the navigation buttons
+        if (prevBtn && nextBtn) {
+            prevBtn.addEventListener('click', () => {
+                stopAutoSlide();
+                prevSlide();
+            });
+            nextBtn.addEventListener('click', () => {
+                stopAutoSlide();
+                nextSlide();
+            });
+        }
+
+        // Add event listeners for the dots
         dots.forEach((dot, index) => {
             dot.addEventListener('click', () => {
+                stopAutoSlide();
                 currentSlide = index;
                 showSlide(currentSlide);
             });
         });
-        
-        // Apple's intersection observer for animations
-        const observer = new IntersectionObserver((entries) => {
+
+        const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-in');
-                }
+                if (entry.isIntersecting) entry.target.classList.add('animate-in');
             });
-        }, { 
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        });
-        
-        document.querySelectorAll('.plan-card, .review-card').forEach(el => {
-            observer.observe(el);
-        });
-        
-        // Apple's navigation scroll effect
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('.plan-card, .review-card').forEach(el => observer.observe(el));
+
         let lastScroll = 0;
         window.addEventListener('scroll', () => {
             const nav = document.querySelector('.nav');
             const currentScroll = window.pageYOffset;
-            
             if (currentScroll > 44) {
                 nav.style.background = 'rgba(251, 251, 253, 0.72)';
                 nav.style.backdropFilter = 'saturate(180%) blur(20px)';
@@ -813,9 +926,9 @@
                 nav.style.background = 'rgba(251, 251, 253, 0.8)';
                 nav.style.backdropFilter = 'saturate(180%) blur(20px)';
             }
-            
             lastScroll = currentScroll;
         });
     </script>
 </body>
+
 </html>
