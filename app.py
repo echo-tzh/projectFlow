@@ -11,7 +11,8 @@ from features.educationAdmin.load_data.loadDataController import load_data_bp
 from features.dashboard.dashboardController import universal_dashboard_bp
 from features.educationAdmin.load_data.sendWelcomeEmailController import send_welcome_email_bp
 from features.educationAdmin.setupEmail.setupEmailController import setup_email_bp
-
+from features.viewProfile.viewProfileController import viewProfile_bp
+from features.Student.ViewProjectListing.viewProjectListingController import student_projects_bp
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
@@ -29,9 +30,11 @@ app.register_blueprint(universal_dashboard_bp)
 app.register_blueprint(send_welcome_email_bp)
 app.register_blueprint(setup_email_bp)
 # Student projects blueprint
-from features.Student.ViewProjectListing.viewProjectListingController import student_projects_bp
+
 app.register_blueprint(student_projects_bp, url_prefix="/student")
 
+
+app.register_blueprint(viewProfile_bp)
 
 @app.route('/')
 def index():

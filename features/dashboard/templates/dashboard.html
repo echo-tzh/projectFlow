@@ -147,22 +147,31 @@
             gap: 12px;
         }
 
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #FF3B30, #FF9500);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            transition: transform 0.2s ease;
-        }
 
-        .avatar:hover {
-            transform: scale(1.05);
-        }
+/* View Profile Button Styles */
+.view-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    background: rgba(0, 122, 255, 0.05);
+    border: 1px solid rgba(0, 122, 255, 0.1);
+}
+
+.view-profile-btn:hover {
+    background: rgba(0, 122, 255, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+}
+
+.profile-text {
+    color: #007AFF;
+    font-size: 14px;
+    font-weight: 500;
+}
 
         /* Role Selector Styles */
         .role-selector {
@@ -476,9 +485,12 @@
                     <a href="{{ url_for('login_bp.logout') }}" class="logout-btn">Logout</a>
                 </div>
                 <div class="user-info">
-                    <div class="avatar">
-                        {{ user.name[0]|upper if user.name else user.email[0]|upper }}
-                    </div>
+                    <a href="{{ url_for('viewProfile.view_own_profile') }}" class="view-profile-btn">
+                        <div class="avatar">
+                            {{ user.name[0]|upper if user.name else user.email[0]|upper }}
+                        </div>
+                        <span class="profile-text">View Profile</span>
+                    </a>
                 </div>
             </nav>
         </div>
