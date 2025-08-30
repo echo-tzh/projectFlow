@@ -467,8 +467,6 @@
             <nav class="nav">
                 <a href="{{ url_for('universal_dashboard.dashboard') }}" class="logo">ProjectFlow</a>
                 <div class="nav-links">
-                    <a href="#" class="nav-link">Settings</a>
-                    <a href="#" class="nav-link">Help</a>
                     {% if user_roles|length > 1 %}
                     <div class="role-selector">
                         <select class="role-dropdown" id="roleSelector" onchange="switchRole()">
