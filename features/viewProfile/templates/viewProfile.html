@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -59,8 +60,15 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
         }
 
         .profile-avatar {
@@ -228,44 +236,64 @@
             .container {
                 padding: 20px 10px;
             }
-            
+
             .profile-header {
                 padding: 30px 20px;
             }
-            
+
             .profile-name {
                 font-size: 24px;
             }
-            
+
             .profile-body {
                 padding: 30px 20px;
             }
-            
+
             .info-grid {
                 grid-template-columns: 1fr;
                 gap: 16px;
             }
-            
+
             .info-item {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 8px;
             }
-            
+
             .info-value {
                 text-align: left;
                 margin-left: 0;
             }
-            
+
             .roles-container {
                 justify-content: flex-start;
             }
         }
+
+        .change-password-btn {
+            background: linear-gradient(135deg, #007AFF 0%, #5AC8FA 100%);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+        }
+
+        .change-password-btn:hover {
+            color: white;
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4);
+        }
     </style>
 </head>
+
 <body>
     <button class="back-button" onclick="history.back()">← Back</button>
-    
+
     <div class="container">
         <div class="profile-card">
             <div class="profile-header">
@@ -275,7 +303,7 @@
                 <h1 class="profile-name">{{ user.name or user.school.name }}</h1>
                 <p class="profile-email">{{ user.email }}</p>
             </div>
-            
+
             <div class="profile-body">
                 <div class="info-grid">
                     <div class="info-section">
@@ -293,7 +321,7 @@
                             <span class="info-value">{{ user.student_staff_id or 'Not specified' }}</span>
                         </div>
                     </div>
-                    
+
                     <div class="info-section">
                         <h2 class="section-title">Academic Information</h2>
                         <div class="info-item">
@@ -306,23 +334,33 @@
                         </div>
                         <div class="info-item">
                             <span class="info-label">Member Since</span>
-                            <span class="info-value">{{ user.created_at.strftime('%B %Y') if user.created_at else 'Unknown' }}</span>
+                            <span class="info-value">{{ user.created_at.strftime('%B %Y') if user.created_at else
+                                'Unknown' }}</span>
                         </div>
                     </div>
-                    
+
                     <div class="info-section">
                         <h2 class="section-title">Roles & Permissions</h2>
                         <div class="info-item">
                             <span class="info-label">Current Roles</span>
                             <div class="roles-container">
                                 {% if user.roles %}
-                                    {% for role in user.roles %}
-                                        <span class="role-badge">{{ role.description.title() }}</span>
-                                    {% endfor %}
+                                {% for role in user.roles %}
+                                <span class="role-badge">{{ role.description.title() }}</span>
+                                {% endfor %}
                                 {% else %}
-                                    <span class="info-value">No roles assigned</span>
+                                <span class="info-value">No roles assigned</span>
                                 {% endif %}
                             </div>
+                        </div>
+                    </div>
+                    <div class="info-section">
+                        <h2 class="section-title">Account Security</h2>
+                        <div class="info-item">
+                            <span class="info-label">Password</span>
+                            <a href="{{ url_for('change_password.change_password') }}" class="change-password-btn">
+                                Change Password
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -330,4 +368,5 @@
         </div>
     </div>
 </body>
+
 </html>

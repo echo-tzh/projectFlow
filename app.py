@@ -1,7 +1,7 @@
 from flask import Flask, redirect, url_for
 from config import Config
 from database import db
-from features.login.loginController import login_bp
+from features.authentication.login.loginController import login_bp
 from features.marketing.marketingController import marketing_bp
 from features.editMarketing.editMarketingController import edit_marketing_bp
 from flask_cors import CORS
@@ -13,6 +13,7 @@ from features.educationAdmin.load_data.sendWelcomeEmailController import send_we
 from features.educationAdmin.setupEmail.setupEmailController import setup_email_bp
 from features.viewProfile.viewProfileController import viewProfile_bp
 from features.Student.ViewProjectListing.viewProjectListingController import student_projects_bp
+from features.authentication.changePassword.changePassword import change_password_bp
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
@@ -35,6 +36,8 @@ app.register_blueprint(student_projects_bp, url_prefix="/student")
 
 
 app.register_blueprint(viewProfile_bp)
+#change password 
+app.register_blueprint(change_password_bp)
 
 @app.route('/')
 def index():
