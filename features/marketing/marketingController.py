@@ -12,7 +12,7 @@ marketing_bp = Blueprint('marketing_bp', __name__, template_folder=template_dir)
 @marketing_bp.route('/marketing')
 def marketing():
     # Fetch dynamic content from database
-    hero_slides = MarketingPhoto.query.filter_by(category='hero').order_by(MarketingPhoto.uploaded_at.desc()).all()
+    hero_slides = MarketingPhoto.query.filter_by(category='hero', is_active = True).order_by(MarketingPhoto.uploaded_at.desc()).all()
     plans = Plan.query.order_by(Plan.id.asc()).all()
     reviews = Review.query.order_by(Review.id.asc()).all()
     

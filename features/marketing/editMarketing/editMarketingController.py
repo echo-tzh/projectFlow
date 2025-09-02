@@ -42,25 +42,30 @@ def edit_marketing():
 def save_hero_slides():
     """Save hero slides data"""
     try:
-        # Get form data - expecting multiple slides
         slides_data = request.get_json()
         
         for slide_data in slides_data:
             slide_id = slide_data.get('id')
-            
-            if slide_id and slide_id != 'new':
+
+            slide = None
+            if slide_id and str(slide_id).lower() != 'new':
+                try:
+                    slide_id_int = int(slide_id)
+                    slide = MarketingPhoto.query.get(slide_id_int)
+                except (TypeError, ValueError):
+                    slide = None
+
+            if slide:
                 # Update existing slide
-                slide = MarketingPhoto.query.get(slide_id)
-                if slide:
-                    slide.eyebrow_text = slide_data.get('eyebrow_text', '')
-                    slide.headline = slide_data.get('headline', '')
-                    slide.subhead = slide_data.get('subhead', '')
-                    slide.primary_cta_text = slide_data.get('primary_cta_text', '')
-                    slide.primary_cta_link = slide_data.get('primary_cta_link', '')
-                    slide.secondary_cta_text = slide_data.get('secondary_cta_text', '')
-                    slide.secondary_cta_link = slide_data.get('secondary_cta_link', '')
-                    slide.display_order = slide_data.get('display_order', 0)
-                    slide.is_active = slide_data.get('is_active', True)
+                slide.eyebrow_text = slide_data.get('eyebrow_text', '')
+                slide.headline = slide_data.get('headline', '')
+                slide.subhead = slide_data.get('subhead', '')
+                slide.primary_cta_text = slide_data.get('primary_cta_text', '')
+                slide.primary_cta_link = slide_data.get('primary_cta_link', '')
+                slide.secondary_cta_text = slide_data.get('secondary_cta_text', '')
+                slide.secondary_cta_link = slide_data.get('secondary_cta_link', '')
+                slide.display_order = slide_data.get('display_order', 0)
+                slide.is_active = slide_data.get('is_active', True)
             else:
                 # Create new slide
                 new_slide = MarketingPhoto(
@@ -78,7 +83,7 @@ def save_hero_slides():
                     uploaded_at=datetime.utcnow()
                 )
                 db.session.add(new_slide)
-        
+
         db.session.commit()
         return jsonify({'success': True, 'message': 'Hero slides saved successfully'})
     
@@ -226,6 +231,7 @@ def delete_slide(slide_id):
                 pass  # Don't fail if file deletion fails
         
         db.session.delete(slide)
+        db.session.flush()
         db.session.commit()
         
         return jsonify({'success': True, 'message': 'Slide deleted successfully'})
@@ -248,40 +254,3 @@ def delete_plan(plan_id):
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
     
-@edit_marketing_bp.route('/edit-marketing/slide', methods=['POST'])
-def create_slide():
-    """Create a new hero slide"""
-    if 'image_file' not in request.files:
-        return jsonify({'success': False, 'error': 'No file part'}), 400
-    
-    file = request.files['image_file']
-    if file.filename == '':
-        return jsonify({'success': False, 'error': 'No selected file'}), 400
-    
-    if file and allowed_file(file.filename):
-        try:
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
-            
-            # Extract other data from the form
-            display_order = request.form.get('display_order', type=int)
-            is_active = 'is_active' in request.form
-            
-            # Create a new MarketingPhoto object
-            new_slide = MarketingPhoto(
-                filename=filename,
-                display_order=display_order,
-                is_active=is_active,
-                category='hero' # Ensure it's categorized as a hero slide
-            )
-            
-            db.session.add(new_slide)
-            db.session.commit()
-            
-            return jsonify({'success': True, 'message': 'Slide created successfully', 'slide_id': new_slide.id})
-            
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({'success': False, 'error': str(e)}), 500
-    else:
-        return jsonify({'success': False, 'error': 'Invalid file type'}), 400
