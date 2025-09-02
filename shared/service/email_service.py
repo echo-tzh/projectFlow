@@ -195,7 +195,7 @@ Your Account Details:
 - Student/Staff ID: {user.student_staff_id or 'Not specified'}
 - Course: {user.course or 'Not specified'}
 - Role(s): {roles}
-- Timeframe: {timeframe.name}
+- Course Term: {timeframe.name}
 - Period: {timeframe.start_date.strftime('%B %d, %Y')} - {timeframe.end_date.strftime('%B %d, %Y')}
 
 *use email to login to ProjectFlow

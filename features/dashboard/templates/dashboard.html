@@ -148,30 +148,30 @@
         }
 
 
-/* View Profile Button Styles */
-.view-profile-btn {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 12px;
-    transition: all 0.2s ease;
-    background: rgba(0, 122, 255, 0.05);
-    border: 1px solid rgba(0, 122, 255, 0.1);
-}
+        /* View Profile Button Styles */
+        .view-profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            background: rgba(0, 122, 255, 0.05);
+            border: 1px solid rgba(0, 122, 255, 0.1);
+        }
 
-.view-profile-btn:hover {
-    background: rgba(0, 122, 255, 0.1);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
-}
+        .view-profile-btn:hover {
+            background: rgba(0, 122, 255, 0.1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+        }
 
-.profile-text {
-    color: #007AFF;
-    font-size: 14px;
-    font-weight: 500;
-}
+        .profile-text {
+            color: #007AFF;
+            font-size: 14px;
+            font-weight: 500;
+        }
 
         /* Role Selector Styles */
         .role-selector {
@@ -568,6 +568,17 @@
                     <p class="card-description">Manage and update the marketing pages and content for the platform.</p>
                     <a href="{{ url_for('edit_marketing_bp.edit_marketing') }}" class="card-action">
                         Edit Marketing
+                    </a>
+                </div>
+
+                <div class="card" style="animation-delay: 0.2s;">
+                    <div class="card-icon">
+                        <span role="img" aria-label="schools">🏫</span>
+                    </div>
+                    <h3 class="card-title">Manage Schools</h3>
+                    <p class="card-description">View and search all schools in the system.</p>
+                    <a href="{{ url_for('manage_school.view_schools') }}" class="card-action">
+                        Manage Schools
                     </a>
                 </div>
             </div>

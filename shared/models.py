@@ -197,7 +197,7 @@ def create_default_admin_account():
         admin_role = Role.query.filter_by(name='system admin').first()
         if not admin_role:
             admin_role = Role(
-                name='system_admin',
+                name='system admin',
                 description='system admin',
                 created_at=datetime.utcnow(),
                 is_active=True

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file, jsonify, session
 import pandas as pd
 import secrets
 import string
@@ -35,17 +35,52 @@ def get_or_create_role(role_name):
         db.session.flush()
     return role
 
+def get_current_user():
+    """Get current user from session"""
+    if 'user_id' not in session:
+        return None
+    return User.query.get(session['user_id'])
+
 @load_data_bp.route('/')
 def index():
-    latest_timeframe = Timeframe.query.order_by(Timeframe.id.desc()).first()
+    # Check if user is educational admin and has a school
+    current_user = get_current_user()
+    if not current_user:
+        flash('Please log in to access this page.', 'error')
+        return redirect(url_for('login_bp.login'))
+    
+    # Check if user has educational admin role
+    admin_role = current_user.roles.filter_by(name='educational_admin').first()
+    if not admin_role:
+        flash('Access denied. Educational admin privileges required.', 'error')
+        return redirect(url_for('universal_dashboard_bp.dashboard'))
+    
+    # Check if user has a school assigned
+    if not current_user.school_id:
+        flash('You must be assigned to a school to load user data.', 'error')
+        return redirect(url_for('universal_dashboard_bp.dashboard'))
+    
+    # Get timeframes for the user's school
+    latest_timeframe = Timeframe.query.filter_by(school_id=current_user.school_id).order_by(Timeframe.id.desc()).first()
     if latest_timeframe:
         return redirect(url_for('load_data.select_timeframe', timeframe_id=latest_timeframe.id))
-    flash('No timeframes available', 'warning')
+    flash('No timeframes available for your school', 'warning')
     return render_template('noTimeframes.html')
 
 @load_data_bp.route('/select_timeframe/<int:timeframe_id>')
 def select_timeframe(timeframe_id):
+    current_user = get_current_user()
+    if not current_user:
+        flash('Please log in to access this page.', 'error')
+        return redirect(url_for('login_bp.login'))
+    
     timeframe = Timeframe.query.get_or_404(timeframe_id)
+    
+    # Ensure the timeframe belongs to the admin's school
+    if timeframe.school_id != current_user.school_id:
+        flash('Access denied. You can only manage timeframes for your school.', 'error')
+        return redirect(url_for('load_data.index'))
+    
     users_in_timeframe = timeframe.users
     
     return render_template(
@@ -57,7 +92,18 @@ def select_timeframe(timeframe_id):
 
 @load_data_bp.route('/upload/<int:timeframe_id>', methods=['POST'])
 def upload_excel(timeframe_id):
+    current_user = get_current_user()
+    if not current_user:
+        flash('Please log in to access this page.', 'error')
+        return redirect(url_for('login_bp.login'))
+    
     timeframe = Timeframe.query.get_or_404(timeframe_id)
+    
+    # Ensure the timeframe belongs to the admin's school
+    if timeframe.school_id != current_user.school_id:
+        flash('Access denied. You can only upload users for your school.', 'error')
+        return redirect(url_for('load_data.index'))
+    
     selected_roles = request.form.getlist('allowed_roles')
     
     if not selected_roles:
@@ -114,13 +160,20 @@ def upload_excel(timeframe_id):
                     
                     existing_user = User.query.filter_by(email=email).first()
                     if existing_user:
+                        # Update existing user info
                         existing_user.name = name
                         existing_user.course = course
                         existing_user.student_staff_id = student_staff_id
                         
+                        # IMPORTANT: Assign user to the educational admin's school if not already assigned
+                        if not existing_user.school_id:
+                            existing_user.school_id = current_user.school_id
+                        
+                        # Add to timeframe if not already added
                         if not any(t.id == timeframe_id for t in existing_user.timeframes):
                             existing_user.timeframes.append(timeframe)
                         
+                        # Add role if not already assigned
                         role = get_or_create_role(role_name)
                         if not any(r.id == role.id for r in existing_user.roles):
                             existing_user.roles.append(role)
@@ -135,16 +188,18 @@ def upload_excel(timeframe_id):
                             email=email,
                             course=course,
                             student_staff_id=student_staff_id,
-                            password_hash=password_hash
+                            password_hash=password_hash,
+                            school_id=current_user.school_id  # ASSIGN TO ADMIN'S SCHOOL
                         )
                         db.session.add(new_user)
                         db.session.flush()
                         
+                        # Add to timeframe and role
                         new_user.timeframes.append(timeframe)
                         role = get_or_create_role(role_name)
                         new_user.roles.append(role)
                         
-                        flash(f'New user created: {email}', 'info')
+                        flash(f'New user created for {current_user.school.name}: {email}', 'info')
                     
                     success_count += 1
                 except Exception as e:
@@ -153,7 +208,7 @@ def upload_excel(timeframe_id):
             
             db.session.commit()
             
-            flash(f'Successfully processed {success_count} users with roles: {", ".join(selected_roles)}', 'success')
+            flash(f'Successfully processed {success_count} users for {current_user.school.name} with roles: {", ".join(selected_roles)}', 'success')
             
             if role_skipped_count > 0:
                 flash(f'{role_skipped_count} role assignments were skipped (roles not allowed)', 'warning')
@@ -179,7 +234,18 @@ def upload_excel(timeframe_id):
 
 @load_data_bp.route('/view/<int:timeframe_id>')
 def view_users(timeframe_id):
+    current_user = get_current_user()
+    if not current_user:
+        flash('Please log in to access this page.', 'error')
+        return redirect(url_for('login_bp.login'))
+    
     timeframe = Timeframe.query.get_or_404(timeframe_id)
+    
+    # Ensure the timeframe belongs to the admin's school
+    if timeframe.school_id != current_user.school_id:
+        flash('Access denied. You can only view users for your school.', 'error')
+        return redirect(url_for('load_data.index'))
+    
     users = timeframe.users
     
     users_by_role = {}
