@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -121,7 +122,9 @@
             color: #424245;
         }
 
-        .form-input, .form-textarea, .form-select {
+        .form-input,
+        .form-textarea,
+        .form-select {
             width: 100%;
             padding: 12px 16px;
             border: 1px solid #d2d2d7;
@@ -131,7 +134,9 @@
             background: white;
         }
 
-        .form-input:focus, .form-textarea:focus, .form-select:focus {
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
             outline: none;
             border-color: #0071e3;
             box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
@@ -154,7 +159,8 @@
             gap: 20px;
         }
 
-        .slide-item, .plan-item {
+        .slide-item,
+        .plan-item {
             border: 1px solid #e5e5e7;
             border-radius: 12px;
             padding: 25px;
@@ -163,7 +169,8 @@
             position: relative;
         }
 
-        .slide-item h4, .plan-item h4 {
+        .slide-item h4,
+        .plan-item h4 {
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 20px;
@@ -338,21 +345,29 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         @media (max-width: 768px) {
-            .form-row, .form-row-thirds {
+
+            .form-row,
+            .form-row-thirds {
                 grid-template-columns: 1fr;
             }
-            
+
             .reviews-grid {
                 grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
+
 <body>
     <header class="header">
         <div class="header-container">
@@ -365,70 +380,76 @@
     </header>
 
     <div class="container">
-        <!-- Alerts -->
         <div id="alert-container"></div>
 
-        <!-- Loading Indicator -->
         <div id="loading" class="loading">
             <div class="spinner"></div>
             <p>Saving changes...</p>
         </div>
 
-        <!-- Hero Slides Section -->
         <div class="section">
             <div class="section-title">
                 Hero Slides
                 <button onclick="addNewSlide()" class="btn btn-primary">Add New Slide</button>
             </div>
-            
+
             <div id="hero-slides-container">
                 {% for slide in hero_slides %}
                 <div class="slide-item" data-slide-id="{{ slide.id }}">
                     <button onclick="deleteSlide({{ slide.id }})" class="delete-btn">×</button>
                     <h4>Slide {{ loop.index }}</h4>
-                    
+
                     <div class="form-group">
                         <label class="form-label">Background Image</label>
-                        <div class="image-upload-area {% if slide.filename %}has-image{% endif %}" onclick="triggerImageUpload(this)">
+                        <div class="image-upload-area {% if slide.filename %}has-image{% endif %}"
+                            onclick="triggerImageUpload(this)">
                             {% if slide.filename %}
-                                <img src="{{ url_for('static', filename='images/' + slide.filename) }}" alt="Current image" class="current-image">
-                                <p>Click to change image</p>
+                            <img src="{{ url_for('static', filename='images/' + slide.filename) }}" alt="Current image"
+                                class="current-image">
+                            <p>Click to change image</p>
                             {% else %}
-                                <p>Click to upload image</p>
+                            <p>Click to upload image</p>
                             {% endif %}
-                            <input type="file" accept="image/*" style="display: none;" onchange="handleImageUpload(this, {{ slide.id }})">
+                            <input type="file" accept="image/*" style="display: none;"
+                                onchange="handleImageUpload(this, {{ slide.id }})">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Eyebrow Text</label>
-                            <input type="text" class="form-input" name="eyebrow_text" value="{{ slide.eyebrow_text or '' }}" placeholder="e.g., Transformation">
+                            <input type="text" class="form-input" name="eyebrow_text"
+                                value="{{ slide.eyebrow_text or '' }}" placeholder="e.g., Transformation">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Display Order</label>
-                            <input type="number" class="form-input" name="display_order" value="{{ slide.display_order or 0 }}" min="0">
+                            <input type="number" class="form-input" name="display_order"
+                                value="{{ slide.display_order or 0 }}" min="0">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Headline</label>
-                        <input type="text" class="form-input" name="headline" value="{{ slide.headline or '' }}" placeholder="e.g., Transform Your Project Allocation">
+                        <input type="text" class="form-input" name="headline" value="{{ slide.headline or '' }}"
+                            placeholder="e.g., Transform Your Project Allocation">
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Subheading</label>
-                        <textarea class="form-textarea" name="subhead" placeholder="Descriptive text about this feature">{{ slide.subhead or '' }}</textarea>
+                        <textarea class="form-textarea" name="subhead"
+                            placeholder="Descriptive text about this feature">{{ slide.subhead or '' }}</textarea>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Button Text</label>
-                        <input type="text" class="form-input" name="cta_text" value="{{ slide.cta_text or 'Get Started' }}" placeholder="Get Started">
+                        <input type="text" class="form-input" name="cta_text"
+                            value="{{ slide.primary_cta_text or 'Get Started' }}" placeholder="Get Started">
                         <div class="link-hint">This button will link to the Get Started page (createSchool)</div>
                     </div>
 
                     <div class="checkbox-group">
-                        <input type="checkbox" class="checkbox" name="is_active" {{ 'checked' if slide.is_active else '' }}>
+                        <input type="checkbox" class="checkbox" name="is_active" {{ 'checked' if slide.is_active else ''
+                            }}>
                         <label class="form-label">Active (show on website)</label>
                     </div>
                 </div>
@@ -436,58 +457,65 @@
             </div>
         </div>
 
-        <!-- Plans Section -->
         <div class="section">
             <div class="section-title">
                 Pricing Plans
                 <button onclick="addNewPlan()" class="btn btn-primary">Add New Plan</button>
             </div>
-            
+
             <div id="plans-container">
                 {% for plan in plans %}
                 <div class="plan-item" data-plan-id="{{ plan.id }}">
                     <button onclick="deletePlan({{ plan.id }})" class="delete-btn">×</button>
                     <h4>{{ plan.name or 'New Plan' }}</h4>
-                    
+
                     <div class="form-row-thirds">
                         <div class="form-group">
                             <label class="form-label">Plan Name</label>
-                            <input type="text" class="form-input" name="name" value="{{ plan.name or '' }}" placeholder="e.g., Academic Basic">
+                            <input type="text" class="form-input" name="name" value="{{ plan.name or '' }}"
+                                placeholder="e.g., Academic Basic">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Price</label>
-                            <input type="number" class="form-input" name="price" value="{{ plan.price or '' }}" placeholder="0 for free" step="0.01">
+                            <input type="number" class="form-input" name="price" value="{{ plan.price or '' }}"
+                                placeholder="0 for free" step="0.01">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Display Order</label>
-                            <input type="number" class="form-input" name="display_order" value="{{ plan.display_order or 0 }}" min="0">
+                            <input type="number" class="form-input" name="display_order"
+                                value="{{ plan.display_order or 0 }}" min="0">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Billing Period</label>
-                            <input type="text" class="form-input" name="billing_period" value="{{ plan.billing_period or '' }}" placeholder="e.g., per month, forever">
+                            <input type="text" class="form-input" name="billing_period"
+                                value="{{ plan.billing_period or '' }}" placeholder="e.g., per month, forever">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Button Text</label>
-                            <input type="text" class="form-input" name="cta_text" value="{{ plan.cta_text or 'Get Started' }}">
+                            <input type="text" class="form-input" name="cta_text"
+                                value="{{ plan.cta_text or 'Get Started' }}">
                             <div class="link-hint">This button will link to the Get Started page (createSchool)</div>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Features (one per line)</label>
-                        <textarea class="form-textarea" name="features" placeholder="Up to 50 students&#10;Basic project matching&#10;Email notifications">{{ plan.features or '' }}</textarea>
+                        <textarea class="form-textarea" name="features"
+                            placeholder="Up to 50 students&#10;Basic project matching&#10;Email notifications">{{ plan.features or '' }}</textarea>
                     </div>
 
                     <div class="form-row">
                         <div class="checkbox-group">
-                            <input type="checkbox" class="checkbox" name="is_popular" {{ 'checked' if plan.is_popular else '' }}>
+                            <input type="checkbox" class="checkbox" name="is_popular" {{ 'checked' if plan.is_popular
+                                else '' }}>
                             <label class="form-label">Mark as Popular</label>
                         </div>
                         <div class="checkbox-group">
-                            <input type="checkbox" class="checkbox" name="is_active" {{ 'checked' if plan.is_active else '' }}>
+                            <input type="checkbox" class="checkbox" name="is_active" {{ 'checked' if plan.is_active
+                                else '' }}>
                             <label class="form-label">Active</label>
                         </div>
                     </div>
@@ -496,29 +524,32 @@
             </div>
         </div>
 
-        <!-- Reviews Section -->
         <div class="section">
             <div class="section-title">
                 Customer Reviews
-                <span style="font-size: 14px; font-weight: normal; color: #86868b;">Drag to reorder • Check to feature on homepage</span>
+                <span style="font-size: 14px; font-weight: normal; color: #86868b;">Drag to reorder • Check to feature
+                    on homepage</span>
             </div>
-            
+
             <div class="reviews-grid" id="reviews-container">
                 {% for review in reviews %}
-                <div class="review-card {% if review.is_featured %}featured{% endif %}" data-review-id="{{ review.id }}" draggable="true">
+                <div class="review-card {% if review.is_featured %}featured{% endif %}" data-review-id="{{ review.id }}"
+                    draggable="true">
                     <div class="drag-handle">⋮⋮</div>
                     <div class="review-header">
                         <div class="review-stars">
                             {% for i in range(review.rating or 5) %}★{% endfor %}
                         </div>
                         <div class="checkbox-group">
-                            <input type="checkbox" class="checkbox featured-checkbox" {{ 'checked' if review.is_featured else '' }}>
+                            <input type="checkbox" class="checkbox featured-checkbox" {{ 'checked' if review.is_featured
+                                else '' }}>
                             <label style="font-size: 12px;">Featured</label>
                         </div>
                     </div>
                     <p class="review-text">"{{ review.content }}"</p>
                     <div class="review-author">{{ review.author_name }}</div>
-                    <div class="review-role">{{ review.author_role }}{% if review.university %}, {{ review.university }}{% endif %}</div>
+                    <div class="review-role">{{ review.author_role }}{% if review.university %}, {{ review.university
+                        }}{% endif %}</div>
                 </div>
                 {% endfor %}
             </div>
@@ -549,7 +580,7 @@
                 });
 
                 const result = await response.json();
-                
+
                 if (result.success) {
                     // Update the image preview
                     const uploadArea = input.closest('.image-upload-area');
@@ -575,7 +606,7 @@
         function addNewSlide() {
             const container = document.getElementById('hero-slides-container');
             const slideCount = container.children.length + 1;
-            
+
             const newSlide = document.createElement('div');
             newSlide.className = 'slide-item';
             newSlide.setAttribute('data-slide-id', 'new');
@@ -623,7 +654,7 @@
                     <label class="form-label">Active (show on website)</label>
                 </div>
             `;
-            
+
             container.appendChild(newSlide);
         }
 
@@ -631,7 +662,7 @@
         function addNewPlan() {
             const container = document.getElementById('plans-container');
             const planCount = container.children.length + 1;
-            
+
             const newPlan = document.createElement('div');
             newPlan.className = 'plan-item';
             newPlan.setAttribute('data-plan-id', 'new');
@@ -682,7 +713,7 @@
                     </div>
                 </div>
             `;
-            
+
             container.appendChild(newPlan);
         }
 
@@ -696,7 +727,7 @@
                 });
 
                 const result = await response.json();
-                
+
                 if (result.success) {
                     document.querySelector(`[data-slide-id="${slideId}"]`).remove();
                     showAlert('Slide deleted successfully!', 'success');
@@ -717,7 +748,7 @@
                 });
 
                 const result = await response.json();
-                
+
                 if (result.success) {
                     document.querySelector(`[data-plan-id="${planId}"]`).remove();
                     showAlert('Plan deleted successfully!', 'success');
@@ -733,16 +764,16 @@
         async function saveAllChanges() {
             try {
                 showLoading(true);
-                
+
                 // Save hero slides
                 await saveHeroSlides();
-                
+
                 // Save plans
                 await savePlans();
-                
+
                 // Save reviews
                 await saveReviews();
-                
+
                 showAlert('All changes saved successfully!', 'success');
             } catch (error) {
                 showAlert('Error saving changes: ' + error.message, 'error');
@@ -752,18 +783,20 @@
         }
 
         // Save hero slides
+        // Save hero slides with debugging
+        // Save hero slides with enhanced debugging
         async function saveHeroSlides() {
             const slides = [];
             const slideElements = document.querySelectorAll('.slide-item');
-            
-            slideElements.forEach(element => {
+
+            slideElements.forEach((element, index) => {
                 const slideData = {
                     id: element.getAttribute('data-slide-id'),
                     eyebrow_text: element.querySelector('[name="eyebrow_text"]').value,
                     headline: element.querySelector('[name="headline"]').value,
                     subhead: element.querySelector('[name="subhead"]').value,
-                    cta_text: element.querySelector('[name="cta_text"]').value,
-                    cta_link: 'createSchool', // Fixed link
+                    primary_cta_text: element.querySelector('[name="cta_text"]').value,
+                    primary_cta_link: 'createSchool',
                     display_order: parseInt(element.querySelector('[name="display_order"]').value) || 0,
                     is_active: element.querySelector('[name="is_active"]').checked,
                     filename: element.querySelector('.image-upload-area').getAttribute('data-filename') || 'default.jpg'
@@ -779,16 +812,36 @@
                 body: JSON.stringify(slides)
             });
 
+            const result = await response.json();
+
             if (!response.ok) {
-                throw new Error('Failed to save hero slides');
+                throw new Error(result.error || 'Failed to save hero slides');
             }
+
+            // Update DOM with new IDs for created slides
+            if (result.created_slides) {
+                result.created_slides.forEach(createdSlide => {
+                    const slideElement = slideElements[createdSlide.index];
+                    slideElement.setAttribute('data-slide-id', createdSlide.new_id);
+
+                    // Update delete button
+                    const deleteBtn = slideElement.querySelector('.delete-btn');
+                    deleteBtn.setAttribute('onclick', `deleteSlide(${createdSlide.new_id})`);
+
+                    // Update image upload handler
+                    const imageInput = slideElement.querySelector('input[type="file"]');
+                    imageInput.setAttribute('onchange', `handleImageUpload(this, ${createdSlide.new_id})`);
+                });
+            }
+
+            return result;
         }
 
         // Save plans
         async function savePlans() {
             const plans = [];
             const planElements = document.querySelectorAll('.plan-item');
-            
+
             planElements.forEach(element => {
                 const planData = {
                     id: element.getAttribute('data-plan-id'),
@@ -858,31 +911,31 @@
         // Drag and drop for reviews
         function setupDragAndDrop() {
             const reviewsContainer = document.getElementById('reviews-container');
-            
-            reviewsContainer.addEventListener('dragstart', function(e) {
+
+            reviewsContainer.addEventListener('dragstart', function (e) {
                 if (e.target.classList.contains('review-card')) {
                     draggedElement = e.target;
                     e.target.style.opacity = '0.5';
                 }
             });
 
-            reviewsContainer.addEventListener('dragend', function(e) {
+            reviewsContainer.addEventListener('dragend', function (e) {
                 if (e.target.classList.contains('review-card')) {
                     e.target.style.opacity = '';
                     draggedElement = null;
                 }
             });
 
-            reviewsContainer.addEventListener('dragover', function(e) {
+            reviewsContainer.addEventListener('dragover', function (e) {
                 e.preventDefault();
             });
 
-            reviewsContainer.addEventListener('drop', function(e) {
+            reviewsContainer.addEventListener('drop', function (e) {
                 e.preventDefault();
                 if (draggedElement && e.target.classList.contains('review-card')) {
                     const bounding = e.target.getBoundingClientRect();
                     const offset = bounding.y + (bounding.height / 2);
-                    
+
                     if (e.clientY - offset > 0) {
                         e.target.parentNode.insertBefore(draggedElement, e.target.nextSibling);
                     } else {
@@ -894,7 +947,7 @@
 
         // Handle featured checkbox changes
         function setupFeaturedCheckboxes() {
-            document.addEventListener('change', function(e) {
+            document.addEventListener('change', function (e) {
                 if (e.target.classList.contains('featured-checkbox')) {
                     const reviewCard = e.target.closest('.review-card');
                     if (e.target.checked) {
@@ -912,9 +965,9 @@
             const alert = document.createElement('div');
             alert.className = `alert alert-${type}`;
             alert.textContent = message;
-            
+
             alertContainer.appendChild(alert);
-            
+
             setTimeout(() => {
                 alert.remove();
             }, 5000);
@@ -926,10 +979,11 @@
         }
 
         // Initialize everything when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             setupDragAndDrop();
             setupFeaturedCheckboxes();
         });
     </script>
 </body>
+
 </html>

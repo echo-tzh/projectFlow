@@ -37,36 +37,24 @@ def edit_marketing():
         return redirect(url_for('main.index'))
     
     
-
 @edit_marketing_bp.route('/edit-marketing/hero', methods=['POST'])
 def save_hero_slides():
     """Save hero slides data"""
     try:
         slides_data = request.get_json()
         
-        for slide_data in slides_data:
+        if not slides_data:
+            return jsonify({'success': False, 'error': 'No slide data provided'}), 400
+        
+        created_slides = []
+        
+        for i, slide_data in enumerate(slides_data):
             slide_id = slide_data.get('id')
 
-            slide = None
-            if slide_id and str(slide_id).lower() != 'new':
-                try:
-                    slide_id_int = int(slide_id)
-                    slide = MarketingPhoto.query.get(slide_id_int)
-                except (TypeError, ValueError):
-                    slide = None
-
-            if slide:
-                # Update existing slide
-                slide.eyebrow_text = slide_data.get('eyebrow_text', '')
-                slide.headline = slide_data.get('headline', '')
-                slide.subhead = slide_data.get('subhead', '')
-                slide.primary_cta_text = slide_data.get('primary_cta_text', '')
-                slide.primary_cta_link = slide_data.get('primary_cta_link', '')
-                slide.secondary_cta_text = slide_data.get('secondary_cta_text', '')
-                slide.secondary_cta_link = slide_data.get('secondary_cta_link', '')
-                slide.display_order = slide_data.get('display_order', 0)
-                slide.is_active = slide_data.get('is_active', True)
-            else:
+            # Check if this is a new slide (ID is 'new', None, empty, or starts with 'temp_')
+            if (slide_id == 'new' or slide_id is None or slide_id == '' or 
+                (isinstance(slide_id, str) and slide_id.startswith('temp_'))):
+                
                 # Create new slide
                 new_slide = MarketingPhoto(
                     filename=slide_data.get('filename', 'default.jpg'),
@@ -83,9 +71,43 @@ def save_hero_slides():
                     uploaded_at=datetime.utcnow()
                 )
                 db.session.add(new_slide)
+                db.session.flush()  # Get the ID immediately
+                created_slides.append({
+                    'index': i, 
+                    'new_id': new_slide.id,
+                    'temp_id': slide_id  # Include the temp ID for frontend mapping
+                })
+            else:
+                # Update existing slide
+                try:
+                    slide_id_int = int(slide_id)
+                    slide = MarketingPhoto.query.get(slide_id_int)
+                    
+                    if not slide:
+                        return jsonify({'success': False, 'error': f'Slide with ID {slide_id} not found'}), 404
+
+                    slide.eyebrow_text = slide_data.get('eyebrow_text', '')
+                    slide.headline = slide_data.get('headline', '')
+                    slide.subhead = slide_data.get('subhead', '')
+                    slide.primary_cta_text = slide_data.get('primary_cta_text', '')
+                    slide.primary_cta_link = slide_data.get('primary_cta_link', '')
+                    slide.secondary_cta_text = slide_data.get('secondary_cta_text', '')
+                    slide.secondary_cta_link = slide_data.get('secondary_cta_link', '')
+                    slide.display_order = slide_data.get('display_order', 0)
+                    slide.is_active = slide_data.get('is_active', True)
+                    
+                    if slide_data.get('filename') and slide_data.get('filename') != 'default.jpg':
+                        slide.filename = slide_data.get('filename')
+                        
+                except ValueError:
+                    return jsonify({'success': False, 'error': f'Invalid slide ID: {slide_id}'}), 400
 
         db.session.commit()
-        return jsonify({'success': True, 'message': 'Hero slides saved successfully'})
+        return jsonify({
+            'success': True, 
+            'message': 'Hero slides saved successfully',
+            'created_slides': created_slides
+        })
     
     except Exception as e:
         db.session.rollback()
@@ -131,23 +153,15 @@ def save_plans():
     try:
         plans_data = request.get_json()
         
-        for plan_data in plans_data:
+        created_plans = []
+        
+        for i, plan_data in enumerate(plans_data):
             plan_id = plan_data.get('id')
             
-            if plan_id and plan_id != 'new':
-                # Update existing plan
-                plan = Plan.query.get(plan_id)
-                if plan:
-                    plan.name = plan_data.get('name', '')
-                    plan.price = plan_data.get('price')
-                    plan.billing_period = plan_data.get('billing_period', '')
-                    plan.features = plan_data.get('features', '')
-                    plan.cta_text = plan_data.get('cta_text', 'Get Started')
-                    plan.cta_link = plan_data.get('cta_link', '#')
-                    plan.is_popular = plan_data.get('is_popular', False)
-                    plan.display_order = plan_data.get('display_order', 0)
-                    plan.is_active = plan_data.get('is_active', True)
-            else:
+            # Check if this is a new plan (ID is 'new', None, empty, or starts with 'temp_')
+            if (plan_id == 'new' or plan_id is None or plan_id == '' or 
+                (isinstance(plan_id, str) and plan_id.startswith('temp_'))):
+                
                 # Create new plan
                 new_plan = Plan(
                     name=plan_data.get('name', ''),
@@ -161,9 +175,36 @@ def save_plans():
                     is_active=plan_data.get('is_active', True)
                 )
                 db.session.add(new_plan)
+                db.session.flush()  # Get the ID immediately
+                created_plans.append({
+                    'index': i, 
+                    'new_id': new_plan.id,
+                    'temp_id': plan_id
+                })
+            else:
+                # Update existing plan
+                try:
+                    plan_id_int = int(plan_id)
+                    plan = Plan.query.get(plan_id_int)
+                    if plan:
+                        plan.name = plan_data.get('name', '')
+                        plan.price = plan_data.get('price')
+                        plan.billing_period = plan_data.get('billing_period', '')
+                        plan.features = plan_data.get('features', '')
+                        plan.cta_text = plan_data.get('cta_text', 'Get Started')
+                        plan.cta_link = plan_data.get('cta_link', '#')
+                        plan.is_popular = plan_data.get('is_popular', False)
+                        plan.display_order = plan_data.get('display_order', 0)
+                        plan.is_active = plan_data.get('is_active', True)
+                except ValueError:
+                    return jsonify({'success': False, 'error': f'Invalid plan ID: {plan_id}'}), 400
         
         db.session.commit()
-        return jsonify({'success': True, 'message': 'Plans saved successfully'})
+        return jsonify({
+            'success': True, 
+            'message': 'Plans saved successfully',
+            'created_plans': created_plans
+        })
     
     except Exception as e:
         db.session.rollback()
@@ -181,10 +222,19 @@ def update_featured_reviews():
         
         # Set selected reviews as featured
         if featured_ids:
-            Review.query.filter(Review.id.in_(featured_ids)).update(
-                {'is_featured': True}, 
-                synchronize_session=False
-            )
+            # Filter out any invalid IDs
+            valid_ids = []
+            for review_id in featured_ids:
+                try:
+                    valid_ids.append(int(review_id))
+                except (ValueError, TypeError):
+                    continue  # Skip invalid IDs
+            
+            if valid_ids:
+                Review.query.filter(Review.id.in_(valid_ids)).update(
+                    {'is_featured': True}, 
+                    synchronize_session=False
+                )
         
         db.session.commit()
         return jsonify({'success': True, 'message': 'Featured reviews updated'})
@@ -204,9 +254,13 @@ def update_review_order():
             review_id = item.get('id')
             new_order = item.get('order')
             
-            review = Review.query.get(review_id)
-            if review:
-                review.display_order = new_order
+            try:
+                review_id_int = int(review_id)
+                review = Review.query.get(review_id_int)
+                if review:
+                    review.display_order = new_order
+            except (ValueError, TypeError):
+                continue  # Skip invalid IDs
         
         db.session.commit()
         return jsonify({'success': True, 'message': 'Review order updated'})
@@ -253,4 +307,3 @@ def delete_plan(plan_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
-    
