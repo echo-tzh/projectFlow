@@ -1,9 +1,12 @@
+# app.py
+
 from flask import Flask, redirect, url_for
 from config import Config
 from database import db
 from features.authentication.login.loginController import login_bp
 from features.marketing.marketingController import marketing_bp
-from features.editMarketing.editMarketingController import edit_marketing_bp
+# New import line for the editMarketing blueprint
+from features.marketing.editMarketing.editMarketingController import edit_marketing_bp
 from flask_cors import CORS
 from features.createSchool.createSchoolController import create_school_bp
 from features.educationAdmin.manageTimeframe.manageTimeframeController import manage_timeframe_bp
@@ -14,6 +17,8 @@ from features.educationAdmin.setupEmail.setupEmailController import setup_email_
 from features.viewProfile.viewProfileController import viewProfile_bp
 from features.Student.ViewProjectListing.viewProjectListingController import student_projects_bp
 from features.authentication.changePassword.changePassword import change_password_bp
+from shared.models import create_default_admin_account
+
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
@@ -22,6 +27,7 @@ CORS(app)
 # Register all blueprints
 app.register_blueprint(login_bp)
 app.register_blueprint(marketing_bp)
+# New registration line for the editMarketing blueprint
 app.register_blueprint(edit_marketing_bp)
 app.register_blueprint(create_school_bp)
 # Corrected: Registered the blueprint
@@ -31,12 +37,9 @@ app.register_blueprint(universal_dashboard_bp)
 app.register_blueprint(send_welcome_email_bp)
 app.register_blueprint(setup_email_bp)
 # Student projects blueprint
-
 app.register_blueprint(student_projects_bp, url_prefix="/student")
-
-
 app.register_blueprint(viewProfile_bp)
-#change password 
+#change password
 app.register_blueprint(change_password_bp)
 
 @app.route('/')
@@ -67,4 +70,7 @@ def dashboard_redirect():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        # Create default admin account
+        create_default_admin_account()
+        
     app.run(debug=True)

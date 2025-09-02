@@ -399,6 +399,10 @@
             background: linear-gradient(45deg, #007AFF, #34C759);
         }
 
+        .system_admin .card-icon {
+            background: linear-gradient(45deg, #FF2D92, #FF6B35);
+        }
+
         /* Different gradient for the second card */
         .card:nth-child(2) .card-icon {
             background: linear-gradient(45deg, #007AFF, #5856D6);
@@ -554,40 +558,48 @@
                 </div>
             </div>
 
+            {% elif current_role == 'system admin' %}
+            <div class="dashboard-grid">
+                <div class="card" style="animation-delay: 0.1s;">
+                    <div class="card-icon">
+                        <span role="img" aria-label="marketing">🎨</span>
+                    </div>
+                    <h3 class="card-title">Edit Marketing Content</h3>
+                    <p class="card-description">Manage and update the marketing pages and content for the platform.</p>
+                    <a href="{{ url_for('edit_marketing_bp.edit_marketing') }}" class="card-action">
+                        Edit Marketing
+                    </a>
+                </div>
+            </div>
+
             {% elif current_role == 'student' %}
             <div class="dashboard-grid">
-                <!-- View Project Listing -->
                 <div class="card" style="animation-delay: 0.1s;">
                     <div class="card-icon">
                         <span role="img" aria-label="list">🧾</span>
                     </div>
                     <h3 class="card-title">View Project Listing</h3>
                     <p class="card-description">Browse all available projects for your current course term.</p>
-                    <!-- Button only; no navigation yet -->
                     <a href="{{ url_for('student_projects.view_projects') }}" class="card-action">
                         View Project Listing
                     </a>
                 </div>
 
-                <!-- Submit Preferences -->
                 <div class="card" style="animation-delay: 0.2s;">
                     <div class="card-icon">
                         <span role="img" aria-label="preferences">📝</span>
                     </div>
                     <h3 class="card-title">Submit Preferences</h3>
                     <p class="card-description">Rank your preferred projects to help us allocate a good match.</p>
-                    <!-- Button only; no navigation yet -->
                     <button type="button" class="card-action">Submit Preferences</button>
                 </div>
 
-                <!-- View Allocation Results -->
                 <div class="card" style="animation-delay: 0.3s;">
                     <div class="card-icon">
                         <span role="img" aria-label="results">🎯</span>
                     </div>
                     <h3 class="card-title">View Allocation Results</h3>
                     <p class="card-description">See your assigned project and supervisor once results are released.</p>
-                    <!-- Button only; no navigation yet -->
                     <button type="button" class="card-action">View Allocation Results</button>
                 </div>
             </div>

@@ -2,7 +2,7 @@ import os
 from flask import Blueprint, render_template
 from datetime import datetime
 from shared.models import Plan, Review, MarketingPhoto
-  # Import new models
+
 
 # Set the path to the templates folder inside this feature
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')

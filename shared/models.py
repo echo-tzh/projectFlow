@@ -1,5 +1,6 @@
 from database import db
 from datetime import datetime
+from werkzeug.security import generate_password_hash
 
 # ------------------------
 # Association Table for Many-to-Many User-Role Relationship
@@ -89,8 +90,6 @@ class User(db.Model):
     projects = db.relationship('Project', backref='creator', lazy=True)  # For coordinators
     email_configs = db.relationship('EmailConfig', backref='creator', lazy=True)
 
-
-
 class MarketingPhoto(db.Model):
     __tablename__ = 'marketing_photos'
     id = db.Column(db.Integer, primary_key=True)
@@ -162,7 +161,6 @@ class Timeframe(db.Model):
     end_date = db.Column(db.Date, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    
     location = db.Column(db.String(255), nullable=True)  # the location will be like UOW or SIM etc.
     delivery_type = db.Column(db.Enum('on campus', 'off campus', name='delivery_type_enum'), nullable=False)
 
@@ -170,7 +168,6 @@ class Timeframe(db.Model):
 
     # Relationships
     projects = db.relationship('Project', backref='timeframe', lazy=True)
-
 
 class Project(db.Model):
     __tablename__ = 'projects'
@@ -181,3 +178,87 @@ class Project(db.Model):
 
     timeframe_id = db.Column(db.Integer, db.ForeignKey('timeframes.id'), nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Academic Coordinator
+
+# ------------------------
+# Default Data Creation Function
+# ------------------------
+def create_default_admin_account():
+    """
+    Creates a default system admin account if it doesn't exist.
+    Call this function after creating your database tables.
+    
+    Login credentials:
+    - Email: projectFlowAdminAccount
+    - Password: 12345678
+    """
+    
+    try:
+        # Check if system admin role exists, create if not
+        admin_role = Role.query.filter_by(name='system admin').first()
+        if not admin_role:
+            admin_role = Role(
+                name='system_admin',
+                description='system admin',
+                created_at=datetime.utcnow(),
+                is_active=True
+            )
+            db.session.add(admin_role)
+            print("✅ Created 'system admin' role")
+        else:
+            print("ℹ️  'system admin' role already exists")
+
+        # Check if admin user exists, create if not
+        admin_user = User.query.filter_by(email='projectFlowAdminAccount').first()
+        if not admin_user:
+            # Hash the password '12345678'
+            hashed_password = generate_password_hash('12345678')
+            
+            admin_user = User(
+                name='System Administrator',
+                email='projectFlowAdminAccount',
+                password_hash=hashed_password,
+                course=None,  # Not applicable for admin
+                student_staff_id='ADMIN001',
+                created_at=datetime.utcnow(),
+                school_id=None  # Can be assigned to a school later if needed
+            )
+            
+            db.session.add(admin_user)
+            db.session.flush()  # To get the user ID before adding role
+            
+            # Assign the admin role to the user
+            admin_user.roles.append(admin_role)
+            
+            print("✅ Created default admin user: projectFlowAdminAccount")
+            print("🔑 Login credentials:")
+            print("   Email: projectFlowAdminAccount")
+            print("   Password: 12345678")
+            print("⚠️  IMPORTANT: Change this password after first login!")
+        else:
+            print("ℹ️  Admin user 'projectFlowAdminAccount' already exists")
+            # Ensure the user has admin role
+            if admin_role not in admin_user.roles:
+                admin_user.roles.append(admin_role)
+                print("✅ Added 'system admin' role to existing user")
+
+        db.session.commit()
+        print("✅ Default admin account setup completed successfully!")
+        return True
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"❌ Error creating admin account: {str(e)}")
+        return False
+# ------------------------
+# Usage Example (add to your app initialization)
+# ------------------------
+"""
+To use this in your Flask app, add this to your main app file after creating tables:
+
+from models import create_default_admin_account
+
+# After db.create_all()
+with app.app_context():
+    db.create_all()  # Create tables first
+    create_default_admin_account()  # Then create default admin
+"""

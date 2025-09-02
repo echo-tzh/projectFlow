@@ -23,17 +23,17 @@ def view_own_profile():
     try:
         # Debug step 1: Check session
         user_id = session.get('user_id')
-        print(f"DEBUG: Session user_id = {user_id}")
-        print(f"DEBUG: Session contents = {dict(session)}")
+        #print(f"DEBUG: Session user_id = {user_id}")
+       # print(f"DEBUG: Session contents = {dict(session)}")
         
         if not user_id:
             flash('No user ID in session. Please log in again.', 'danger')
             return redirect(url_for('login_bp.login'))
         
         # Debug step 2: Check database query
-        print(f"DEBUG: Attempting to query User with ID {user_id}")
+        #print(f"DEBUG: Attempting to query User with ID {user_id}")
         user = User.query.get(user_id)
-        print(f"DEBUG: Query result = {user}")
+        #print(f"DEBUG: Query result = {user}")
         
         if not user:
             print("DEBUG: User not found in database")
@@ -41,16 +41,16 @@ def view_own_profile():
             return redirect(url_for('universal_dashboard.dashboard'))
         
         # Debug step 3: Check user attributes
-        print(f"DEBUG: User name = {user.name}")
-        print(f"DEBUG: User email = {user.email}")
-        print(f"DEBUG: User roles = {list(user.roles)}")
-        print(f"DEBUG: User school = {user.school}")
+        #print(f"DEBUG: User name = {user.name}")
+        #print(f"DEBUG: User email = {user.email}")
+        #print(f"DEBUG: User roles = {list(user.roles)}")
+        #print(f"DEBUG: User school = {user.school}")
         
         # Debug step 4: Try rendering template
-        print("DEBUG: About to render template")
-        print(f"DEBUG: Blueprint template folder: {viewProfile_bp.template_folder}")
-        print(f"DEBUG: Looking for template at: {os.path.join(viewProfile_bp.template_folder, 'viewProfile.html')}")
-        print(f"DEBUG: Template file exists: {os.path.exists(os.path.join(viewProfile_bp.template_folder, 'viewProfile.html'))}")
+        #print("DEBUG: About to render template")
+        #print(f"DEBUG: Blueprint template folder: {viewProfile_bp.template_folder}")
+        #print(f"DEBUG: Looking for template at: {os.path.join(viewProfile_bp.template_folder, 'viewProfile.html')}")
+        #print(f"DEBUG: Template file exists: {os.path.exists(os.path.join(viewProfile_bp.template_folder, 'viewProfile.html'))}")
         return render_template('viewProfile.html', user=user)
         
     except Exception as e:

@@ -105,37 +105,36 @@
         }
 
         .hero-slide {
-            min-height: 692px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            color: white;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             text-align: center;
-            padding: 60px 40px;
+        }
+
+        /* Overlay shade */
+        .hero-slide::before {
+            content: "";
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            opacity: 0;
-            transition: opacity 1.2s ease-in-out;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.65),
+                    /* darker overlay */
+                    rgba(0, 0, 0, 0.65));
+            /* Adjust opacity */
+            z-index: 1;
         }
 
-        .hero-slide.active {
-            opacity: 1;
-        }
-
-        .hero-slide::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: var(--bg-image);
-            background-size: cover;
-            background-position: center;
-            opacity: 0.4;
-            z-index: 0;
+        /* Make sure text/content appears above overlay */
+        .hero-content {
+            position: relative;
+            z-index: 2;
         }
 
         .slide-1::before {
@@ -650,8 +649,31 @@
             </div>
         </div>
     </nav>
+
     <section class="hero">
-        <div class="hero-slide active" data-bg="{{ url_for('static', filename='images/appleIntelligence.jpg') }}">
+        {% if hero_slides and hero_slides|length > 0 %}
+        <!-- Dynamic slides from database -->
+        {% for slide in hero_slides %}
+        <div class="hero-slide {% if loop.first %}active{% endif %}"
+            style="background-image: url('{{ url_for('static', filename='images/' + slide.filename) }}');"
+            data-slide-index="{{ loop.index0 }}">
+            <div class="hero-content">
+                <h1 class="hero-eyebrow">{{ slide.eyebrow_text or 'ProjectFlow' }}</h1>
+                <h2 class="hero-headline">{{ slide.headline or 'Project Management Made Easy' }}</h2>
+                <p class="hero-subhead">{{ slide.subhead or 'Streamline your project workflow with our advanced tools'
+                    }}</p>
+                <div class="hero-cta-group">
+                    <a href="{{ slide.primary_cta_link or 'createSchool' }}" class="cta-primary">
+                        {{ slide.primary_cta_text or 'Get Started' }}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <!-- Default fallback slides -->
+        <div class="hero-slide active slide-1" data-slide-index="0">
             <div class="hero-content">
                 <h1 class="hero-eyebrow">Transformation</h1>
                 <h2 class="hero-headline">Transform Your Project Allocation</h2>
@@ -663,7 +685,7 @@
             </div>
         </div>
 
-        <div class="hero-slide" data-bg="{{ url_for('static', filename='images/slide2.jpg') }}">
+        <div class="hero-slide slide-2" data-slide-index="1">
             <div class="hero-content">
                 <h1 class="hero-eyebrow">Intelligent</h1>
                 <h2 class="hero-headline">AI-Powered Matching</h2>
@@ -675,7 +697,7 @@
             </div>
         </div>
 
-        <div class="hero-slide" data-bg="{{ url_for('static', filename='images/slide3.jpg') }}">
+        <div class="hero-slide slide-3" data-slide-index="2">
             <div class="hero-content">
                 <h1 class="hero-eyebrow">Seamless</h1>
                 <h2 class="hero-headline">Complete Management</h2>
@@ -686,11 +708,19 @@
                 </div>
             </div>
         </div>
+        {% endif %}
 
+        <!-- Dynamic slide indicators -->
         <div class="slide-indicators">
+            {% if hero_slides and hero_slides|length > 0 %}
+            {% for slide in hero_slides %}
+            <div class="slide-dot {% if loop.first %}active{% endif %}" data-slide="{{ loop.index0 }}"></div>
+            {% endfor %}
+            {% else %}
             <div class="slide-dot active" data-slide="0"></div>
             <div class="slide-dot" data-slide="1"></div>
             <div class="slide-dot" data-slide="2"></div>
+            {% endif %}
         </div>
 
         <button id="prev-btn" class="nav-button prev-button">
@@ -706,8 +736,6 @@
             </svg>
         </button>
     </section>
-
-
 
     <!-- Plans Section -->
     <section class="section">
@@ -853,7 +881,7 @@
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
 
-        // Make sure the image paths are rendered correctly from Flask
+        // Set background images for slides
         slides.forEach(slide => {
             const bg = slide.dataset.bg;
             if (bg) {
@@ -880,13 +908,14 @@
             showSlide(currentSlide);
         }
 
-        // Stop auto-play when a user interacts with the buttons or dots
+        // Auto-play functionality
         let autoSlide = setInterval(nextSlide, 6000);
+
         function stopAutoSlide() {
             clearInterval(autoSlide);
         }
 
-        // Add event listeners for the navigation buttons
+        // Navigation button event listeners
         if (prevBtn && nextBtn) {
             prevBtn.addEventListener('click', () => {
                 stopAutoSlide();
@@ -898,7 +927,7 @@
             });
         }
 
-        // Add event listeners for the dots
+        // Dot navigation event listeners
         dots.forEach((dot, index) => {
             dot.addEventListener('click', () => {
                 stopAutoSlide();
@@ -907,6 +936,7 @@
             });
         });
 
+        // Intersection observer for animations
         const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) entry.target.classList.add('animate-in');
@@ -915,6 +945,7 @@
 
         document.querySelectorAll('.plan-card, .review-card').forEach(el => observer.observe(el));
 
+        // Navigation scroll effect
         let lastScroll = 0;
         window.addEventListener('scroll', () => {
             const nav = document.querySelector('.nav');
@@ -928,7 +959,62 @@
             }
             lastScroll = currentScroll;
         });
-    </script>
-</body>
 
-</html>
+        function getAverageRGB(imgEl) {
+            const blockSize = 5, // step size
+                canvas = document.createElement('canvas'),
+                context = canvas.getContext && canvas.getContext('2d');
+            let data, width, height,
+                i = -4, length,
+                rgb = { r: 0, g: 0, b: 0 }, count = 0;
+
+            height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
+            width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
+
+            context.drawImage(imgEl, 0, 0);
+
+            try {
+                data = context.getImageData(0, 0, width, height);
+            } catch (e) {
+                return rgb; // CORS issue fallback
+            }
+
+            length = data.data.length;
+            while ((i += blockSize * 4) < length) {
+                ++count;
+                rgb.r += data.data[i];
+                rgb.g += data.data[i + 1];
+                rgb.b += data.data[i + 2];
+            }
+
+            rgb.r = ~~(rgb.r / count);
+            rgb.g = ~~(rgb.g / count);
+            rgb.b = ~~(rgb.b / count);
+
+            return rgb;
+        }
+
+        function setTextColorBasedOnBg(slide) {
+            const bgUrl = slide.dataset.bg.replace(/url\(['"]?(.*?)['"]?\)/, "$1");
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.src = bgUrl;
+
+            img.onload = function () {
+                const avg = getAverageRGB(img);
+                const brightness = (avg.r * 299 + avg.g * 587 + avg.b * 114) / 1000;
+                const content = slide.querySelector(".hero-content");
+                if (brightness > 180) { // bright background
+                    content.style.color = "black";
+                } else {
+                    content.style.color = "white";
+                }
+            };
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll(".hero-slide").forEach(slide => {
+                setTextColorBasedOnBg(slide);
+            });
+        });
+    </script>
