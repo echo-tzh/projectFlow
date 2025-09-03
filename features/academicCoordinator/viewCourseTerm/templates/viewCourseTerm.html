@@ -363,7 +363,7 @@
         }
 
         .school-info {
-            font-size: 13px;
+            font-size: 16px;
             color: #86868b;
             font-weight: 500;
         }
@@ -582,7 +582,7 @@
                         <div class="card-footer">
                             <a href="{{ url_for('view_course_term.view_course_term_detail', timeframe_id=timeframe.id) }}"
                                 class="view-btn">View Details</a>
-                            <div class="school-info">{{ timeframe.school.name }}</div>
+                            <div class="school-info">School {{ timeframe.school.name }}</div>
                         </div>
                     </div>
                 </div>
@@ -641,7 +641,7 @@
                         <div class="card-footer">
                             <a href="{{ url_for('view_course_term.view_course_term_detail', timeframe_id=timeframe.id) }}"
                                 class="view-btn">View Details</a>
-                            <div class="school-info">{{ timeframe.school.name }}</div>
+                            <div class="school-info">School: {{ timeframe.school.name }}</div>
                         </div>
                     </div>
                 </div>
@@ -700,7 +700,7 @@
                         <div class="card-footer">
                             <a href="{{ url_for('view_course_term.view_course_term_detail', timeframe_id=timeframe.id) }}"
                                 class="view-btn secondary">View Details</a>
-                            <div class="school-info">{{ timeframe.school.name }}</div>
+                            <div class="school-info">School: {{ timeframe.school.name }}</div>
                         </div>
                     </div>
                 </div>
