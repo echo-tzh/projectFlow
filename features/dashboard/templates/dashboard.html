@@ -615,6 +615,25 @@
                 </div>
             </div>
 
+            {% elif current_role == 'coordinator' or current_role == 'academic coordinator' %}
+            <div class="dashboard-grid">
+                <div class="card" style="animation-delay: 0.1s;">
+                    <div class="card-icon">
+                        <span role="img" aria-label="course-terms">📚</span>
+                    </div>
+                    <h3 class="card-title">View Course Terms</h3>
+                    <p class="card-description">View and manage all course terms (timeframes) that you are assigned to
+                        coordinate.</p>
+                    <a href="{{ url_for('view_course_term.view_course_terms') }}" class="card-action">
+                        View Course Terms
+                    </a>
+                </div>
+            </div> 
+
+
+
+
+
             {% else %}
             <div class="dashboard-grid">
                 <div class="coming-soon-card">

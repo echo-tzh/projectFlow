@@ -28,9 +28,9 @@ def view_course_terms():
     
     # Check if user has coordinator role (assuming role name is 'coordinator' or 'academic_coordinator')
     user_roles = [role.name for role in user.roles]
-    if 'coordinator' not in user_roles and 'academic_coordinator' not in user_roles:
+    if 'coordinator' not in user_roles and 'academic coordinator' not in user_roles:
         flash('Access denied. Academic coordinator privileges required.', 'error')
-        return redirect(url_for('dashboard.index'))  # Redirect to main dashboard
+        return redirect(url_for('universal_dashboard.dashboard'))  # Redirect to main dashboard
     
     try:
         # Get all timeframes assigned to this user
@@ -70,7 +70,7 @@ def view_course_terms():
     
     except Exception as e:
         flash(f'An error occurred while loading course terms: {str(e)}', 'error')
-        return redirect(url_for('dashboard.index'))
+        return redirect(url_for('universal_dashboard.dashboard'))
 
 @view_course_term_bp.route('/course-term/<int:timeframe_id>')
 def view_course_term_detail(timeframe_id):

@@ -4,9 +4,9 @@ from flask import Flask, redirect, url_for
 from config import Config
 from database import db
 from features.authentication.login.loginController import login_bp
-from features.marketing.marketingController import marketing_bp
+from features.systemAdmin.marketing.marketingController import marketing_bp
 # New import line for the editMarketing blueprint
-from features.marketing.editMarketing.editMarketingController import edit_marketing_bp
+from features.systemAdmin.marketing.editMarketing.editMarketingController import edit_marketing_bp
 from flask_cors import CORS
 from features.createSchool.createSchoolController import create_school_bp
 from features.educationAdmin.manageTimeframe.manageTimeframeController import manage_timeframe_bp
@@ -19,6 +19,8 @@ from features.Student.ViewProjectListing.viewProjectListingController import stu
 from features.authentication.changePassword.changePassword import change_password_bp
 from shared.models import create_default_admin_account
 from features.systemAdmin.manageSchool.manageSchoolController import manage_school_bp
+from features.academicCoordinator.viewCourseTerm.viewCourseTermController import view_course_term_bp
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -44,7 +46,8 @@ app.register_blueprint(viewProfile_bp)
 app.register_blueprint(change_password_bp)
 #manage users 
 app.register_blueprint(manage_school_bp, url_prefix='/admin')
-
+#view course term for academic coordinator 
+app.register_blueprint(view_course_term_bp)
 @app.route('/')
 def index():
     return redirect(url_for('marketing_bp.marketing'))
