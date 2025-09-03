@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, jsonify
 from database import db
 from shared.models import User, Timeframe, Project
 from datetime import datetime
@@ -58,9 +58,11 @@ def create_timeframe():
         end_date_str = request.form.get('end_date')
         location = request.form.get('location', '').strip()
         delivery_type = request.form.get('delivery_type')
-        
+        preference_startTiming_str = request.form.get('preference_startTiming')
+        preference_endTiming_str = request.form.get('preference_endTiming')
+
         # Validation
-        if not all([name, start_date_str, end_date_str, location, delivery_type]):
+        if not all([name, start_date_str, end_date_str, location, delivery_type, preference_startTiming_str, preference_endTiming_str]):
             flash('All fields are required.', 'error')
             return redirect(url_for('manage_timeframe_bp.manage_timeframes'))
         
@@ -74,14 +76,25 @@ def create_timeframe():
         try:
             start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            preference_startTiming = datetime.strptime(preference_startTiming_str, '%Y-%m-%d').date()
+            preference_endTiming = datetime.strptime(preference_endTiming_str, '%Y-%m-%d').date()
         except ValueError:
             flash('Invalid date format.', 'error')
             return redirect(url_for('manage_timeframe_bp.manage_timeframes'))
         
-        # Check if end date is after start date
+        # Check if dates are logical
         if end_date <= start_date:
             flash('End date must be after start date.', 'error')
             return redirect(url_for('manage_timeframe_bp.manage_timeframes'))
+            
+        if preference_endTiming < preference_startTiming:
+            flash('Preference end date cannot be earlier than the preference start date.', 'error')
+            return redirect(url_for('manage_timeframe_bp.manage_timeframes'))
+
+        if preference_endTiming > start_date:
+            flash('Preference end date cannot be later than the course start date.', 'error')
+            return redirect(url_for('manage_timeframe_bp.manage_timeframes'))
+
         
         # Get user_id from session
         user_id = session.get('user_id')
@@ -114,6 +127,8 @@ def create_timeframe():
             end_date=end_date,
             location=location,
             delivery_type=delivery_type,
+            preference_startTiming=preference_startTiming,
+            preference_endTiming=preference_endTiming,
             school_id=school_id
         )
         
@@ -143,9 +158,11 @@ def edit_timeframe():
         end_date_str = request.form.get('end_date')
         location = request.form.get('location', '').strip()
         delivery_type = request.form.get('delivery_type')
-        
+        preference_startTiming_str = request.form.get('preference_startTiming')
+        preference_endTiming_str = request.form.get('preference_endTiming')
+
         # Validation
-        if not all([timeframe_id, name, start_date_str, end_date_str, location, delivery_type]):
+        if not all([timeframe_id, name, start_date_str, end_date_str, location, delivery_type, preference_startTiming_str, preference_endTiming_str]):
             flash('All fields are required.', 'error')
             return redirect(url_for('manage_timeframe_bp.manage_timeframes'))
         
@@ -159,13 +176,23 @@ def edit_timeframe():
         try:
             start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            preference_startTiming = datetime.strptime(preference_startTiming_str, '%Y-%m-%d').date()
+            preference_endTiming = datetime.strptime(preference_endTiming_str, '%Y-%m-%d').date()
         except ValueError:
             flash('Invalid date format.', 'error')
             return redirect(url_for('manage_timeframe_bp.manage_timeframes'))
         
-        # Check if end date is after start date
+        # Check if dates are logical
         if end_date <= start_date:
             flash('End date must be after start date.', 'error')
+            return redirect(url_for('manage_timeframe_bp.manage_timeframes'))
+        
+        if preference_endTiming < preference_startTiming:
+            flash('Preference end date cannot be earlier than the preference start date.', 'error')
+            return redirect(url_for('manage_timeframe_bp.manage_timeframes'))
+        
+        if preference_endTiming > start_date:
+            flash('Preference end date cannot be later than the course start date.', 'error')
             return redirect(url_for('manage_timeframe_bp.manage_timeframes'))
         
         # Get user_id from session
@@ -209,6 +236,8 @@ def edit_timeframe():
         timeframe.end_date = end_date
         timeframe.location = location
         timeframe.delivery_type = delivery_type
+        timeframe.preference_startTiming = preference_startTiming
+        timeframe.preference_endTiming = preference_endTiming
         
         # Save changes
         db.session.commit()
@@ -317,6 +346,8 @@ def timeframe_details(timeframe_id):
             'end_date': timeframe.end_date.strftime('%Y-%m-%d'),
             'location': timeframe.location,
             'delivery_type': timeframe.delivery_type,
+            'preference_startTiming': timeframe.preference_startTiming.strftime('%Y-%m-%d'),
+            'preference_endTiming': timeframe.preference_endTiming.strftime('%Y-%m-%d'),
             'created_at': timeframe.created_at.strftime('%Y-%m-%d'),
             'project_count': project_count
         }
@@ -362,3 +393,38 @@ def validate_timeframe_name():
         
     except Exception as e:
         return {'error': str(e)}, 500
+
+
+@manage_timeframe_bp.route('/validate-timeframe-dates', methods=['POST'])
+def validate_timeframe_dates():
+    """
+    Validate timeframe and preference dates via a JSON payload.
+    """
+    try:
+        data = request.get_json()
+        start_date_str = data.get('start_date')
+        preference_start_str = data.get('preference_start')
+        preference_end_str = data.get('preference_end')
+        
+        # Check if all required dates are present
+        if not all([start_date_str, preference_start_str, preference_end_str]):
+            return jsonify({'valid': False, 'message': 'Course start date, preference start date, and preference end date are required.'}), 400
+        
+        # Parse the date strings into datetime objects
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        preference_start = datetime.strptime(preference_start_str, '%Y-%m-%d').date()
+        preference_end = datetime.strptime(preference_end_str, '%Y-%m-%d').date()
+        
+        # Perform validation checks
+        if preference_end < preference_start:
+            return jsonify({'valid': False, 'message': 'Preference end date cannot be earlier than the preference start date.'}), 400
+
+        if preference_end > start_date:
+            return jsonify({'valid': False, 'message': 'Preference end date cannot be later than the course start date.'}), 400
+            
+        return jsonify({'valid': True, 'message': 'Dates are valid.'}), 200
+
+    except ValueError:
+        return jsonify({'valid': False, 'message': 'Invalid date format.'}), 400
+    except Exception as e:
+        return jsonify({'valid': False, 'message': f'An unexpected error occurred: {str(e)}'}), 500

@@ -639,9 +639,9 @@
         <div class="nav-container">
             <a href="#" class="nav-logo">ProjectFlow</a>
             <div class="nav-items">
-                <a href="#" class="nav-link">Features</a>
-                <a href="#" class="nav-link">Pricing</a>
-                <a href="#" class="nav-link">Support</a>
+                <a href="#hero" class="nav-link">Features</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
+                <a href="#reviews" class="nav-link">Reviews</a>
             </div>
             <div class="nav-actions">
                 <a href="loggin" class="nav-link">Sign In</a>
@@ -650,7 +650,7 @@
         </div>
     </nav>
 
-    <section class="hero">
+    <section class="hero" id = "hero">
         {% if hero_slides and hero_slides|length > 0 %}
         <!-- Dynamic slides from database -->
         {% for slide in hero_slides %}
@@ -738,7 +738,7 @@
     </section>
 
     <!-- Plans Section -->
-    <section class="section">
+    <section class="section" id = "pricing">
         <div class="section-container">
             <h2 class="section-eyebrow">Pricing</h2>
             <h3 class="section-headline">Choose the plan that's right for you</h3>
@@ -818,7 +818,7 @@
     </section>
 
     <!-- Reviews Section -->
-    <section class="section reviews">
+    <section class="section reviews" id = "reviews">
         <div class="section-container">
             <h2 class="section-eyebrow">Reviews</h2>
             <h3 class="section-headline">Trusted by educators worldwide</h3>

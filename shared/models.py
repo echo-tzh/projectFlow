@@ -165,7 +165,11 @@ class Timeframe(db.Model):
     delivery_type = db.Column(db.Enum('on campus', 'off campus', name='delivery_type_enum'), nullable=False)
 
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=False)
-
+    preference_limit = db.Column(db.Integer, nullable=False, default=3)
+    preference_startTiming = db.Column(db.Date, nullable=False)
+    preference_endTiming = db.Column(db.Date, nullable=False)
+    
+    
     # Relationships
     projects = db.relationship('Project', backref='timeframe', lazy=True)
 

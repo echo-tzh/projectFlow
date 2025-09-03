@@ -1,0 +1,52 @@
+<!-- shared/templates/components/sidebar.html -->
+{% from 'shared/navigation_config.py' import NavigationConfig %}
+{% set navigation_items = NavigationConfig.get_navigation_items() %}
+{% set current_nav_item = NavigationConfig.get_current_nav_item() %}
+
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <a href="{{ url_for('universal_dashboard.dashboard') }}" class="logo">ProjectFlow</a>
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <span id="toggleIcon">‹</span>
+        </button>
+    </div>
+    
+    <div class="nav-menu">
+        {% for section in navigation_items %}
+        <!-- Navigation Section -->
+        <div class="nav-section">
+            <div class="nav-section-title">{{ section.title }}</div>
+            
+            {% for item in section.items %}
+            {% set is_active = (current_nav_item and current_nav_item.name == item.name) %}
+            {% set has_children = item.children is defined and item.children %}
+            {% set should_expand = NavigationConfig.should_expand_section(section.items) %}
+            
+            <div class="nav-item {% if has_children %}has-children{% endif %} {% if should_expand %}expanded{% endif %}">
+                <a href="{{ item.url }}" 
+                   class="nav-link {% if is_active %}active{% endif %}"
+                   {% if has_children %}onclick="toggleSubNav(this, event)"{% endif %}>
+                    <span class="nav-icon">{{ item.icon }}</span>
+                    <span class="nav-text">{{ item.name }}</span>
+                    {% if has_children %}<span class="nav-chevron">›</span>{% endif %}
+                </a>
+                
+                {% if has_children %}
+                <div class="sub-nav">
+                    {% for child in item.children %}
+                    {% set is_child_active = (request.endpoint == child.endpoint) %}
+                    <div class="sub-nav-item">
+                        <a href="{{ child.url }}" 
+                           class="sub-nav-link {% if is_child_active %}active{% endif %}">
+                            {{ child.name }}
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</nav>

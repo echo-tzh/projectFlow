@@ -88,7 +88,14 @@ def change_password():
             db.session.commit()
             
             flash('Password changed successfully!', 'success')
-            return redirect(url_for('change_password.change_password'))
+            
+            # Use the Referer header to redirect to the previous page
+            previous_page = request.headers.get('Referer')
+            if previous_page:
+                return redirect(previous_page)
+            else:
+                # Fallback to a default page if Referer is not available
+                return redirect(url_for('dashboard_bp.dashboard'))
             
         except Exception as e:
             db.session.rollback()

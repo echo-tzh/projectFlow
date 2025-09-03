@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course Terms - Academic Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif"
+        rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -45,7 +48,8 @@
             font-size: 21px;
             font-weight: 600;
             color: #1d1d1f;
-            margin: 0 auto; /* Center the title */
+            margin: 0 auto;
+            /* Center the title */
         }
 
         .nav-user {
@@ -128,9 +132,17 @@
             margin-bottom: 8px;
         }
 
-        .stat-number.success { color: #30d158; }
-        .stat-number.primary { color: #007aff; }
-        .stat-number.secondary { color: #8e8e93; }
+        .stat-number.success {
+            color: #30d158;
+        }
+
+        .stat-number.primary {
+            color: #007aff;
+        }
+
+        .stat-number.secondary {
+            color: #8e8e93;
+        }
 
         .stat-label {
             font-size: 17px;
@@ -199,9 +211,17 @@
             height: 4px;
         }
 
-        .course-card.current::before { background: #30d158; }
-        .course-card.upcoming::before { background: #007aff; }
-        .course-card.past::before { background: #8e8e93; }
+        .course-card.current::before {
+            background: #30d158;
+        }
+
+        .course-card.upcoming::before {
+            background: #007aff;
+        }
+
+        .course-card.past::before {
+            background: #8e8e93;
+        }
 
         .card-content {
             padding: 40px 30px;
@@ -429,6 +449,7 @@
                 transform: translateX(100%);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -467,7 +488,8 @@
             }
 
             .nav-title {
-                margin: 0; /* Remove centering on mobile */
+                margin: 0;
+                /* Remove centering on mobile */
             }
         }
 
@@ -489,11 +511,13 @@
             }
 
             .back-btn-top {
-                display: none; /* Hide button on very small screens if needed */
+                display: none;
+                /* Hide button on very small screens if needed */
             }
         }
     </style>
 </head>
+
 <body>
     <nav class="nav-bar">
         <div class="nav-container">
@@ -524,7 +548,7 @@
                             </div>
                             <span class="status-badge current">Active</span>
                         </div>
-                        
+
                         <div class="date-grid">
                             <div class="date-item">
                                 <div class="date-label">Start Date</div>
@@ -537,6 +561,11 @@
                         </div>
 
                         <div class="card-details">
+                            <div class="detail-item">
+                                <span class="detail-icon">🕒</span>
+                                <span>Preference Timing: {{ timeframe.preference_startTiming.strftime('%b %d, %Y')
+                                    }} - {{ timeframe.preference_endTiming.strftime('%b %d, %Y') }}</span>
+                            </div>
                             {% if timeframe.location %}
                             <div class="detail-item">
                                 <span class="detail-icon">📍</span>
@@ -551,8 +580,8 @@
                         </div>
 
                         <div class="card-footer">
-                            <a href="{{ url_for('view_course_term.view_course_term_detail', timeframe_id=timeframe.id) }}" 
-                               class="view-btn">View Details</a>
+                            <a href="{{ url_for('view_course_term.view_course_term_detail', timeframe_id=timeframe.id) }}"
+                                class="view-btn">View Details</a>
                             <div class="school-info">{{ timeframe.school.name }}</div>
                         </div>
                     </div>
@@ -578,7 +607,7 @@
                             </div>
                             <span class="status-badge upcoming">Upcoming</span>
                         </div>
-                        
+
                         <div class="date-grid">
                             <div class="date-item">
                                 <div class="date-label">Start Date</div>
@@ -591,6 +620,11 @@
                         </div>
 
                         <div class="card-details">
+                            <div class="detail-item">
+                                <span class="detail-icon">🕒</span>
+                                <span>Preference Timing: {{ timeframe.preference_startTiming.strftime('%b %d, %Y')
+                                    }} - {{ timeframe.preference_endTiming.strftime('%b %d, %Y') }}</span>
+                            </div>
                             {% if timeframe.location %}
                             <div class="detail-item">
                                 <span class="detail-icon">📍</span>
@@ -605,8 +639,8 @@
                         </div>
 
                         <div class="card-footer">
-                            <a href="{{ url_for('view_course_term.view_course_term_detail', timeframe_id=timeframe.id) }}" 
-                               class="view-btn">View Details</a>
+                            <a href="{{ url_for('view_course_term.view_course_term_detail', timeframe_id=timeframe.id) }}"
+                                class="view-btn">View Details</a>
                             <div class="school-info">{{ timeframe.school.name }}</div>
                         </div>
                     </div>
@@ -632,7 +666,7 @@
                             </div>
                             <span class="status-badge past">Completed</span>
                         </div>
-                        
+
                         <div class="date-grid">
                             <div class="date-item">
                                 <div class="date-label">Start Date</div>
@@ -645,6 +679,11 @@
                         </div>
 
                         <div class="card-details">
+                            <div class="detail-item">
+                                <span class="detail-icon">🕒</span>
+                                <span>Preference Timing: {{ timeframe.preference_startTiming.strftime('%b %d, %Y')
+                                    }} - {{ timeframe.preference_endTiming.strftime('%b %d, %Y') }}</span>
+                            </div>
                             {% if timeframe.location %}
                             <div class="detail-item">
                                 <span class="detail-icon">📍</span>
@@ -659,8 +698,8 @@
                         </div>
 
                         <div class="card-footer">
-                            <a href="{{ url_for('view_course_term.view_course_term_detail', timeframe_id=timeframe.id) }}" 
-                               class="view-btn secondary">View Details</a>
+                            <a href="{{ url_for('view_course_term.view_course_term_detail', timeframe_id=timeframe.id) }}"
+                                class="view-btn secondary">View Details</a>
                             <div class="school-info">{{ timeframe.school.name }}</div>
                         </div>
                     </div>
@@ -676,7 +715,8 @@
                 <div class="empty-icon">📅</div>
                 <h3 class="empty-title">No Course Terms Yet</h3>
                 <p class="empty-description">
-                    You haven't been assigned to any course terms. Contact your education administrator to get started with your academic journey.
+                    You haven't been assigned to any course terms. Contact your education administrator to get started
+                    with your academic journey.
                 </p>
             </div>
         </section>
@@ -709,15 +749,15 @@
     </footer>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="flash-messages">
-                {% for category, message in messages %}
-                    <div class="flash-message {{ category }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+    {% if messages %}
+    <div class="flash-messages">
+        {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     {% endwith %}
 
     <script>
@@ -736,7 +776,7 @@
 
         // Add loading states to buttons
         document.querySelectorAll('.view-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 this.style.transform = 'scale(0.95)';
                 setTimeout(() => {
                     this.style.transform = 'scale(1.05)';
@@ -768,4 +808,5 @@
         });
     </script>
 </body>
+
 </html>

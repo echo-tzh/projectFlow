@@ -1,0 +1,37 @@
+<!-- shared/templates/components/header.html -->
+{% from 'shared/navigation_config.py' import NavigationConfig %}
+{% set breadcrumbs = NavigationConfig.get_breadcrumbs() %}
+
+<header class="header">
+    <div class="header-content">
+        <div class="breadcrumbs">
+            <button class="mobile-menu-btn" onclick="openMobileSidebar()">
+                ☰
+            </button>
+            
+            {% if breadcrumbs %}
+                {% for crumb in breadcrumbs %}
+                    <div class="breadcrumb-item">
+                        {% if crumb.url and not loop.last %}
+                            <a href="{{ crumb.url }}" class="breadcrumb-link">{{ crumb.title }}</a>
+                        {% else %}
+                            <span class="breadcrumb-current">{{ crumb.title }}</span>
+                        {% endif %}
+                    </div>
+                    {% if not loop.last %}
+                        <span class="breadcrumb-separator">›</span>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <!-- Fallback breadcrumb -->
+                <div class="breadcrumb-item">
+                    <span class="breadcrumb-current">{% block page_title %}Page{% endblock %}</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="page-indicator">
+            {% block page_indicator %}{% endblock %}
+        </div>
+    </div>
+</header>
