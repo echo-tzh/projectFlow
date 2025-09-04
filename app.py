@@ -15,7 +15,7 @@ from features.dashboard.dashboardController import universal_dashboard_bp
 from features.educationAdmin.load_data.sendWelcomeEmailController import send_welcome_email_bp
 from features.educationAdmin.setupEmail.setupEmailController import setup_email_bp
 from features.viewProfile.viewProfileController import viewProfile_bp
-from features.Student.ViewProjectListing.viewProjectListingController import student_projects_bp
+from features.student.viewProjectListing.viewProjectListingController import student_projects_bp
 from features.authentication.changePassword.changePassword import change_password_bp
 from shared.models import create_default_admin_account
 from features.systemAdmin.manageSchool.manageSchoolController import manage_school_bp
