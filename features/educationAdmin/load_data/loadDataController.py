@@ -78,7 +78,7 @@ def select_timeframe(timeframe_id):
     
     # Ensure the timeframe belongs to the admin's school
     if timeframe.school_id != current_user.school_id:
-        flash('Access denied. You can only manage timeframes for your school.', 'error')
+        flash('Access denied. You can only manage course terms for your school.', 'error')
         return redirect(url_for('load_data.index'))
     
     users_in_timeframe = timeframe.users

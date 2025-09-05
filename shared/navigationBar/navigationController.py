@@ -34,7 +34,7 @@ def get_navigation_items(user_roles):
     })
     
     # System Admin specific items
-    if 'system_admin' in user_roles:
+    if 'system admin' in user_roles:
         nav_items.extend([
             {
                 'title': 'Edit Marketing Content',
@@ -54,7 +54,7 @@ def get_navigation_items(user_roles):
     if 'educational_admin' in user_roles:
         nav_items.extend([
             {
-                'title': 'Manage Timeframes',
+                'title': 'Manage Course Term',
                 'icon': 'fas fa-calendar-alt',
                 'url': url_for('manage_timeframe_bp.manage_timeframes'),
                 'active_class': 'manage-timeframes'
@@ -85,7 +85,7 @@ def get_navigation_items(user_roles):
         ])
     
     # Academic Coordinator specific items  
-    if 'academic_coordinator' in user_roles:
+    if 'academic coordinator' in user_roles:
         nav_items.extend([
             {
                 'title': 'Course Terms',

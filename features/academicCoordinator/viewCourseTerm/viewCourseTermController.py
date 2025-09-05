@@ -26,9 +26,9 @@ def view_course_terms():
         flash('User not found.', 'error')
         return redirect(url_for('auth.login'))
     
-    # Check if user has coordinator role (assuming role name is 'coordinator' or 'academic_coordinator')
+    # Check if user has academic coordinator role
     user_roles = [role.name for role in user.roles]
-    if 'coordinator' not in user_roles and 'academic coordinator' not in user_roles:
+    if 'academic coordinator' not in user_roles:
         flash('Access denied. Academic coordinator privileges required.', 'error')
         return redirect(url_for('universal_dashboard.dashboard'))  # Redirect to main dashboard
     

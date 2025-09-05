@@ -129,7 +129,7 @@ def view_school_details(school_id):
         'total_users': len(users),
         'students': len([u for u in users if u.roles.filter_by(name='student').first()]),
         'supervisors': len([u for u in users if u.roles.filter_by(name='supervisor').first()]),
-        'coordinators': len([u for u in users if u.roles.filter_by(name='coordinator').first()]),
+        'coordinators': len([u for u in users if u.roles.filter_by(name='academic coordinator').first()]),
         'admins': len([u for u in users if u.roles.filter_by(name='admin').first()])
     }
     

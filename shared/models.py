@@ -26,7 +26,7 @@ user_timeframes = db.Table('user_timeframes',
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique=True, nullable=False)  # e.g., 'student', 'supervisor', 'admin', 'coordinator'
+    name = db.Column(db.String(50), unique=True, nullable=False)  # e.g., 'student', 'supervisor', 'system admin', 'academic coordinator'
     description = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
