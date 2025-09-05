@@ -59,6 +59,19 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Initialize navigation state based on current page
     initializeNavigationState();
+    
+    // Ensure sidebar is visible on desktop - macOS Safari fix
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar && window.innerWidth > 1024) {
+        // Force sidebar to be visible on desktop
+        sidebar.style.display = 'block';
+        sidebar.style.visibility = 'visible';
+        
+        // Add a small delay to ensure styles are applied
+        setTimeout(function() {
+            sidebar.classList.add('sidebar-loaded');
+        }, 100);
+    }
 });
 
 // Initialize navigation state
@@ -78,11 +91,13 @@ window.addEventListener('resize', function() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
     
-    if (window.innerWidth > 1024) {
-        // Desktop: ensure mobile states are cleared
-        sidebar.classList.remove('show');
-        overlay.classList.remove('show');
-        document.body.style.overflow = '';
+    if (sidebar && overlay) {
+        if (window.innerWidth > 1024) {
+            // Desktop: ensure mobile states are cleared
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+            document.body.style.overflow = '';
+        }
     }
 });
 

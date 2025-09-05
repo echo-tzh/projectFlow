@@ -63,6 +63,14 @@
                 margin-left: 0;
             }
         }
+        
+        /* macOS Safari fixes */
+        @supports (-webkit-backdrop-filter: blur(1px)) {
+            .main-container {
+                -webkit-transform: translateZ(0);
+                transform: translateZ(0);
+            }
+        }
     </style>
 </head>
 <body>
