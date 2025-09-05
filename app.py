@@ -20,9 +20,10 @@ from features.authentication.changePassword.changePassword import change_passwor
 from shared.models import create_default_admin_account
 from features.systemAdmin.manageSchool.manageSchoolController import manage_school_bp
 from features.academicCoordinator.viewCourseTerm.viewCourseTermController import view_course_term_bp
+from shared.navigationBar.navigationController import navigation_bp
 
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='.')
 app.config.from_object(Config)
 db.init_app(app)
 CORS(app)
@@ -48,6 +49,12 @@ app.register_blueprint(change_password_bp)
 app.register_blueprint(manage_school_bp, url_prefix='/admin')
 #view course term for academic coordinator 
 app.register_blueprint(view_course_term_bp)
+# Navigation bar blueprint
+app.register_blueprint(navigation_bp)
+
+# Import and register navigation context processor at app level
+from shared.navigationBar.navigationController import inject_navigation
+app.context_processor(inject_navigation)
 @app.route('/')
 def index():
     return redirect(url_for('marketing_bp.marketing'))

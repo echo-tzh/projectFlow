@@ -1,64 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Setup Outgoing Email - ProjectFlow</title>
+{% extends "shared/navigationBar/templates/base_with_sidebar.html" %}
+
+{% block title %}Setup Outgoing Email - ProjectFlow{% endblock %}
+
+{% block extra_head %}
     <style>
-        /* Same CSS structure as your dashboard - simplified for email setup */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-
-        .header {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
-        }
-
-        .back-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            transition: background 0.3s ease;
-        }
-
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .main-content {
+        /* Email Setup Page Specific Styles */
+        .email-main-content {
             max-width: 800px;
             margin: 2rem auto;
             padding: 0 2rem;
@@ -67,25 +14,27 @@
         .page-header {
             text-align: center;
             margin-bottom: 2rem;
-            color: white;
+            color: #333;
         }
 
         .page-title {
             font-size: 2rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
+            color: #2c3e50;
         }
 
         .page-subtitle {
             font-size: 1.1rem;
-            opacity: 0.9;
+            opacity: 0.8;
+            color: #555;
         }
 
-        .card {
+        .email-card {
             background: white;
             border-radius: 1rem;
             padding: 2rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             margin-bottom: 2rem;
         }
 
@@ -111,8 +60,8 @@
 
         .form-input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
         .form-row {
@@ -144,13 +93,14 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #3498db;
             color: white;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
+            background: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
         }
 
         .btn-secondary {
@@ -163,49 +113,18 @@
         }
 
         .btn-danger {
-            background: #ef4444;
+            background: #e74c3c;
             color: white;
         }
 
         .btn-danger:hover {
-            background: #dc2626;
+            background: #c0392b;
         }
 
         .button-group {
             display: flex;
             gap: 1rem;
             margin-top: 2rem;
-        }
-
-        .flash-messages {
-            margin-bottom: 2rem;
-        }
-
-        .flash-message {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .flash-message.success {
-            background: #d1fae5;
-            color: #065f46;
-            border-left: 4px solid #10b981;
-        }
-
-        .flash-message.error {
-            background: #fee2e2;
-            color: #991b1b;
-            border-left: 4px solid #ef4444;
-        }
-
-        .flash-message.warning {
-            background: #fef3c7;
-            color: #92400e;
-            border-left: 4px solid #f59e0b;
         }
 
         .test-section {
@@ -229,7 +148,7 @@
         }
 
         .required {
-            color: #ef4444;
+            color: #e74c3c;
         }
 
         .config-status {
@@ -253,7 +172,7 @@
         }
 
         .status-inactive {
-            background: #ef4444;
+            background: #e74c3c;
         }
 
         @media (max-width: 768px) {
@@ -265,39 +184,15 @@
                 flex-direction: column;
             }
             
-            .main-content {
+            .email-main-content {
                 padding: 0 1rem;
             }
         }
     </style>
-</head>
-<body>
-    <header class="header">
-        <nav class="nav">
-            <a href="{{ url_for('universal_dashboard.dashboard') }}" class="logo">ProjectFlow</a>
-            <a href="{{ url_for('universal_dashboard.dashboard') }}" class="back-btn">← Back to Dashboard</a>
-        </nav>
-    </header>
+{% endblock %}
 
-    <main class="main-content">
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <div class="flash-messages">
-            {% for category, message in messages %}
-            <div class="flash-message {{ category }}">
-                <span class="flash-icon">
-                    {% if category == 'success' %}✅
-                    {% elif category == 'error' %}❌
-                    {% elif category == 'warning' %}⚠️
-                    {% else %}ℹ️{% endif %}
-                </span>
-                <span>{{ message }}</span>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-        {% endwith %}
+{% block content %}
+    <div class="email-main-content">
 
         <!-- Page Header -->
         <div class="page-header">
@@ -306,7 +201,7 @@
         </div>
 
         <!-- Email Configuration Form -->
-        <div class="card">
+        <div class="email-card">
             <!-- Configuration Status -->
             {% if email_config %}
             <div class="config-status">
@@ -402,7 +297,7 @@
 
         <!-- Test Email Section -->
         {% if email_config %}
-        <div class="card">
+        <div class="email-card">
             <div class="test-section">
                 <h3 class="test-title">Test Email Configuration</h3>
                 <div class="form-group">
@@ -415,12 +310,14 @@
             </div>
         </div>
         {% endif %}
-    </main>
+        
+        <!-- Delete Confirmation Form -->
+        <form id="deleteForm" method="POST" action="{{ url_for('setup_email_bp.delete_email_config') }}" style="display: none;">
+        </form>
+    </div>
+{% endblock %}
 
-    <!-- Delete Confirmation Form -->
-    <form id="deleteForm" method="POST" action="{{ url_for('setup_email_bp.delete_email_config') }}" style="display: none;">
-    </form>
-
+{% block extra_scripts %}
     <script>
         function deleteConfig() {
             if (confirm('Are you sure you want to delete this email configuration? This action cannot be undone.')) {
@@ -480,5 +377,4 @@
             });
         });
     </script>
-</body>
-</html>
+{% endblock %}

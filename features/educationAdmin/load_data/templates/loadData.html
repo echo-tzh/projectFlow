@@ -1,25 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Load Data - ProjectFlow</title>
+{% extends "shared/navigationBar/templates/base_with_sidebar.html" %}
+
+{% block title %}Load Data - ProjectFlow{% endblock %}
+
+{% block extra_head %}
     <style>
+        /* Reset and base styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        /* Override main content background for Load Data styling */
+        .main-content {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            color: #1d1d1f;
-            line-height: 1.6;
         }
 
-        .container {
+        .content-wrapper {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #1d1d1f;
+            line-height: 1.6;
             max-width: 1200px;
             margin: 0 auto;
             padding: 40px 20px;
@@ -317,7 +317,7 @@
             max-width: 400px;
         }
 
-        .alert {
+        .load-data-alert {
             background: white;
             padding: 16px 20px;
             border-radius: 12px;
@@ -327,15 +327,15 @@
             animation: slideIn 0.3s ease;
         }
 
-        .alert.success {
+        .load-data-alert.success {
             border-left-color: #34C759;
         }
 
-        .alert.error {
+        .load-data-alert.error {
             border-left-color: #FF3B30;
         }
 
-        .alert.warning {
+        .load-data-alert.warning {
             border-left-color: #FF9500;
         }
 
@@ -587,250 +587,262 @@
         .user-list-item {
             display: none;
         }
+
+        /* Additional styles for slideOut animation */
+        @keyframes slideOut {
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
     </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Load Data</h1>
-            <p>Import users into Course Term. Upload Excel file to input the data.</p>
-        </div>
+{% endblock %}
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="alerts">
-                    {% for category, message in messages %}
-                        <div class="alert {{ category }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
+{% block content %}
+    <div class="header">
+        <h1>Load Data</h1>
+        <p>Import users into Course Term. Upload Excel file to input the data.</p>
+    </div>
 
-        {% if not timeframe %}
-        <div class="timeframe-selector">
-            <div class="card">
-                <div style="padding: 32px;">
-                    <h2 class="section-title">Select Timeframe</h2>
-                    <p style="color: #6e6e73; margin-bottom: 32px;">Choose which timeframe you want to load users into.</p>
-                    
-                    {% if timeframes %}
-                        <div class="timeframe-grid">
-                            {% for tf in timeframes %}
-                            <div class="timeframe-card" onclick="selectTimeframe({{ tf.id }})">
-                                <h3>{{ tf.name }}</h3>
-                                <div class="timeframe-info">
-                                    <div class="timeframe-dates">
-                                        <span class="date-badge">{{ tf.start_date.strftime('%b %d, %Y') }}</span>
-                                        <span style="color: #d1d1d6;">→</span>
-                                        <span class="date-badge">{{ tf.end_date.strftime('%b %d, %Y') }}</span>
-                                    </div>
-                                    <p>{{ tf.school.name if tf.school else 'No school assigned' }}</p>
-                                    <p>{{ tf.users.count() if tf.users else 0 }} users loaded</p>
+    <!-- Custom alerts for Load Data functionality -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alerts">
+                {% for category, message in messages %}
+                    <div class="load-data-alert {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% if not timeframe %}
+    <div class="timeframe-selector">
+        <div class="card">
+            <div style="padding: 32px;">
+                <h2 class="section-title">Select Timeframe</h2>
+                <p style="color: #6e6e73; margin-bottom: 32px;">Choose which timeframe you want to load users into.</p>
+                
+                {% if timeframes %}
+                    <div class="timeframe-grid">
+                        {% for tf in timeframes %}
+                        <div class="timeframe-card" onclick="selectTimeframe({{ tf.id }})">
+                            <h3>{{ tf.name }}</h3>
+                            <div class="timeframe-info">
+                                <div class="timeframe-dates">
+                                    <span class="date-badge">{{ tf.start_date.strftime('%b %d, %Y') }}</span>
+                                    <span style="color: #d1d1d6;">→</span>
+                                    <span class="date-badge">{{ tf.end_date.strftime('%b %d, %Y') }}</span>
                                 </div>
+                                <p>{{ tf.school.name if tf.school else 'No school assigned' }}</p>
+                                <p>{{ tf.users.count() if tf.users else 0 }} users loaded</p>
                             </div>
-                            {% endfor %}
                         </div>
-                    {% else %}
-                        <div class="empty-state">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                            </svg>
-                            <h3>No timeframes available</h3>
-                            <p>Create a timeframe first to load users into it.</p>
-                        </div>
-                    {% endif %}
-                </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <h3>No timeframes available</h3>
+                        <p>Create a timeframe first to load users into it.</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
-        {% endif %}
+    </div>
+    {% endif %}
 
-        {% if timeframe %}
-        <div class="upload-section active">
-            <div class="card">
-                <div style="padding: 32px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px;">
-                        <div>
-                            <h2 class="section-title">{{ timeframe.name }}</h2>
-                            <p style="color: #6e6e73;">{{ timeframe.start_date.strftime('%B %d, %Y') }} - {{ timeframe.end_date.strftime('%B %d, %Y') }}</p>
+    {% if timeframe %}
+    <div class="upload-section active">
+        <div class="card">
+            <div style="padding: 32px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px;">
+                    <div>
+                        <h2 class="section-title">{{ timeframe.name }}</h2>
+                        <p style="color: #6e6e73;">{{ timeframe.start_date.strftime('%B %d, %Y') }} - {{ timeframe.end_date.strftime('%B %d, %Y') }}</p>
+                    </div>
+                    <a href="{{ url_for('manage_timeframes_redirect') }}" class="btn btn-secondary">
+                        ← Back to Course Term
+                    </a>
+                </div>
+
+                <div class="card" style="margin-bottom: 32px; background: rgba(255, 255, 255, 0.7);">
+                    <div style="padding: 24px;">
+                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; color: #1d1d1f;">Role Selection</h3>
+                        <p style="color: #6e6e73; font-size: 0.95rem; margin-bottom: 24px;">Select which roles are allowed for this upload. Only users with selected roles will be processed.</p>
+                        
+                        <div style="margin-bottom: 16px;">
+                            <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                                <button type="button" class="btn-link" onclick="selectAllRoles()">Select All</button>
+                                <span style="color: #d1d1d6;">|</span>
+                                <button type="button" class="btn-link" onclick="selectNoRoles()">Select None</button>
+                            </div>
+                            
+                            <div class="roles-grid" id="rolesGrid">
+                                {% for role in available_roles %}
+                                <div class="role-checkbox-item">
+                                    <input type="checkbox" name="allowed_roles" value="{{ role }}" 
+                                           id="role_{{ role.replace(' ', '_') }}" class="role-checkbox"
+                                           {% if loop.index <= 3 %}checked{% endif %}>
+                                    <label for="role_{{ role.replace(' ', '_') }}" class="role-checkbox-label">
+                                        <span class="role-checkbox-custom"></span>
+                                        <span class="role-name">{{ role.title() }}</span>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
-                        <a href="{{ url_for('manage_timeframes_redirect') }}" class="btn btn-secondary">
-                            ← Back to Course Term
+                    </div>
+                </div>
+
+                <form id="uploadForm" action="{{ url_for('load_data.upload_excel', timeframe_id=timeframe.id) }}" method="post" enctype="multipart/form-data">
+                    <div id="hiddenRoleInputs"></div>
+                    
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor" style="color: #007AFF;">
+                                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                            </svg>
+                        </div>
+                        <div class="upload-text">
+                            <h3>Drop your Excel file here</h3>
+                            <p>or click to browse from your computer</p>
+                            <input type="file" name="file" id="fileInput" class="file-input" accept=".xlsx,.xls" required>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
+                            </svg>
+                            Choose File
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="uploadBtn" disabled>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
+                            </svg>
+                            Upload & Process
+                        </button>
+                        <a href= "{{ url_for('load_data.download_template') }}" class="btn btn-success">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                            </svg>
+                            Download Template
                         </a>
                     </div>
+                </form>
 
-                    <div class="card" style="margin-bottom: 32px; background: rgba(255, 255, 255, 0.7);">
-                        <div style="padding: 24px;">
-                            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; color: #1d1d1f;">Role Selection</h3>
-                            <p style="color: #6e6e73; font-size: 0.95rem; margin-bottom: 24px;">Select which roles are allowed for this upload. Only users with selected roles will be processed.</p>
-                            
-                            <div style="margin-bottom: 16px;">
-                                <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
-                                    <button type="button" class="btn-link" onclick="selectAllRoles()">Select All</button>
-                                    <span style="color: #d1d1d6;">|</span>
-                                    <button type="button" class="btn-link" onclick="selectNoRoles()">Select None</button>
-                                </div>
-                                
-                                <div class="roles-grid" id="rolesGrid">
-                                    {% for role in available_roles %}
-                                    <div class="role-checkbox-item">
-                                        <input type="checkbox" name="allowed_roles" value="{{ role }}" 
-                                               id="role_{{ role.replace(' ', '_') }}" class="role-checkbox"
-                                               {% if loop.index <= 3 %}checked{% endif %}>
-                                        <label for="role_{{ role.replace(' ', '_') }}" class="role-checkbox-label">
-                                            <span class="role-checkbox-custom"></span>
-                                            <span class="role-name">{{ role.title() }}</span>
-                                        </label>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
+                <div class="loading" id="loadingState">
+                    <div class="spinner"></div>
+                    <p>Processing your file...</p>
+                </div>
+            </div>
+        </div>
+
+        {% if users %}
+        <div class="current-users">
+            <div class="card">
+                <div style="padding: 32px;">
+                    <div class="notification-actions">
+                        <div>
+                            <h2 class="section-title">Users in {{ timeframe.name }} ({{ users|length }})</h2>
+                            <p style="color: #6e6e73; font-size: 0.95rem;">Review and send emails to notify all users in this timeframe</p>
+                        </div>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-warning" onclick="showEmailConfirmation()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C2.89,4 20,4.89 20,4Z"/>
+                                </svg>
+                                Notify all related users by email
+                            </button>
                         </div>
                     </div>
 
-                    <form id="uploadForm" action="{{ url_for('load_data.upload_excel', timeframe_id=timeframe.id) }}" method="post" enctype="multipart/form-data">
-                        <div id="hiddenRoleInputs"></div>
-                        
-                        <div class="upload-area" id="uploadArea">
-                            <div class="upload-icon">
-                                <svg viewBox="0 0 24 24" fill="currentColor" style="color: #007AFF;">
-                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                                </svg>
-                            </div>
-                            <div class="upload-text">
-                                <h3>Drop your Excel file here</h3>
-                                <p>or click to browse from your computer</p>
-                                <input type="file" name="file" id="fileInput" class="file-input" accept=".xlsx,.xls" required>
-                            </div>
-                        </div>
-
+                    <div class="email-confirmation" id="emailConfirmation">
+                        <p><strong>📧 Notify all related via Emails</strong></p>
+                        <p>This will send emails to all {{ users|length }} users in this timeframe. Each user will receive their login credentials and system information.</p>
                         <div class="actions">
-                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
-                                </svg>
-                                Choose File
-                            </button>
-                            <button type="submit" class="btn btn-primary" id="uploadBtn" disabled>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
-                                </svg>
-                                Upload & Process
-                            </button>
-                            <a href= "{{ url_for('load_data.download_template') }}" class="btn btn-success">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                                </svg>
-                                Download Template
-                            </a>
-                        </div>
-                    </form>
-
-                    <div class="loading" id="loadingState">
-                        <div class="spinner"></div>
-                        <p>Processing your file...</p>
-                    </div>
-                </div>
-            </div>
-
-            {% if users %}
-            <div class="current-users">
-                <div class="card">
-                    <div style="padding: 32px;">
-                        <div class="notification-actions">
-                            <div>
-                                <h2 class="section-title">Users in {{ timeframe.name }} ({{ users|length }})</h2>
-                                <p style="color: #6e6e73; font-size: 0.95rem;">Review and send emails to notify all users in this timeframe</p>
-                            </div>
-                            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                                <button type="button" class="btn btn-warning" onclick="showEmailConfirmation()">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C2.89,4 20,4.89 20,4Z"/>
+                            <form class="email-form" id="emailForm" method="post" action="{{ url_for('send_welcome_email.send_welcome_notifications', timeframe_id=timeframe.id) }}">
+                                <button type="submit" class="btn btn-warning" id="sendEmailBtn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
                                     </svg>
-                                    Notify all related users by email
+                                    Yes, Send Emails
                                 </button>
-                            </div>
+                            </form>
+                            <button type="button" class="btn btn-secondary" onclick="hideEmailConfirmation()">
+                                Cancel
+                            </button>
                         </div>
+                    </div>
 
-                        <div class="email-confirmation" id="emailConfirmation">
-                            <p><strong>📧 Notify all related via Emails</strong></p>
-                            <p>This will send emails to all {{ users|length }} users in this timeframe. Each user will receive their login credentials and system information.</p>
-                            <div class="actions">
-                                <form class="email-form" id="emailForm" method="post" action="{{ url_for('send_welcome_email.send_welcome_notifications', timeframe_id=timeframe.id) }}">
-                                    <button type="submit" class="btn btn-warning" id="sendEmailBtn">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
-                                        </svg>
-                                        Yes, Send Emails
-                                    </button>
-                                </form>
-                                <button type="button" class="btn btn-secondary" onclick="hideEmailConfirmation()">
-                                    Cancel
-                                </button>
-                            </div>
-                        </div>
+                    <div class="loading" id="emailLoadingState" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Sending emails to {{ users|length }} users...</p>
+                        <p style="font-size: 0.9em; color: #6e6e73; margin-top: 8px;">This may take a few moments</p>
+                    </div>
+                    
 
-                        <div class="loading" id="emailLoadingState" style="display: none;">
-                            <div class="spinner"></div>
-                            <p>Sending emails to {{ users|length }} users...</p>
-                            <p style="font-size: 0.9em; color: #6e6e73; margin-top: 8px;">This may take a few moments</p>
+                    <div class="users-list">
+                        <h3 style="margin-bottom: 16px;">User List</h3>
+                        <h3 style="margin-bottom: 16px;">Name - Email - ID - Course</h3>
+                        
+                        <div id="user-list-container">
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                {% for user in users %}
+                                <li class="user-list-item" style="padding: 12px; border-bottom: 1px solid #e5e5ea;">
+                                    <div>
+                                       
+                                        <strong>{{ user.name or 'No name' }}</strong> – {{ user.email }}
+                                        {% if user.student_staff_id %}<span> (ID: {{ user.student_staff_id }})</span>{% endif %}
+                                        {% if user.course %}<span> – {{ user.course }}</span>{% endif %}
+                                    </div>
+                                    <div style="margin-top: 4px;">
+                                        {% for role in user.roles %}
+                                            <span class="role-badge">{{ role.name }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
                         </div>
                         
-
-                        <div class="users-list">
-                            <h3 style="margin-bottom: 16px;">User List</h3>
-                            <h3 style="margin-bottom: 16px;">Name - Email - ID - Course</h3>
-                            
-                            <div id="user-list-container">
-                                <ul style="list-style: none; padding: 0; margin: 0;">
-                                    {% for user in users %}
-                                    <li class="user-list-item" style="padding: 12px; border-bottom: 1px solid #e5e5ea;">
-                                        <div>
-                                           
-                                            <strong>{{ user.name or 'No name' }}</strong> – {{ user.email }}
-                                            {% if user.student_staff_id %}<span> (ID: {{ user.student_staff_id }})</span>{% endif %}
-                                            {% if user.course %}<span> – {{ user.course }}</span>{% endif %}
-                                        </div>
-                                        <div style="margin-top: 4px;">
-                                            {% for role in user.roles %}
-                                                <span class="role-badge">{{ role.name }}</span>
-                                            {% endfor %}
-                                        </div>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                            
-                            <div class="pagination" id="pagination-controls"></div>
-                        </div>
-                      
+                        <div class="pagination" id="pagination-controls"></div>
                     </div>
+                  
                 </div>
             </div>
-            {% endif %}
         </div>
         {% endif %}
     </div>
+    {% endif %}
+{% endblock %}
 
-    <script>
-        // File upload functionality
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const uploadForm = document.getElementById('uploadForm');
-        const loadingState = document.getElementById('loadingState');
-        const emailConfirmation = document.getElementById('emailConfirmation');
-        const emailForm = document.getElementById('emailForm');
-        const emailLoadingState = document.getElementById('emailLoadingState');
-        const sendEmailBtn = document.getElementById('sendEmailBtn');
-        
-        // Pagination variables
-        const usersPerPage = 10;
-        let currentPage = 1;
-        
-        // Pagination elements
-        const userListContainer = document.getElementById('user-list-container');
-        const paginationControls = document.getElementById('pagination-controls');
+{% block extra_scripts %}
+<script>
+    // File upload functionality
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadForm = document.getElementById('uploadForm');
+    const loadingState = document.getElementById('loadingState');
+    const emailConfirmation = document.getElementById('emailConfirmation');
+    const emailForm = document.getElementById('emailForm');
+    const emailLoadingState = document.getElementById('emailLoadingState');
+    const sendEmailBtn = document.getElementById('sendEmailBtn');
+    
+    // Pagination variables
+    const usersPerPage = 10;
+    let currentPage = 1;
+    
+    // Pagination elements
+    const userListContainer = document.getElementById('user-list-container');
+    const paginationControls = document.getElementById('pagination-controls');
 
+    // Only proceed if elements exist (defensive programming)
+    if (uploadArea && fileInput) {
         // Click to upload
         uploadArea.addEventListener('click', () => {
             fileInput.click();
@@ -858,29 +870,33 @@
 
         // File selection
         fileInput.addEventListener('change', updateUploadButton);
+    }
 
-        function updateUploadButton() {
-            if (fileInput.files && fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                uploadBtn.disabled = false;
-                uploadBtn.innerHTML = `
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
-                    </svg>
-                    Upload "${file.name}"
-                `;
-            } else {
-                uploadBtn.disabled = true;
-                uploadBtn.innerHTML = `
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
-                    </svg>
-                    Upload & Process
-                `;
-            }
+    function updateUploadButton() {
+        if (!uploadBtn || !fileInput) return;
+        
+        if (fileInput.files && fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
+                </svg>
+                Upload "${file.name}"
+            `;
+        } else {
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
+                </svg>
+                Upload & Process
+            `;
         }
+    }
 
-        // Form submission with loading state
+    // Form submission with loading state
+    if (uploadForm) {
         uploadForm.addEventListener('submit', (e) => {
             // Check if at least one role is selected
             const checkedRoles = document.querySelectorAll('.role-checkbox:checked');
@@ -893,55 +909,65 @@
             // Update hidden inputs with selected roles
             updateHiddenRoleInputs();
             
-            loadingState.style.display = 'block';
-            uploadArea.style.display = 'none';
+            if (loadingState) loadingState.style.display = 'block';
+            if (uploadArea) uploadArea.style.display = 'none';
         });
+    }
 
-        // Email form submission with loading state
+    // Email form submission with loading state
+    if (emailForm) {
         emailForm.addEventListener('submit', (e) => {
             // Show loading state
-            emailLoadingState.style.display = 'block';
-            emailConfirmation.style.display = 'none';
+            if (emailLoadingState) emailLoadingState.style.display = 'block';
+            if (emailConfirmation) emailConfirmation.style.display = 'none';
             
             // Disable the button to prevent double submission
-            sendEmailBtn.disabled = true;
-            sendEmailBtn.innerHTML = `
-                <div class="spinner" style="width: 16px; height: 16px; margin-right: 8px;"></div>
-                Sending...
-            `;
+            if (sendEmailBtn) {
+                sendEmailBtn.disabled = true;
+                sendEmailBtn.innerHTML = `
+                    <div class="spinner" style="width: 16px; height: 16px; margin-right: 8px;"></div>
+                    Sending...
+                `;
+            }
         });
+    }
 
-        // Role selection functions
-        function selectAllRoles() {
-            const checkboxes = document.querySelectorAll('.role-checkbox');
-            checkboxes.forEach(cb => cb.checked = true);
-        }
+    // Role selection functions
+    function selectAllRoles() {
+        const checkboxes = document.querySelectorAll('.role-checkbox');
+        checkboxes.forEach(cb => cb.checked = true);
+    }
 
-        function selectNoRoles() {
-            const checkboxes = document.querySelectorAll('.role-checkbox');
-            checkboxes.forEach(cb => cb.checked = false);
-        }
+    function selectNoRoles() {
+        const checkboxes = document.querySelectorAll('.role-checkbox');
+        checkboxes.forEach(cb => cb.checked = false);
+    }
 
-        function updateHiddenRoleInputs() {
-            const hiddenContainer = document.getElementById('hiddenRoleInputs');
-            hiddenContainer.innerHTML = '';
-            
-            const checkedRoles = document.querySelectorAll('.role-checkbox:checked');
-            checkedRoles.forEach(checkbox => {
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'allowed_roles';
-                hiddenInput.value = checkbox.value;
-                hiddenContainer.appendChild(hiddenInput);
-            });
-        }
+    function updateHiddenRoleInputs() {
+        const hiddenContainer = document.getElementById('hiddenRoleInputs');
+        if (!hiddenContainer) return;
+        
+        hiddenContainer.innerHTML = '';
+        
+        const checkedRoles = document.querySelectorAll('.role-checkbox:checked');
+        checkedRoles.forEach(checkbox => {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'allowed_roles';
+            hiddenInput.value = checkbox.value;
+            hiddenContainer.appendChild(hiddenInput);
+        });
+    }
 
-        // Email confirmation functions
-        function showEmailConfirmation() {
-            emailConfirmation.classList.add('show');
-            // Reset email form state in case user canceled previously
-            emailLoadingState.style.display = 'none';
-            emailConfirmation.style.display = 'flex';
+    // Email confirmation functions
+    function showEmailConfirmation() {
+        if (!emailConfirmation) return;
+        
+        emailConfirmation.classList.add('show');
+        // Reset email form state in case user canceled previously
+        if (emailLoadingState) emailLoadingState.style.display = 'none';
+        emailConfirmation.style.display = 'flex';
+        if (sendEmailBtn) {
             sendEmailBtn.disabled = false;
             sendEmailBtn.innerHTML = `
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -950,12 +976,16 @@
                 Yes, Send Emails
             `;
         }
+    }
 
-        function hideEmailConfirmation() {
-            emailConfirmation.classList.remove('show');
-            // Reset states
-            emailLoadingState.style.display = 'none';
-            emailConfirmation.style.display = 'flex';
+    function hideEmailConfirmation() {
+        if (!emailConfirmation) return;
+        
+        emailConfirmation.classList.remove('show');
+        // Reset states
+        if (emailLoadingState) emailLoadingState.style.display = 'none';
+        emailConfirmation.style.display = 'flex';
+        if (sendEmailBtn) {
             sendEmailBtn.disabled = false;
             sendEmailBtn.innerHTML = `
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -964,116 +994,114 @@
                 Yes, Send Emails
             `;
         }
+    }
 
-        // Timeframe selection
-        function selectTimeframe(timeframeId) {
-            window.location.href = `/load_data/select_timeframe/${timeframeId}`;
+    // Timeframe selection
+    function selectTimeframe(timeframeId) {
+        window.location.href = `/load_data/select_timeframe/${timeframeId}`;
+    }
+
+    // Auto-hide alerts (use load-data-alert to target only our custom alerts)
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.load-data-alert');
+        alerts.forEach(alert => {
+            alert.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => alert.remove(), 300);
+        });
+    }, 5000);
+
+    // ------------------------------------
+    // PAGINATION LOGIC
+    // ------------------------------------
+
+    // Only run pagination if there are users to display
+    window.addEventListener('load', () => {
+        const userItems = document.querySelectorAll('.user-list-item');
+        if (userItems.length > 0 && paginationControls) {
+            setupPagination(userItems);
         }
+    });
 
-        // Auto-hide alerts
-        setTimeout(() => {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                alert.style.animation = 'slideOut 0.3s ease forwards';
-                setTimeout(() => alert.remove(), 300);
-            });
-        }, 5000);
+    function setupPagination(items) {
+        const pageCount = Math.ceil(items.length / usersPerPage);
 
-        // ------------------------------------
-        // PAGINATION LOGIC
-        // ------------------------------------
+        // Hide all items initially
+        items.forEach(item => item.style.display = 'none');
+        
+        displayPage(items, currentPage);
+        generatePaginationControls(pageCount);
+    }
 
-        // Only run pagination if there are users to display
-        window.addEventListener('load', () => {
-            const userItems = document.querySelectorAll('.user-list-item');
-            if (userItems.length > 0) {
-                setupPagination(userItems);
+    function displayPage(items, page) {
+        const startIndex = (page - 1) * usersPerPage;
+        const endIndex = startIndex + usersPerPage;
+
+        // Hide previous page's items
+        items.forEach(item => item.style.display = 'none');
+        
+        // Show new page's items
+        for (let i = startIndex; i < endIndex && i < items.length; i++) {
+            items[i].style.display = 'block';
+        }
+    }
+
+    function generatePaginationControls(pageCount) {
+        if (!paginationControls) return;
+        
+        paginationControls.innerHTML = '';
+        
+        // Previous button
+        const prevButton = document.createElement('button');
+        prevButton.innerText = 'Previous';
+        prevButton.classList.add('page-btn');
+        prevButton.disabled = (currentPage === 1);
+        prevButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                goToPage(currentPage - 1);
             }
         });
-
-        function setupPagination(items) {
-            const pageCount = Math.ceil(items.length / usersPerPage);
-
-            // Hide all items initially
-            items.forEach(item => item.style.display = 'none');
-            
-            displayPage(items, currentPage);
-            generatePaginationControls(pageCount);
-        }
-
-        function displayPage(items, page) {
-            const startIndex = (page - 1) * usersPerPage;
-            const endIndex = startIndex + usersPerPage;
-
-            // Hide previous page's items
-            items.forEach(item => item.style.display = 'none');
-            
-            // Show new page's items
-            for (let i = startIndex; i < endIndex && i < items.length; i++) {
-                items[i].style.display = 'block';
+        paginationControls.appendChild(prevButton);
+        
+        // Page links
+        for (let i = 1; i <= pageCount; i++) {
+            const pageLink = document.createElement('a');
+            pageLink.innerText = i;
+            pageLink.href = '#';
+            pageLink.classList.add('page-link');
+            if (i === currentPage) {
+                pageLink.classList.add('active');
             }
-        }
-
-        function generatePaginationControls(pageCount) {
-            paginationControls.innerHTML = '';
-            
-            // Previous button
-            const prevButton = document.createElement('button');
-            prevButton.innerText = 'Previous';
-            prevButton.classList.add('page-btn');
-            prevButton.disabled = (currentPage === 1);
-            prevButton.addEventListener('click', () => {
-                if (currentPage > 1) {
-                    goToPage(currentPage - 1);
-                }
+            pageLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                goToPage(i);
             });
-            paginationControls.appendChild(prevButton);
-            
-            // Page links
-            for (let i = 1; i <= pageCount; i++) {
-                const pageLink = document.createElement('a');
-                pageLink.innerText = i;
-                pageLink.href = '#';
-                pageLink.classList.add('page-link');
-                if (i === currentPage) {
-                    pageLink.classList.add('active');
-                }
-                pageLink.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    goToPage(i);
-                });
-                paginationControls.appendChild(pageLink);
+            paginationControls.appendChild(pageLink);
+        }
+        
+        // Next button
+        const nextButton = document.createElement('button');
+        nextButton.innerText = 'Next';
+        nextButton.classList.add('page-btn');
+        nextButton.disabled = (currentPage === pageCount);
+        nextButton.addEventListener('click', () => {
+            if (currentPage < pageCount) {
+                goToPage(currentPage + 1);
             }
-            
-            // Next button
-            const nextButton = document.createElement('button');
-            nextButton.innerText = 'Next';
-            nextButton.classList.add('page-btn');
-            nextButton.disabled = (currentPage === pageCount);
-            nextButton.addEventListener('click', () => {
-                if (currentPage < pageCount) {
-                    goToPage(currentPage + 1);
-                }
-            });
-            paginationControls.appendChild(nextButton);
-        }
+        });
+        paginationControls.appendChild(nextButton);
+    }
 
-        function goToPage(page) {
-            currentPage = page;
-            const userItems = document.querySelectorAll('.user-list-item');
-            displayPage(userItems, currentPage);
-            generatePaginationControls(Math.ceil(userItems.length / usersPerPage));
-            window.scrollTo({ top: document.querySelector('.current-users').offsetTop, behavior: 'smooth' });
+    function goToPage(page) {
+        currentPage = page;
+        const userItems = document.querySelectorAll('.user-list-item');
+        displayPage(userItems, currentPage);
+        generatePaginationControls(Math.ceil(userItems.length / usersPerPage));
+        
+        // Scroll to users section if it exists
+        const usersSection = document.querySelector('.current-users');
+        if (usersSection) {
+            window.scrollTo({ top: usersSection.offsetTop, behavior: 'smooth' });
         }
-    </script>
-
-    <style>
-        @keyframes slideOut {
-            to {
-                opacity: 0;
-                transform: translateX(100%);
-            }
-        }
-    </style>
-</body>
-</html>
+    }
+</script>
+{% endblock %}

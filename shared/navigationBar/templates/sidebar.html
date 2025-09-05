@@ -1,0 +1,339 @@
+<!-- Sidebar Navigation -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h3>ProjectFlow</h3>
+        <button class="sidebar-toggle" id="sidebarCollapse">
+            <span id="toggleIcon">‹</span>
+        </button>
+    </div>
+    
+    <div class="sidebar-content">
+        <!-- User Info Section -->
+        {% if session.user_id %}
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="user-details">
+                <span class="user-name">
+                    {% if user and user.name %}
+                        {{ user.name }}
+                    {% elif user and user.school and user.school.name %}
+                        {{ user.school.name }}
+                    {% else %}
+                        User
+                    {% endif %}
+                </span>
+                <span class="user-role">
+                    {% if current_role_display %}
+                        {{ current_role_display }}
+                    {% elif user_roles and user_roles[0] %}
+                        {{ user_roles[0].get('display_name', user_roles[0].get('name', 'User')) }}
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Navigation Menu -->
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                {% for item in nav_items %}
+                <li class="nav-item">
+                    <a href="{{ item.url }}" class="nav-link" data-page="{{ item.active_class }}">
+                        <i class="{{ item.icon }}"></i>
+                        <span class="nav-text">{{ item.title }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Sidebar Overlay for mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar Styles -->
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 260px;
+        background: #2c3e50;
+        color: #ecf0f1;
+        transform: translateX(0);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+        overflow-y: auto;
+    }
+    
+    .sidebar.collapsed {
+        width: 60px;
+        overflow: visible;
+    }
+    
+    .sidebar.collapsed .nav-text,
+    .sidebar.collapsed .user-name,
+    .sidebar.collapsed .user-role {
+        opacity: 0;
+        width: 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .sidebar-header {
+        padding: 20px;
+        background: #34495e;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #3a5469;
+    }
+    
+    .sidebar-header h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+    
+    .sidebar-toggle {
+        background: none;
+        border: none;
+        color: #ecf0f1;
+        font-size: 1rem;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 3px;
+    }
+    
+    .sidebar-toggle:hover {
+        background: #3a5469;
+    }
+    
+    .sidebar-content {
+        padding: 0;
+    }
+    
+    .user-info {
+        padding: 20px;
+        border-bottom: 1px solid #3a5469;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .user-avatar i {
+        font-size: 2rem;
+        color: #3498db;
+    }
+    
+    .user-details {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .user-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .user-role {
+        font-size: 0.8rem;
+        color: #bdc3c7;
+        text-transform: capitalize;
+    }
+    
+    .sidebar-nav {
+        padding: 10px 0;
+    }
+    
+    .nav-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .nav-item {
+        margin: 2px 0;
+    }
+    
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #ecf0f1;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        gap: 12px;
+    }
+    
+    .nav-link:hover {
+        background: #34495e;
+        color: #3498db;
+        text-decoration: none;
+    }
+    
+    .nav-link.active {
+        background: #3498db;
+        color: #fff;
+        border-right: 3px solid #2980b9;
+    }
+    
+    .nav-link i {
+        width: 18px;
+        text-align: center;
+        font-size: 1rem;
+    }
+    
+    .nav-text {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+    
+    /* Main content adjustment */
+    .main-content {
+        margin-left: 260px;
+        transition: margin-left 0.3s ease;
+        min-height: 100vh;
+        background: #f8f9fa;
+    }
+    
+    .main-content.sidebar-collapsed {
+        margin-left: 60px;
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-260px);
+        }
+        
+        .sidebar.mobile-open {
+            transform: translateX(0);
+        }
+        
+        .main-content {
+            margin-left: 0;
+        }
+    }
+    
+    /* Content padding */
+    .content-wrapper {
+        padding: 20px;
+    }
+</style>
+
+<!-- Sidebar JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('sidebar');
+    const sidebarCollapse = document.getElementById('sidebarCollapse');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const mainContent = document.querySelector('.main-content') || document.body;
+    
+    // Toggle sidebar
+    sidebarCollapse.addEventListener('click', function() {
+        if (window.innerWidth <= 768) {
+            // Mobile: toggle sidebar visibility
+            sidebar.classList.toggle('mobile-open');
+            sidebarOverlay.classList.toggle('active');
+        } else {
+            // Desktop: toggle sidebar collapse
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('sidebar-collapsed');
+            
+            // Update toggle icon
+            const toggleIcon = document.getElementById('toggleIcon');
+            if (sidebar.classList.contains('collapsed')) {
+                toggleIcon.textContent = '›';
+            } else {
+                toggleIcon.textContent = '‹';
+            }
+        }
+    });
+    
+    // Close sidebar when clicking overlay (mobile)
+    sidebarOverlay.addEventListener('click', function() {
+        sidebar.classList.remove('mobile-open');
+        sidebarOverlay.classList.remove('active');
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('mobile-open');
+            sidebarOverlay.classList.remove('active');
+        } else {
+            // On mobile, always reset collapsed state
+            sidebar.classList.remove('collapsed');
+            mainContent.classList.remove('sidebar-collapsed');
+        }
+    });
+    
+    // Set active nav link based on current page
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    navLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
+        }
+    });
+    
+    // Add double-click to expand collapsed sidebar
+    if (window.innerWidth > 768) {
+        sidebar.addEventListener('dblclick', function() {
+            if (sidebar.classList.contains('collapsed')) {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('sidebar-collapsed');
+                document.getElementById('toggleIcon').textContent = '‹';
+            }
+        });
+        
+        // Add hover to temporarily expand when collapsed
+        sidebar.addEventListener('mouseenter', function() {
+            if (sidebar.classList.contains('collapsed')) {
+                sidebar.style.width = '260px';
+                sidebar.style.zIndex = '1001';
+                // Temporarily show text
+                const navTexts = sidebar.querySelectorAll('.nav-text, .user-name, .user-role');
+                navTexts.forEach(text => {
+                    text.style.opacity = '1';
+                    text.style.width = 'auto';
+                });
+            }
+        });
+        
+        sidebar.addEventListener('mouseleave', function() {
+            if (sidebar.classList.contains('collapsed')) {
+                sidebar.style.width = '60px';
+                sidebar.style.zIndex = '1000';
+                // Hide text again
+                const navTexts = sidebar.querySelectorAll('.nav-text, .user-name, .user-role');
+                navTexts.forEach(text => {
+                    text.style.opacity = '0';
+                    text.style.width = '0';
+                });
+            }
+        });
+    }
+});
+</script>

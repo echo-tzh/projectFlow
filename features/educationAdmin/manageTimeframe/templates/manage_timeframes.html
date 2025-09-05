@@ -1,1255 +1,637 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "shared/navigationBar/templates/base_with_sidebar.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Course Term - ProjectFlow</title>
-    <style>
-        /* Apple-Inspired Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% block title %}Manage Course Term - ProjectFlow{% endblock %}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: #f0f2f5;
-            min-height: 100vh;
-            color: #1d1d1f;
-            font-size: 16px;
-        }
+{% block extra_head %}
+<style>
+    /* Content padding */
+    .content-wrapper {
+        padding: 20px;
+    }
+    
+    /* Page header */
+    .page-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
 
-        /* Layout Structure */
-        .app-layout {
-            display: flex;
-            min-height: 100vh;
-        }
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        background: linear-gradient(45deg, #3498db, #9b59b6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
 
-        /* Left Sidebar Navigation */
-        .sidebar {
-            width: 240px;
-            /* Reduced width */
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(0, 0, 0, 0.08);
-            position: fixed;
-            left: 0;
-            top: 0;
-            height: 100vh;
-            z-index: 200;
-            transition: all 0.3s ease;
-            overflow-y: auto;
-        }
+    .page-subtitle {
+        font-size: 1.2rem;
+        color: #6c757d;
+        margin-bottom: 15px;
+    }
 
-        .sidebar.collapsed {
-            width: 70px;
-        }
+    /* Create button */
+    .create-section {
+        margin-bottom: 30px;
+        text-align: center;
+    }
 
-        .sidebar-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+    .create-btn {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+    }
 
-        .logo {
-            font-size: 22px;
-            font-weight: 700;
-            color: #007AFF;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
+    .create-btn:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+    }
 
-        .sidebar.collapsed .logo {
-            font-size: 18px;
-        }
+    /* Timeframes grid */
+    .timeframes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 20px;
+    }
 
-        .sidebar-toggle {
-            background: none;
-            border: none;
-            padding: 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            color: #666;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .timeframe-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+    }
 
-        .sidebar-toggle:hover {
-            background: rgba(0, 0, 0, 0.05);
-            color: #333;
-        }
+    .timeframe-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    }
 
-        /* Navigation Menu */
-        .nav-menu {
-            padding: 12px 0;
-        }
+    .timeframe-header {
+        margin-bottom: 16px;
+    }
 
-        .nav-section {
-            margin-bottom: 8px;
-        }
+    .timeframe-name {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
 
-        .nav-section-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #8E8E93;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 8px 24px 4px;
-            transition: all 0.3s ease;
-        }
+    .timeframe-dates {
+        color: #6c757d;
+        font-size: 14px;
+    }
 
-        .sidebar.collapsed .nav-section-title {
-            opacity: 0;
-            padding: 4px 24px;
-        }
+    .date-range {
+        background: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+    }
 
-        .nav-item {
-            margin: 1px 12px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            position: relative;
-        }
+    .timeframe-info {
+        margin: 12px 0;
+    }
 
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 8px 12px;
-            color: #1d1d1f;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 500;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            position: relative;
-        }
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #666;
+    }
 
-        .nav-link:hover {
-            background: rgba(0, 122, 255, 0.08);
-            color: #007AFF;
-        }
+    .projects-count {
+        background: rgba(46, 204, 113, 0.1);
+        color: #27ae60;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
 
-        .nav-link.active {
-            background: #007AFF;
-            color: white;
-            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
-        }
+    .timeframe-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+        margin-top: 16px;
+    }
 
-        .nav-link.active::before {
-            content: '';
-            position: absolute;
-            left: -12px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 3px;
-            height: 20px;
-            background: #007AFF;
-            border-radius: 0 2px 2px 0;
-        }
+    .action-btn {
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            margin-right: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
+    .load-data-btn {
+        background: rgba(46, 204, 113, 0.1);
+        color: #27ae60;
+        border: 1px solid rgba(46, 204, 113, 0.2);
+    }
 
-        .sidebar.collapsed .nav-icon {
-            margin-right: 0;
-        }
+    .load-data-btn:hover {
+        background: rgba(46, 204, 113, 0.2);
+        text-decoration: none;
+        color: #27ae60;
+    }
 
-        .nav-text {
-            transition: all 0.3s ease;
-        }
+    .edit-btn {
+        background: rgba(243, 156, 18, 0.1);
+        color: #f39c12;
+        border: 1px solid rgba(243, 156, 18, 0.2);
+    }
 
-        .sidebar.collapsed .nav-text {
-            opacity: 0;
-            width: 0;
-        }
+    .edit-btn:hover {
+        background: rgba(243, 156, 18, 0.2);
+    }
 
-        /* Sub-navigation */
-        .nav-item.has-children .nav-link {
-            position: relative;
-        }
+    .delete-btn {
+        background: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+        border: 1px solid rgba(231, 76, 60, 0.2);
+    }
 
-        .nav-chevron {
-            margin-left: auto;
-            transition: transform 0.2s ease;
-            font-size: 12px;
-            color: #8E8E93;
-        }
+    .delete-btn:hover {
+        background: rgba(231, 76, 60, 0.2);
+    }
 
-        .nav-item.expanded .nav-chevron {
-            transform: rotate(90deg);
-        }
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+    }
 
-        .sub-nav {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-            margin-left: 32px;
-        }
+    .empty-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
 
-        .nav-item.expanded .sub-nav {
-            max-height: 200px;
-        }
+    .empty-title {
+        font-size: 20px;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
 
-        .sub-nav-item {
-            margin: 2px 0;
-        }
+    .empty-description {
+        font-size: 14px;
+        opacity: 0.8;
+    }
 
-        .sub-nav-link {
-            display: flex;
-            align-items: center;
-            padding: 6px 12px;
-            color: #666;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 400;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+    }
 
-        .sub-nav-link:hover {
-            background: rgba(0, 122, 255, 0.06);
-            color: #007AFF;
-        }
+    .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        .sub-nav-link.active {
-            background: rgba(0, 122, 255, 0.1) ;
-            color: #007AFF;
-            font-weight: 500;
-        }
+    .modal-content {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    }
 
-        /* Main Content Area */
-        .main-container {
-            flex: 1;
-            margin-left: 240px;
-            /* Matched new sidebar width */
-            transition: all 0.3s ease;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
 
-        .sidebar.collapsed+.main-container {
-            margin-left: 70px;
-        }
+    .modal-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #2c3e50;
+    }
 
-        /* Top Header with Breadcrumbs */
-        .header {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-            padding: 12px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+        padding: 4px;
+    }
 
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 16px;
-            /* Reduced padding */
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+    .close-btn:hover {
+        color: #333;
+    }
 
-        /* Breadcrumbs */
-        .breadcrumbs {
-            display: flex;
-            align-items: center;
-            font-size: 14px;
-            color: #666;
-        }
+    /* Form styles */
+    .form-group {
+        margin-bottom: 16px;
+    }
 
-        .breadcrumb-item {
-            display: flex;
-            align-items: center;
-        }
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+        font-size: 14px;
+    }
 
-        .breadcrumb-link {
-            color: #007AFF;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s ease;
-        }
+    .form-input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.2s ease;
+    }
 
-        .breadcrumb-link:hover {
-            color: #0056CC;
-        }
+    .form-input:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
 
-        .breadcrumb-separator {
-            margin: 0 8px;
-            color: #C7C7CC;
-            font-weight: 300;
-        }
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+    }
 
-        .breadcrumb-current {
-            color: #1d1d1f;
-            font-weight: 600;
-        }
+    .btn {
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s ease;
+        flex: 1;
+    }
 
-        /* Page Indicator */
-        .page-indicator {
-            background: rgba(0, 122, 255, 0.1);
-            color: #007AFF;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+    .btn-primary {
+        background: #3498db;
+        color: white;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 16px;
-            /* Reduced padding */
-        }
+    .btn-primary:hover {
+        background: #2980b9;
+    }
 
-        /* Flash Messages */
-        .flash-messages {
-            margin: 20px 0;
-        }
+    .btn-secondary {
+        background: #f0f0f0;
+        color: #333;
+    }
 
-        .flash-message {
-            padding: 16px 20px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: slideInDown 0.3s ease-out;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
+    .btn-secondary:hover {
+        background: #e0e0e0;
+    }
 
-        .flash-message.success {
-            background: rgba(52, 199, 89, 0.1);
-            color: #30d158;
-            border-color: rgba(52, 199, 89, 0.3);
-        }
+    .btn-danger {
+        background: #e74c3c;
+        color: white;
+    }
 
-        .flash-message.error {
-            background: rgba(255, 59, 48, 0.1);
-            color: #ff3b30;
-            border-color: rgba(255, 59, 48, 0.3);
-        }
+    .btn-danger:hover {
+        background: #c0392b;
+    }
 
-        .flash-close {
-            margin-left: auto;
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            color: inherit;
-            opacity: 0.7;
-            transition: opacity 0.2s ease;
-        }
-
-        .flash-close:hover {
-            opacity: 1;
-        }
-
-        @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 24px 0;
-        }
-
-        .page-header {
-            text-align: center;
-            margin-bottom: 24px;
-            opacity: 0;
-            animation: fadeInUp 0.8s ease forwards;
-        }
-
-        .page-title {
-            font-size: 40px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            background: linear-gradient(45deg, #007AFF, #5856D6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .page-subtitle {
-            font-size: 18px;
-            color: #666;
-        }
-
-        /* Create Button */
-        .create-section {
-            margin-bottom: 30px;
-            opacity: 0;
-            animation: fadeInUp 0.8s ease forwards;
-            animation-delay: 0.1s;
-        }
-
-        .create-btn {
-            background: #007AFF;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-size: 17px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
-        }
-
-        .create-btn:hover {
-            background: #0056CC;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
-        }
-
-        /* Timeframes List */
-        .timeframes-section {
-            opacity: 0;
-            animation: fadeInUp 0.8s ease forwards;
-            animation-delay: 0.2s;
-        }
-
+    /* Responsive design */
+    @media (max-width: 768px) {
         .timeframes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: 16px;
-            /* Reduced gap */
+            grid-template-columns: 1fr;
         }
-
-        .timeframe-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 16px;
-            border: 1px solid #e0e0e0;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            position: relative;
-        }
-
-        .timeframe-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-        }
-
-        .timeframe-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 16px;
-        }
-
-        .timeframe-name {
-            font-size: 22px;
-            font-weight: 600;
-            color: #1d1d1f;
-            margin-bottom: 4px;
-        }
-
-        .timeframe-dates {
-            color: #666;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .date-range {
-            background: rgba(0, 122, 255, 0.1);
-            color: #007AFF;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .timeframe-info {
-            margin: 12px 0;
-        }
-
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 8px;
-            font-size: 15px;
-            color: #666;
-        }
-
-        .info-icon {
-            width: 16px;
-            height: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .projects-count {
-            background: rgba(52, 199, 89, 0.1);
-            color: #30d158;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
+        
         .timeframe-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 8px;
-            margin-top: 16px;
+            grid-template-columns: 1fr;
         }
-
-        .action-btn {
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
+        
+        .page-title {
+            font-size: 2rem;
         }
+    }
+</style>
+{% endblock %}
 
-        .load-data-btn {
-            background: rgba(52, 199, 89, 0.1);
-            color: #30d158;
-            border: 1px solid rgba(52, 199, 89, 0.2);
-        }
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Manage Course Term</h1>
+    <p class="page-subtitle">Create, view, and manage course terms</p>
+</div>
 
-        .load-data-btn:hover {
-            background: rgba(52, 199, 89, 0.2);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.2);
-        }
+<div class="create-section">
+    <button class="create-btn" onclick="openCreateModal()">
+        <span>+</span>
+        Create New Course Term
+    </button>
+</div>
 
-        .edit-btn {
-            background: rgba(255, 149, 0, 0.1);
-            color: #ff9500;
-            border: 1px solid rgba(255, 149, 0, 0.2);
-        }
-
-        .edit-btn:hover {
-            background: rgba(255, 149, 0, 0.2);
-            transform: translateY(-1px);
-        }
-
-        .delete-btn {
-            background: rgba(255, 59, 48, 0.1);
-            color: #ff3b30;
-            border: 1px solid rgba(255, 59, 48, 0.2);
-        }
-
-        .delete-btn:hover {
-            background: rgba(255, 59, 48, 0.2);
-            transform: translateY(-1px);
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal.show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 1;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
-        }
-
-        .modal.show .modal-content {
-            transform: translateY(0);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .modal-title {
-            font-size: 26px;
-            font-weight: 600;
-            color: #1d1d1f;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.2s ease;
-        }
-
-        .close-btn:hover {
-            background: rgba(0, 0, 0, 0.05);
-            color: #333;
-        }
-
-        /* Form Styles */
-        .form-group {
-            margin-bottom: 16px;
-            /* Reduced margin */
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
-            font-size: 17px;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 17px;
-            transition: border-color 0.2s ease;
-            background: white;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #007AFF;
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 17px;
-            font-weight: 500;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s ease;
-            flex: 1;
-        }
-
-        .btn-primary {
-            background: #007AFF;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #0056CC;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-
-        .btn-danger {
-            background: #ff3b30;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #d70015;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #666;
-        }
-
-        .empty-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .empty-title {
-            font-size: 20px;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-
-        .empty-description {
-            font-size: 14px;
-            opacity: 0.8;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Mobile Menu Button */
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            padding: 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            color: #666;
-        }
-
-        .mobile-menu-btn:hover {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        /* Sidebar Overlay for Mobile */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 150;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .sidebar.show {
-                transform: translateX(0);
-            }
-
-            .main-container {
-                margin-left: 0;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .sidebar-overlay.show {
-                display: block;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .timeframes-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .page-title {
-                font-size: 28px;
-            }
-
-            .modal-content {
-                margin: 20px;
-                padding: 24px;
-            }
-
-            .timeframe-actions {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-
-            .header-content {
-                padding: 0 16px;
-            }
-
-            .container {
-                padding: 0 16px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .timeframe-actions {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-
-<body>
-    <div class="app-layout">
-        <nav class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <a href="{{ url_for('universal_dashboard.dashboard') }}" class="logo">ProjectFlow</a>
-                <button class="sidebar-toggle" onclick="toggleSidebar()">
-                    <span id="toggleIcon">‹</span>
+<div class="timeframes-section">
+    {% if timeframes %}
+    <div class="timeframes-grid">
+        {% for timeframe in timeframes %}
+        <div class="timeframe-card">
+            <div class="timeframe-header">
+                <div>
+                    <h3 class="timeframe-name">{{ timeframe.name }}</h3>
+                    <div class="timeframe-dates">
+                        <span class="date-range">{{ timeframe.start_date.strftime('%b %d, %Y') }} - {{ timeframe.end_date.strftime('%b %d, %Y') }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="timeframe-info">
+                <div class="info-item">
+                    <span>📅</span>
+                    <span>Duration: {{ (timeframe.end_date - timeframe.start_date).days }} days</span>
+                </div>
+                <div class="info-item">
+                    <span>📍</span>
+                    <span>Location: {{ timeframe.location or 'Not specified' }}</span>
+                </div>
+                <div class="info-item">
+                    <span>🏫</span>
+                    <span>Delivery: {{ timeframe.delivery_type or 'Not specified' }}</span>
+                </div>
+                <div class="info-item">
+                    <span>🕒</span>
+                    <span>Preference: {{ timeframe.preference_startTiming.strftime('%b %d, %Y') }} - {{ timeframe.preference_endTiming.strftime('%b %d, %Y') }}</span>
+                </div>
+                <div class="info-item">
+                    <span>👥</span>
+                    <span>Users: <span class="projects-count">{{ timeframe.users|length if timeframe.users else 0 }}</span></span>
+                </div>
+                <div class="info-item">
+                    <span>📊</span>
+                    <span>Projects: <span class="projects-count">{{ timeframe.projects|length }}</span></span>
+                </div>
+            </div>
+            <div class="timeframe-actions">
+                <a href="{{ url_for('load_data.select_timeframe', timeframe_id=timeframe.id) }}" class="action-btn load-data-btn">
+                    Load Data
+                </a>
+                <button class="action-btn edit-btn" onclick="openEditModal({{ timeframe.id }}, '{{ timeframe.name|e }}', '{{ timeframe.start_date }}', '{{ timeframe.end_date }}', '{{ timeframe.location|e }}', '{{ timeframe.delivery_type|e }}', '{{ timeframe.preference_startTiming }}', '{{ timeframe.preference_endTiming }}')">
+                    Edit
+                </button>
+                <button class="action-btn delete-btn" onclick="openDeleteModal({{ timeframe.id }}, '{{ timeframe.name|e }}')">
+                    Delete
                 </button>
             </div>
-            <div class="nav-menu">
-                <div class="nav-section">
-                    <div class="nav-section-title">Main</div>
-                    <div class="nav-item">
-                        <a href="{{ url_for('universal_dashboard.dashboard') }}" class="nav-link">
-                            <span class="nav-icon">🏠</span>
-                            <span class="nav-text">Dashboard</span>
-                        </a>
-                    </div>
-                </div>
-                <div class="nav-section">
-                    <div class="nav-section-title">Management</div>
-                    <div class="nav-item has-children expanded">
-                        <a href="{{ url_for('manage_timeframe_bp.manage_timeframes') }}" class="nav-link active"
-                            onclick="toggleSubNav(this, event)">
-                            <span class="nav-icon">📅</span>
-                            <span class="nav-text">Manage Course Terms</span>
-                            <span class="nav-chevron">›</span>
-                        </a>
-                        <div class="sub-nav">
-                            <div class="sub-nav-item">
-                                <a href="{{ url_for('manage_timeframe_bp.manage_timeframes') }}"
-                                    class="sub-nav-link active">View All Course Term</a>
-                            </div>
-                            <div class="sub-nav-item">
-                                <a href="#" class="sub-nav-link">Load Data</a>
-                            </div>
-                            <div class="sub-nav-item">
-                                <a href="#" class="sub-nav-link">Notify Users</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="nav-item">
-                        <a href="#" class="nav-link">
-                            <span class="nav-icon">👥</span>
-                            <span class="nav-text">Manage Users</span>
-                        </a>
-                    </div>
-                    <div class="nav-item">
-                        <a href="#" class="nav-link">
-                            <span class="nav-icon">📊</span>
-                            <span class="nav-text">Projects</span>
-                        </a>
-                    </div>
-                </div>
-                <div class="nav-section">
-                    <div class="nav-section-title">Settings</div>
-                    <div class="nav-item">
-                        <a href="#" class="nav-link">
-                            <span class="nav-icon">⚙️</span>
-                            <span class="nav-text">System Settings</span>
-                        </a>
-                    </div>
-                    <div class="nav-item">
-                        <a href="#" class="nav-link">
-                            <span class="nav-icon">👤</span>
-                            <span class="nav-text">Profile</span>
-                        </a>
-                    </div>
-                </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <h3 class="empty-title">No Course Terms Found</h3>
+        <p class="empty-description">Get started by creating your first academic course term</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Create/Edit Modal -->
+<div id="timeframeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="modalTitle">Create New Course Term</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="timeframeForm" method="POST" action="{{ url_for('manage_timeframe_bp.create_timeframe') }}">
+            <input type="hidden" id="timeframeId" name="timeframe_id" value="">
+            <div class="form-group">
+                <label class="form-label" for="name">Course Term Name</label>
+                <input type="text" id="name" name="name" class="form-input" placeholder="e.g., Academic Year 2024-2025" required>
             </div>
-        </nav>
-        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
-        <div class="main-container">
-            <header class="header">
-                <div class="header-content">
-                    <div class="breadcrumbs">
-                        <button class="mobile-menu-btn" onclick="openMobileSidebar()">
-                            ☰
-                        </button>
-                        <div class="breadcrumb-item">
-                            <a href="{{ url_for('universal_dashboard.dashboard') }}"
-                                class="breadcrumb-link">Dashboard</a>
-                        </div>
-                        <span class="breadcrumb-separator">›</span>
-                        <div class="breadcrumb-item">
-                            <span class="breadcrumb-current">Manage Course Term</span>
-                        </div>
-                    </div>
-                    <div class="page-indicator">Course Term Management</div>
-                </div>
-            </header>
-            <main class="main-content">
-                <div class="container">
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                    <div class="flash-messages">
-                        {% for category, message in messages %}
-                        <div class="flash-message {{ category }}">
-                            <span>{{ message }}</span>
-                            <button class="flash-close" onclick="this.parentElement.remove()">×</button>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    {% endwith %}
-                    <div class="page-header">
-                        <h1 class="page-title">Manage Course Term</h1>
-                        <p class="page-subtitle">Create, view, and manage course term</p>
-                    </div>
-                    <div class="create-section">
-                        <button class="create-btn" onclick="openCreateModal()">
-                            <span>+</span>
-                            Create New Course Term
-                        </button>
-                    </div>
-                    <div class="timeframes-section">
-                        {% if timeframes %}
-                        <div class="timeframes-grid">
-                            {% for timeframe in timeframes %}
-                            <div class="timeframe-card">
-                                <div class="timeframe-header">
-                                    <div>
-                                        <h3 class="timeframe-name">{{ timeframe.name }}</h3>
-                                        <div class="timeframe-dates">
-                                            <span class="date-range">{{ timeframe.start_date.strftime('%b %d, %Y') }} -
-                                                {{ timeframe.end_date.strftime('%b %d, %Y') }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="timeframe-info">
-                                    <div class="info-item">
-                                        <span class="info-icon">📅</span>
-                                        <span>Duration: {{ (timeframe.end_date - timeframe.start_date).days }}
-                                            days</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-icon">📍</span>
-                                        <span>Location: {{ timeframe.location or 'Not specified' }}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-icon">🏫</span>
-                                        <span>Delivery: {{ timeframe.delivery_type or 'Not specified' }}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-icon">🕒</span>
-                                        <span>Preference Timing: {{ timeframe.preference_startTiming.strftime('%b %d, %Y')
-                                            }} - {{ timeframe.preference_endTiming.strftime('%b %d, %Y') }}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-icon">👥</span>
-                                        <span>Users: <span class="projects-count">{{ timeframe.users|length if
-                                                timeframe.users else 0 }}</span></span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-icon">📊</span>
-                                        <span>Projects: <span class="projects-count">{{ timeframe.projects|length
-                                                }}</span></span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-icon"></span>
-                                        <span>Created: {{ timeframe.created_at.strftime('%b %d, %Y') }}</span>
-                                    </div>
-                                </div>
-                                <div class="timeframe-actions">
-                                    <a href="{{ url_for('load_data.select_timeframe', timeframe_id=timeframe.id) }}"
-                                        class="action-btn load-data-btn">
-                                        Load and Notify users
-                                    </a>
-                                    <button class="action-btn edit-btn"
-                                        onclick="openEditModal({{ timeframe.id }}, '{{ timeframe.name|e }}', '{{ timeframe.start_date }}', '{{ timeframe.end_date }}', '{{ timeframe.location|e }}', '{{ timeframe.delivery_type|e }}', '{{ timeframe.preference_startTiming }}', '{{ timeframe.preference_endTiming }}')">
-                                        Edit
-                                    </button>
-                                    <button class="action-btn delete-btn"
-                                        onclick="openDeleteModal({{ timeframe.id }}, '{{ timeframe.name|e }}')">
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        <div class="empty-state">
-                            <div class="empty-icon">📅</div>
-                            <h3 class="empty-title">No Course Term Found</h3>
-                            <p class="empty-description">Get started by creating your first academic course term</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </main>
-            <div id="timeframeModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 class="modal-title" id="modalTitle">Create New Course Term</h2>
-                        <button class="close-btn" onclick="closeModal()">&times;</button>
-                    </div>
-                    <form id="timeframeForm" method="POST"
-                        action="{{ url_for('manage_timeframe_bp.create_timeframe') }}">
-                        <input type="hidden" id="timeframeId" name="timeframe_id" value="">
-                        <div class="form-group">
-                            <label class="form-label" for="name">Course Term Name</label>
-                            <input type="text" id="name" name="name" class="form-input"
-                                placeholder="e.g., Academic Year 2024-2025, Course of Study" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="start_date">Start Date</label>
-                            <input type="date" id="start_date" name="start_date" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="end_date">End Date</label>
-                            <input type="date" id="end_date" name="end_date" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="location">Location</label>
-                            <input type="text" id="location" name="location" class="form-input"
-                                placeholder="e.g., UOW, SIM, Main Campus" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="delivery_type">Delivery Type</label>
-                            <select id="delivery_type" name="delivery_type" class="form-input" required>
-                                <option value="on campus">On Campus</option>
-                                <option value="off campus">Off Campus</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="preference_startTiming">Preference Start Date</label>
-                            <input type="date" id="preference_startTiming" name="preference_startTiming" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="preference_endTiming">Preference End Date</label>
-                            <input type="date" id="preference_endTiming" name="preference_endTiming" class="form-input" required>
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                            <button type="submit" class="btn btn-primary" id="submitBtn">Create Course Of Study</button>
-                        </div>
-                    </form>
-                </div>
+            <div class="form-group">
+                <label class="form-label" for="start_date">Start Date</label>
+                <input type="date" id="start_date" name="start_date" class="form-input" required>
             </div>
-            <div id="deleteModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 class="modal-title">Delete Timeframe</h2>
-                        <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
-                    </div>
-                    <p style="margin-bottom: 24px; color: #666;">
-                        Are you sure you want to delete "<span id="deleteTimeframeName"></span>"? This action cannot be
-                        undone.
-                    </p>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
-                        <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete Timeframe</button>
-                    </div>
-                </div>
+            <div class="form-group">
+                <label class="form-label" for="end_date">End Date</label>
+                <input type="date" id="end_date" name="end_date" class="form-input" required>
             </div>
-            <script>
-                let editingTimeframeId = null;
-                let deletingTimeframeId = null;
-                // Create Modal Functions
-                function openCreateModal() {
-                    document.getElementById('modalTitle').textContent = 'Create New Course Term';
-                    document.getElementById('submitBtn').textContent = 'Create Course Term';
-                    document.getElementById('timeframeForm').action = "{{ url_for('manage_timeframe_bp.create_timeframe') }}";
-                    document.getElementById('timeframeId').value = '';
-                    document.getElementById('name').value = '';
-                    document.getElementById('start_date').value = '';
-                    document.getElementById('end_date').value = '';
-                    document.getElementById('location').value = '';
-                    document.getElementById('delivery_type').value = '';
-                    document.getElementById('preference_startTiming').value = '';
-                    document.getElementById('preference_endTiming').value = '';
-                    editingTimeframeId = null;
-                    showModal('timeframeModal');
-                }
-                function openEditModal(id, name, startDate, endDate, location, deliveryType, preferenceStartTiming, preferenceEndTiming) {
-                    document.getElementById('modalTitle').textContent = 'Edit Course Term';
-                    document.getElementById('submitBtn').textContent = 'Update Timeframe';
-                    document.getElementById('timeframeForm').action = "{{ url_for('manage_timeframe_bp.edit_timeframe') }}";
-                    document.getElementById('timeframeId').value = id;
-                    document.getElementById('name').value = name;
-                    document.getElementById('start_date').value = startDate;
-                    document.getElementById('end_date').value = endDate;
-                    document.getElementById('location').value = location;
-                    document.getElementById('delivery_type').value = deliveryType;
-                    document.getElementById('preference_startTiming').value = preferenceStartTiming;
-                    document.getElementById('preference_endTiming').value = preferenceEndTiming;
-                    editingTimeframeId = id;
-                    showModal('timeframeModal');
-                }
-                function closeModal() {
-                    hideModal('timeframeModal');
-                }
-                // Delete Modal Functions
-                function openDeleteModal(id, name) {
-                    document.getElementById('deleteTimeframeName').textContent = name;
-                    deletingTimeframeId = id;
-                    showModal('deleteModal');
-                }
-                function closeDeleteModal() {
-                    hideModal('deleteModal');
-                    deletingTimeframeId = null;
-                }
-                function confirmDelete() {
-                    if (deletingTimeframeId) {
-                        // Create form and submit for deletion
-                        const form = document.createElement('form');
-                        form.method = 'POST';
-                        form.action = "{{ url_for('manage_timeframe_bp.delete_timeframe') }}";
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'timeframe_id';
-                        input.value = deletingTimeframeId;
-                        form.appendChild(input);
-                        document.body.appendChild(form);
-                        form.submit();
-                    }
-                }
-                // Modal Helper Functions
-                function showModal(modalId) {
-                    const modal = document.getElementById(modalId);
-                    modal.classList.add('show');
-                    document.body.style.overflow = 'hidden';
-                }
-                function hideModal(modalId) {
-                    const modal = document.getElementById(modalId);
-                    modal.classList.remove('show');
-                    document.body.style.overflow = '';
-                }
-                // Close modal when clicking outside
-                window.onclick = function (event) {
-                    const timeframeModal = document.getElementById('timeframeModal');
-                    const deleteModal = document.getElementById('deleteModal');
-                    if (event.target === timeframeModal) {
-                        closeModal();
-                    }
-                    if (event.target === deleteModal) {
-                        closeDeleteModal();
-                    }
-                }
-                // Auto-hide flash messages
-                document.addEventListener('DOMContentLoaded', function () {
-                    const flashMessages = document.querySelectorAll('.flash-message');
-                    flashMessages.forEach(function (message) {
-                        setTimeout(function () {
-                            if (message.parentElement) {
-                                message.style.animation = 'slideInDown 0.3s ease-out reverse';
-                                setTimeout(function () {
-                                    message.remove();
-                                }, 300);
-                            }
-                        }, 5000);
-                    });
-                });
-                // Form validation with AJAX
-                document.getElementById('timeframeForm').addEventListener('submit', async function (e) {
-                    e.preventDefault();
-                    const form = e.target;
-                    const startDate = document.getElementById('start_date').value;
-                    const endDate = document.getElementById('end_date').value;
-                    const preferenceStartTiming = document.getElementById('preference_startTiming').value;
-                    const preferenceEndTiming = document.getElementById('preference_endTiming').value;
-                    
-                    if (new Date(endDate) <= new Date(startDate)) {
-                        alert('End date must be after start date.');
-                        return;
-                    }
+            <div class="form-group">
+                <label class="form-label" for="location">Location</label>
+                <input type="text" id="location" name="location" class="form-input" placeholder="e.g., UOW, SIM, Main Campus" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="delivery_type">Delivery Type</label>
+                <select id="delivery_type" name="delivery_type" class="form-input" required>
+                    <option value="on campus">On Campus</option>
+                    <option value="off campus">Off Campus</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="preference_startTiming">Preference Start Date</label>
+                <input type="date" id="preference_startTiming" name="preference_startTiming" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="preference_endTiming">Preference End Date</label>
+                <input type="date" id="preference_endTiming" name="preference_endTiming" class="form-input" required>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">Create Course Term</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-                    // Perform AJAX validation for preference dates
-                    const response = await fetch('{{ url_for('manage_timeframe_bp.validate_timeframe_dates') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            start_date: startDate,
-                            preference_start: preferenceStartTiming,
-                            preference_end: preferenceEndTiming
-                        }),
-                    });
+<!-- Delete Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Delete Course Term</h2>
+            <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <p style="margin-bottom: 24px; color: #666;">
+            Are you sure you want to delete "<span id="deleteTimeframeName"></span>"? This action cannot be undone.
+        </p>
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+            <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete Course Term</button>
+        </div>
+    </div>
+</div>
 
-                    const data = await response.json();
+<script>
+let editingTimeframeId = null;
+let deletingTimeframeId = null;
 
-                    if (data.valid) {
-                        // If valid, proceed with form submission
-                        form.submit();
-                    } else {
-                        // Display error message
-                        alert(data.message);
-                    }
-                });
+// Create Modal Functions
+function openCreateModal() {
+    document.getElementById('modalTitle').textContent = 'Create New Course Term';
+    document.getElementById('submitBtn').textContent = 'Create Course Term';
+    document.getElementById('timeframeForm').action = "{{ url_for('manage_timeframe_bp.create_timeframe') }}";
+    document.getElementById('timeframeId').value = '';
+    document.getElementById('name').value = '';
+    document.getElementById('start_date').value = '';
+    document.getElementById('end_date').value = '';
+    document.getElementById('location').value = '';
+    document.getElementById('delivery_type').value = '';
+    document.getElementById('preference_startTiming').value = '';
+    document.getElementById('preference_endTiming').value = '';
+    editingTimeframeId = null;
+    showModal('timeframeModal');
+}
 
-                // Keyboard accessibility
-                document.addEventListener('keydown', function (e) {
-                    if (e.key === 'Escape') {
-                        closeModal();
-                        closeDeleteModal();
-                    }
-                });
-            </script>
-</body>
+function openEditModal(id, name, startDate, endDate, location, deliveryType, preferenceStartTiming, preferenceEndTiming) {
+    document.getElementById('modalTitle').textContent = 'Edit Course Term';
+    document.getElementById('submitBtn').textContent = 'Update Course Term';
+    document.getElementById('timeframeForm').action = "{{ url_for('manage_timeframe_bp.edit_timeframe') }}";
+    document.getElementById('timeframeId').value = id;
+    document.getElementById('name').value = name;
+    document.getElementById('start_date').value = startDate;
+    document.getElementById('end_date').value = endDate;
+    document.getElementById('location').value = location;
+    document.getElementById('delivery_type').value = deliveryType;
+    document.getElementById('preference_startTiming').value = preferenceStartTiming;
+    document.getElementById('preference_endTiming').value = preferenceEndTiming;
+    editingTimeframeId = id;
+    showModal('timeframeModal');
+}
 
-</html>
+function closeModal() {
+    hideModal('timeframeModal');
+}
+
+// Delete Modal Functions
+function openDeleteModal(id, name) {
+    document.getElementById('deleteTimeframeName').textContent = name;
+    deletingTimeframeId = id;
+    showModal('deleteModal');
+}
+
+function closeDeleteModal() {
+    hideModal('deleteModal');
+    deletingTimeframeId = null;
+}
+
+function confirmDelete() {
+    if (deletingTimeframeId) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{{ url_for('manage_timeframe_bp.delete_timeframe') }}";
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'timeframe_id';
+        input.value = deletingTimeframeId;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Modal Helper Functions
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function hideModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const timeframeModal = document.getElementById('timeframeModal');
+    const deleteModal = document.getElementById('deleteModal');
+    if (event.target === timeframeModal) {
+        closeModal();
+    }
+    if (event.target === deleteModal) {
+        closeDeleteModal();
+    }
+}
+
+// Form validation
+document.getElementById('timeframeForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+    const preferenceStartTiming = document.getElementById('preference_startTiming').value;
+    const preferenceEndTiming = document.getElementById('preference_endTiming').value;
+    
+    if (new Date(endDate) <= new Date(startDate)) {
+        alert('End date must be after start date.');
+        return;
+    }
+
+    if (new Date(preferenceEndTiming) <= new Date(preferenceStartTiming)) {
+        alert('Preference end date must be after preference start date.');
+        return;
+    }
+
+    // Perform AJAX validation for preference dates
+    try {
+        const response = await fetch('{{ url_for('manage_timeframe_bp.validate_timeframe_dates') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                start_date: startDate,
+                preference_start: preferenceStartTiming,
+                preference_end: preferenceEndTiming
+            }),
+        });
+
+        const data = await response.json();
+
+        if (data.valid) {
+            form.submit();
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        console.error('Validation error:', error);
+        form.submit(); // Fall back to regular submission
+    }
+});
+
+// Keyboard accessibility
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+        closeDeleteModal();
+    }
+});
+</script>
+{% endblock %}

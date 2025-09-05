@@ -1,0 +1,286 @@
+{% extends "shared/navigationBar/templates/base_with_sidebar.html" %}
+
+{% block title %}{{ current_role_display }} Dashboard - ProjectFlow{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Dashboard-specific styles */
+    .welcome-section {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 40px 0;
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(155, 89, 182, 0.1));
+        border-radius: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .welcome-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        background: linear-gradient(45deg, #3498db, #9b59b6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .welcome-subtitle {
+        font-size: 1.2rem;
+        color: #6c757d;
+        margin-bottom: 15px;
+    }
+    
+    .role-badge {
+        display: inline-block;
+        background: #3498db;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .dashboard-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        background: linear-gradient(45deg, #3498db, #2980b9);
+    }
+    
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #2c3e50;
+    }
+    
+    .card-description {
+        color: #6c757d;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+    
+    .card-action {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+        font-weight: 500;
+    }
+    
+    .card-action:hover {
+        background: #2980b9;
+        color: white;
+        text-decoration: none;
+    }
+    
+    /* Role-specific card colors */
+    .system-admin .card-icon { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+    .education-admin .card-icon { background: linear-gradient(45deg, #f39c12, #d68910); }
+    .student .card-icon { background: linear-gradient(45deg, #9b59b6, #8e44ad); }
+    .academic-coordinator .card-icon { background: linear-gradient(45deg, #27ae60, #229954); }
+    
+    .coming-soon-card {
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        text-align: center;
+        padding: 60px 30px;
+        border-radius: 12px;
+    }
+    
+    .coming-soon-icon {
+        font-size: 48px;
+        margin-bottom: 20px;
+        opacity: 0.6;
+    }
+    
+    .coming-soon-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
+    
+    .coming-soon-description {
+        color: #6c757d;
+        line-height: 1.5;
+    }
+    
+    @media (max-width: 768px) {
+        .welcome-title { font-size: 2rem; }
+        .dashboard-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1 class="welcome-title">
+        Welcome, 
+        {% if user.name %}
+            {{ user.name }}
+        {% elif user.school and user.school.name %}
+            {{ user.school.name }}
+        {% else %}
+            User
+        {% endif %}
+    </h1>
+    <p class="welcome-subtitle">{{ current_role_display }} Dashboard</p>
+    <span class="role-badge">{{ current_role_display }}</span>
+</div>
+
+{% if current_role == 'educational_admin' %}
+<div class="dashboard-grid">
+    <div class="dashboard-card education-admin">
+        <div class="card-icon">
+            <i class="fas fa-calendar-alt"></i>
+        </div>
+        <h3 class="card-title">Manage Timeframes</h3>
+        <p class="card-description">Create and manage course terms and academic timeframes.</p>
+        <a href="{{ url_for('manage_timeframe_bp.manage_timeframes') }}" class="card-action">
+            Manage Timeframes
+        </a>
+    </div>
+
+    <div class="dashboard-card education-admin">
+        <div class="card-icon">
+            <i class="fas fa-upload"></i>
+        </div>
+        <h3 class="card-title">Load Data</h3>
+        <p class="card-description">Import student and course data into the system.</p>
+        <a href="{{ url_for('load_data.index') }}" class="card-action">
+            Load Data
+        </a>
+    </div>
+
+    <div class="dashboard-card education-admin">
+        <div class="card-icon">
+            <i class="fas fa-envelope-open-text"></i>
+        </div>
+        <h3 class="card-title">Setup Email</h3>
+        <p class="card-description">Configure SMTP settings for sending emails from your school.</p>
+        <a href="{{ url_for('setup_email_bp.setup_email') }}" class="card-action">
+            Configure Email
+        </a>
+    </div>
+</div>
+
+{% elif current_role == 'system_admin' or current_role == 'system admin' %}
+<div class="dashboard-grid">
+    <div class="dashboard-card system-admin">
+        <div class="card-icon">
+            <i class="fas fa-paint-brush"></i>
+        </div>
+        <h3 class="card-title">Edit Marketing Content</h3>
+        <p class="card-description">Manage and update the marketing pages and content for the platform.</p>
+        <a href="{{ url_for('edit_marketing_bp.edit_marketing') }}" class="card-action">
+            Edit Marketing
+        </a>
+    </div>
+
+    <div class="dashboard-card system-admin">
+        <div class="card-icon">
+            <i class="fas fa-school"></i>
+        </div>
+        <h3 class="card-title">Manage Schools</h3>
+        <p class="card-description">View and search all schools in the system.</p>
+        <a href="{{ url_for('manage_school.view_schools') }}" class="card-action">
+            Manage Schools
+        </a>
+    </div>
+</div>
+
+{% elif current_role == 'student' %}
+<div class="dashboard-grid">
+    <div class="dashboard-card student">
+        <div class="card-icon">
+            <i class="fas fa-project-diagram"></i>
+        </div>
+        <h3 class="card-title">View Projects</h3>
+        <p class="card-description">Browse all available projects for your current course term.</p>
+        <a href="{{ url_for('student_projects.view_projects') }}" class="card-action">
+            View Projects
+        </a>
+    </div>
+
+    <div class="dashboard-card student">
+        <div class="card-icon">
+            <i class="fas fa-list-ol"></i>
+        </div>
+        <h3 class="card-title">Submit Preferences</h3>
+        <p class="card-description">Rank your preferred projects to help us allocate a good match.</p>
+        <button type="button" class="card-action" disabled>
+            Coming Soon
+        </button>
+    </div>
+
+    <div class="dashboard-card student">
+        <div class="card-icon">
+            <i class="fas fa-trophy"></i>
+        </div>
+        <h3 class="card-title">View Results</h3>
+        <p class="card-description">See your assigned project and supervisor once results are released.</p>
+        <button type="button" class="card-action" disabled>
+            Coming Soon
+        </button>
+    </div>
+</div>
+
+{% elif current_role == 'academic_coordinator' or current_role == 'coordinator' or current_role == 'academic coordinator' %}
+<div class="dashboard-grid">
+    <div class="dashboard-card academic-coordinator">
+        <div class="card-icon">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h3 class="card-title">Course Terms</h3>
+        <p class="card-description">View and manage all course terms that you are assigned to coordinate.</p>
+        <a href="{{ url_for('view_course_term.view_course_terms') }}" class="card-action">
+            View Course Terms
+        </a>
+    </div>
+</div>
+
+{% else %}
+<div class="dashboard-grid">
+    <div class="coming-soon-card">
+        <div class="coming-soon-icon">🚧</div>
+        <h3 class="coming-soon-title">Dashboard Coming Soon</h3>
+        <p class="coming-soon-description">
+            The {{ current_role_display }} dashboard is currently under development.
+            We're working hard to bring you an amazing experience!
+        </p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -65,7 +65,7 @@ def dashboard():
     # Get school name for display
     school_name = user.school.name if user.school else 'Your Institution'
     
-    return render_template('dashboard.html', 
+    return render_template('dashboard_with_sidebar.html', 
                          user=user,
                          current_role=current_role,
                          current_role_display=next((role.description or role.name for role in user.roles if role.name == current_role), current_role),
