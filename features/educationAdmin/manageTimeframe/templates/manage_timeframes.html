@@ -4,203 +4,239 @@
 
 {% block extra_head %}
 <style>
-    /* Content padding */
+    /* Apple-Inspired Course Term Management Styles */
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background: #f0f2f5;
+        color: #1d1d1f;
+    }
+
     .content-wrapper {
-        padding: 20px;
+        padding: 24px;
+        max-width: 1200px;
+        margin: 0 auto;
     }
     
     /* Page header */
     .page-header {
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 40px;
+        opacity: 0;
+        animation: fadeInUp 0.8s ease forwards;
     }
 
     .page-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 10px;
-        background: linear-gradient(45deg, #3498db, #9b59b6);
+        font-size: 48px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        background: linear-gradient(45deg, #007AFF, #5856D6);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
 
     .page-subtitle {
-        font-size: 1.2rem;
-        color: #6c757d;
-        margin-bottom: 15px;
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 8px;
+        font-weight: 400;
     }
 
     /* Create button */
     .create-section {
-        margin-bottom: 30px;
+        margin-bottom: 32px;
         text-align: center;
+        opacity: 0;
+        animation: fadeInUp 0.8s ease 0.1s forwards;
     }
 
     .create-btn {
-        background: #3498db;
+        background: #007AFF;
         color: white;
         border: none;
         padding: 12px 24px;
         border-radius: 8px;
         font-size: 16px;
-        font-weight: 600;
+        font-weight: 500;
         cursor: pointer;
         transition: all 0.2s ease;
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+        box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
     }
 
     .create-btn:hover {
-        background: #2980b9;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+        background: #0056CC;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
     }
 
     /* Timeframes grid */
     .timeframes-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
         gap: 20px;
     }
 
     .timeframe-card {
-        background: white;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
         border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         transition: all 0.3s ease;
-        border: 1px solid #e9ecef;
+        opacity: 0;
+        animation: fadeInUp 0.8s ease forwards;
     }
 
+    .timeframe-card:nth-child(2) { animation-delay: 0.1s; }
+    .timeframe-card:nth-child(3) { animation-delay: 0.2s; }
+    .timeframe-card:nth-child(4) { animation-delay: 0.3s; }
+
     .timeframe-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        background: rgba(255, 255, 255, 0.9);
     }
 
     .timeframe-header {
-        margin-bottom: 16px;
-    }
-
-    .timeframe-name {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #2c3e50;
         margin-bottom: 8px;
     }
 
+    .timeframe-name {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1d1d1f;
+        margin-bottom: 4px;
+    }
+
     .timeframe-dates {
-        color: #6c757d;
-        font-size: 14px;
+        margin-bottom: 1px;
     }
 
     .date-range {
-        background: rgba(52, 152, 219, 0.1);
-        color: #3498db;
-        padding: 4px 8px;
-        border-radius: 6px;
+        background: rgba(0, 122, 255, 0.1);
+        color: #007AFF;
+        padding: 2px 6px;
+        border-radius: 4px;
         font-size: 12px;
         font-weight: 500;
+        border: 1px solid rgba(0, 122, 255, 0.1);
     }
 
     .timeframe-info {
-        margin: 12px 0;
+        margin: 8px 0;
     }
 
     .info-item {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 8px;
+        gap: 4px;
+        margin-bottom: 3px;
         font-size: 14px;
         color: #666;
+        padding: 1px 0;
+        transition: all 0.2s ease;
+    }
+
+    .info-item:hover {
+        color: #1d1d1f;
     }
 
     .projects-count {
-        background: rgba(46, 204, 113, 0.1);
-        color: #27ae60;
-        padding: 2px 6px;
-        border-radius: 4px;
+        background: rgba(52, 199, 89, 0.1);
+        color: #34C759;
+        padding: 1px 4px;
+        border-radius: 3px;
         font-size: 12px;
         font-weight: 500;
+        border: 1px solid rgba(52, 199, 89, 0.1);
     }
 
     .timeframe-actions {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
-        gap: 8px;
-        margin-top: 16px;
+        gap: 4px;
+        margin-top: 8px;
     }
 
     .action-btn {
         padding: 8px 12px;
         border-radius: 6px;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 500;
         cursor: pointer;
-        border: none;
+        border: 1px solid;
         transition: all 0.2s ease;
         text-decoration: none;
         display: flex;
         align-items: center;
         justify-content: center;
+        text-align: center;
+        line-height: 1.2;
     }
 
     .load-data-btn {
-        background: rgba(46, 204, 113, 0.1);
-        color: #27ae60;
-        border: 1px solid rgba(46, 204, 113, 0.2);
+        background: rgba(52, 199, 89, 0.05);
+        color: #34C759;
+        border-color: rgba(52, 199, 89, 0.2);
     }
 
     .load-data-btn:hover {
-        background: rgba(46, 204, 113, 0.2);
+        background: rgba(52, 199, 89, 0.1);
         text-decoration: none;
-        color: #27ae60;
+        color: #34C759;
+        transform: translateY(-1px);
     }
 
     .edit-btn {
-        background: rgba(243, 156, 18, 0.1);
-        color: #f39c12;
-        border: 1px solid rgba(243, 156, 18, 0.2);
+        background: rgba(255, 149, 0, 0.05);
+        color: #FF9500;
+        border-color: rgba(255, 149, 0, 0.2);
     }
 
     .edit-btn:hover {
-        background: rgba(243, 156, 18, 0.2);
+        background: rgba(255, 149, 0, 0.1);
+        transform: translateY(-1px);
     }
 
     .delete-btn {
-        background: rgba(231, 76, 60, 0.1);
-        color: #e74c3c;
-        border: 1px solid rgba(231, 76, 60, 0.2);
+        background: rgba(255, 59, 48, 0.05);
+        color: #FF3B30;
+        border-color: rgba(255, 59, 48, 0.2);
     }
 
     .delete-btn:hover {
-        background: rgba(231, 76, 60, 0.2);
+        background: rgba(255, 59, 48, 0.1);
+        transform: translateY(-1px);
     }
 
     /* Empty state */
     .empty-state {
         text-align: center;
-        padding: 60px 20px;
+        padding: 80px 20px;
         color: #666;
+        opacity: 0;
+        animation: fadeInUp 0.8s ease forwards;
     }
 
     .empty-icon {
-        font-size: 48px;
-        margin-bottom: 16px;
+        font-size: 64px;
+        margin-bottom: 20px;
         opacity: 0.5;
     }
 
     .empty-title {
-        font-size: 20px;
-        font-weight: 500;
+        font-size: 24px;
+        font-weight: 600;
         margin-bottom: 8px;
+        color: #1d1d1f;
     }
 
     .empty-description {
-        font-size: 14px;
+        font-size: 16px;
         opacity: 0.8;
     }
 
@@ -213,8 +249,8 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(5px);
+        background-color: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(10px);
     }
 
     .modal.show {
@@ -224,12 +260,26 @@
     }
 
     .modal-content {
-        background: white;
-        border-radius: 12px;
-        padding: 24px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 32px;
         width: 90%;
         max-width: 500px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        animation: modalSlideIn 0.3s ease forwards;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
     }
 
     .modal-header {
@@ -240,50 +290,57 @@
     }
 
     .modal-title {
-        font-size: 24px;
+        font-size: 22px;
         font-weight: 600;
-        color: #2c3e50;
+        color: #1d1d1f;
     }
 
     .close-btn {
-        background: none;
+        background: rgba(0, 0, 0, 0.05);
         border: none;
-        font-size: 24px;
+        font-size: 18px;
         cursor: pointer;
         color: #666;
-        padding: 4px;
+        padding: 8px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
     }
 
     .close-btn:hover {
-        color: #333;
+        background: rgba(0, 0, 0, 0.1);
+        color: #1d1d1f;
     }
 
     /* Form styles */
     .form-group {
-        margin-bottom: 16px;
+        margin-bottom: 20px;
     }
 
     .form-label {
         display: block;
         margin-bottom: 8px;
         font-weight: 500;
-        color: #333;
+        color: #1d1d1f;
         font-size: 14px;
     }
 
     .form-input {
         width: 100%;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
+        padding: 12px 16px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
         font-size: 14px;
-        transition: border-color 0.2s ease;
+        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        font-family: inherit;
     }
 
     .form-input:focus {
         outline: none;
-        border-color: #3498db;
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        border-color: #007AFF;
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        background: rgba(255, 255, 255, 0.95);
     }
 
     .form-actions {
@@ -294,195 +351,243 @@
 
     .btn {
         padding: 12px 24px;
-        border-radius: 6px;
+        border-radius: 8px;
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
         border: none;
         transition: all 0.2s ease;
         flex: 1;
+        font-family: inherit;
     }
 
     .btn-primary {
-        background: #3498db;
+        background: #007AFF;
         color: white;
     }
 
     .btn-primary:hover {
-        background: #2980b9;
+        background: #0056CC;
+        transform: translateY(-1px);
     }
 
     .btn-secondary {
-        background: #f0f0f0;
-        color: #333;
+        background: rgba(0, 0, 0, 0.05);
+        color: #1d1d1f;
+        border: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .btn-secondary:hover {
-        background: #e0e0e0;
+        background: rgba(0, 0, 0, 0.08);
     }
 
     .btn-danger {
-        background: #e74c3c;
+        background: #FF3B30;
         color: white;
     }
 
     .btn-danger:hover {
-        background: #c0392b;
+        background: #D70015;
+        transform: translateY(-1px);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     /* Responsive design */
     @media (max-width: 768px) {
+        .content-wrapper {
+            padding: 16px;
+        }
+
         .timeframes-grid {
             grid-template-columns: 1fr;
         }
         
         .timeframe-actions {
             grid-template-columns: 1fr;
+            gap: 8px;
         }
         
         .page-title {
-            font-size: 2rem;
+            font-size: 32px;
+        }
+
+        .modal-content {
+            padding: 24px;
+            margin: 16px;
         }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1 class="page-title">Manage Course Term</h1>
-    <p class="page-subtitle">Create, view, and manage course terms</p>
-</div>
+<div class="content-wrapper">
+    <!-- Flash Messages Section -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        <span class="flash-icon">
+                            {% if category == 'success' %}✅
+                            {% elif category == 'error' %}❌
+                            {% elif category == 'warning' %}⚠️
+                            {% else %}ℹ️
+                            {% endif %}
+                        </span>
+                        <span>{{ message }}</span>
+                        <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <div class="page-header">
+        <h1 class="page-title">Manage Course Term</h1>
+        <p class="page-subtitle">Create, view, and manage course terms</p>
+    </div>
 
-<div class="create-section">
-    <button class="create-btn" onclick="openCreateModal()">
-        <span>+</span>
-        Create New Course Term
-    </button>
-</div>
+    <div class="create-section">
+        <button class="create-btn" onclick="openCreateModal()">
+            <span>+</span>
+            Create New Course Term
+        </button>
+    </div>
 
-<div class="timeframes-section">
-    {% if timeframes %}
-    <div class="timeframes-grid">
-        {% for timeframe in timeframes %}
-        <div class="timeframe-card">
-            <div class="timeframe-header">
-                <div>
-                    <h3 class="timeframe-name">{{ timeframe.name }}</h3>
-                    <div class="timeframe-dates">
-                        <span class="date-range">{{ timeframe.start_date.strftime('%b %d, %Y') }} - {{ timeframe.end_date.strftime('%b %d, %Y') }}</span>
+    <div class="timeframes-section">
+        {% if timeframes %}
+        <div class="timeframes-grid">
+            {% for timeframe in timeframes %}
+            <div class="timeframe-card">
+                <div class="timeframe-header">
+                    <div>
+                        <h3 class="timeframe-name">{{ timeframe.name }}</h3>
+                        <div class="timeframe-dates">
+                            <span class="date-range">{{ timeframe.start_date.strftime('%b %d, %Y') }} - {{ timeframe.end_date.strftime('%b %d, %Y') }}</span>
+                        </div>
                     </div>
                 </div>
+                <div class="timeframe-info">
+                    <div class="info-item">
+                        <span>📅</span>
+                        <span>Duration: {{ (timeframe.end_date - timeframe.start_date).days }} days</span>
+                    </div>
+                    <div class="info-item">
+                        <span>📍</span>
+                        <span>Location: {{ timeframe.location or 'Not specified' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span>🏫</span>
+                        <span>Delivery: {{ timeframe.delivery_type or 'Not specified' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span>🕒</span>
+                        <span>Preference: {{ timeframe.preference_startTiming.strftime('%b %d, %Y') }} - {{ timeframe.preference_endTiming.strftime('%b %d, %Y') }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span>👥</span>
+                        <span>Users: <span class="projects-count">{{ timeframe.users|length if timeframe.users else 0 }}</span></span>
+                    </div>
+                    <div class="info-item">
+                        <span>📊</span>
+                        <span>Projects: <span class="projects-count">{{ timeframe.projects|length }}</span></span>
+                    </div>
+                </div>
+                <div class="timeframe-actions">
+                    <a href="{{ url_for('load_data.select_timeframe', timeframe_id=timeframe.id) }}" class="action-btn load-data-btn">
+                        Load and Manage Data
+                    </a>
+                    <button class="action-btn edit-btn" onclick="openEditModal({{ timeframe.id }}, '{{ timeframe.name|e }}', '{{ timeframe.start_date }}', '{{ timeframe.end_date }}', '{{ timeframe.location|e }}', '{{ timeframe.delivery_type|e }}', '{{ timeframe.preference_startTiming }}', '{{ timeframe.preference_endTiming }}')">
+                        Edit
+                    </button>
+                    <button class="action-btn delete-btn" onclick="openDeleteModal({{ timeframe.id }}, '{{ timeframe.name|e }}')">
+                        Delete
+                    </button>
+                </div>
             </div>
-            <div class="timeframe-info">
-                <div class="info-item">
-                    <span>📅</span>
-                    <span>Duration: {{ (timeframe.end_date - timeframe.start_date).days }} days</span>
-                </div>
-                <div class="info-item">
-                    <span>📍</span>
-                    <span>Location: {{ timeframe.location or 'Not specified' }}</span>
-                </div>
-                <div class="info-item">
-                    <span>🏫</span>
-                    <span>Delivery: {{ timeframe.delivery_type or 'Not specified' }}</span>
-                </div>
-                <div class="info-item">
-                    <span>🕒</span>
-                    <span>Preference: {{ timeframe.preference_startTiming.strftime('%b %d, %Y') }} - {{ timeframe.preference_endTiming.strftime('%b %d, %Y') }}</span>
-                </div>
-                <div class="info-item">
-                    <span>👥</span>
-                    <span>Users: <span class="projects-count">{{ timeframe.users|length if timeframe.users else 0 }}</span></span>
-                </div>
-                <div class="info-item">
-                    <span>📊</span>
-                    <span>Projects: <span class="projects-count">{{ timeframe.projects|length }}</span></span>
-                </div>
-            </div>
-            <div class="timeframe-actions">
-                <a href="{{ url_for('load_data.select_timeframe', timeframe_id=timeframe.id) }}" class="action-btn load-data-btn">
-                    Load Data
-                </a>
-                <button class="action-btn edit-btn" onclick="openEditModal({{ timeframe.id }}, '{{ timeframe.name|e }}', '{{ timeframe.start_date }}', '{{ timeframe.end_date }}', '{{ timeframe.location|e }}', '{{ timeframe.delivery_type|e }}', '{{ timeframe.preference_startTiming }}', '{{ timeframe.preference_endTiming }}')">
-                    Edit
-                </button>
-                <button class="action-btn delete-btn" onclick="openDeleteModal({{ timeframe.id }}, '{{ timeframe.name|e }}')">
-                    Delete
-                </button>
-            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📅</div>
+            <h3 class="empty-title">No Course Terms Found</h3>
+            <p class="empty-description">Get started by creating your first academic course term</p>
+        </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="empty-state">
-        <div class="empty-icon">📅</div>
-        <h3 class="empty-title">No Course Terms Found</h3>
-        <p class="empty-description">Get started by creating your first academic course term</p>
-    </div>
-    {% endif %}
-</div>
 
-<!-- Create/Edit Modal -->
-<div id="timeframeModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title" id="modalTitle">Create New Course Term</h2>
-            <button class="close-btn" onclick="closeModal()">&times;</button>
+    <!-- Create/Edit Modal -->
+    <div id="timeframeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Create New Course Term</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="timeframeForm" method="POST" action="{{ url_for('manage_timeframe_bp.create_timeframe') }}">
+                <input type="hidden" id="timeframeId" name="timeframe_id" value="">
+                <div class="form-group">
+                    <label class="form-label" for="name">Course Term Name</label>
+                    <input type="text" id="name" name="name" class="form-input" placeholder="e.g., Academic Year 2024-2025" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="start_date">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="end_date">End Date</label>
+                    <input type="date" id="end_date" name="end_date" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="location">Location</label>
+                    <input type="text" id="location" name="location" class="form-input" placeholder="e.g., UOW, SIM, Main Campus" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="delivery_type">Delivery Type</label>
+                    <select id="delivery_type" name="delivery_type" class="form-input" required>
+                        <option value="on campus">On Campus</option>
+                        <option value="off campus">Off Campus</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="preference_startTiming">Preference Start Date</label>
+                    <input type="date" id="preference_startTiming" name="preference_startTiming" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="preference_endTiming">Preference End Date</label>
+                    <input type="date" id="preference_endTiming" name="preference_endTiming" class="form-input" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Create Course Term</button>
+                </div>
+            </form>
         </div>
-        <form id="timeframeForm" method="POST" action="{{ url_for('manage_timeframe_bp.create_timeframe') }}">
-            <input type="hidden" id="timeframeId" name="timeframe_id" value="">
-            <div class="form-group">
-                <label class="form-label" for="name">Course Term Name</label>
-                <input type="text" id="name" name="name" class="form-input" placeholder="e.g., Academic Year 2024-2025" required>
+    </div>
+
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Delete Course Term</h2>
+                <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
             </div>
-            <div class="form-group">
-                <label class="form-label" for="start_date">Start Date</label>
-                <input type="date" id="start_date" name="start_date" class="form-input" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="end_date">End Date</label>
-                <input type="date" id="end_date" name="end_date" class="form-input" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="location">Location</label>
-                <input type="text" id="location" name="location" class="form-input" placeholder="e.g., UOW, SIM, Main Campus" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="delivery_type">Delivery Type</label>
-                <select id="delivery_type" name="delivery_type" class="form-input" required>
-                    <option value="on campus">On Campus</option>
-                    <option value="off campus">Off Campus</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="preference_startTiming">Preference Start Date</label>
-                <input type="date" id="preference_startTiming" name="preference_startTiming" class="form-input" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="preference_endTiming">Preference End Date</label>
-                <input type="date" id="preference_endTiming" name="preference_endTiming" class="form-input" required>
-            </div>
+            <p style="margin-bottom: 24px; color: #666; font-size: 16px; line-height: 1.5;">
+                Are you sure you want to delete "<span id="deleteTimeframeName" style="font-weight: 600; color: #1d1d1f;"></span>"? This action cannot be undone.
+            </p>
             <div class="form-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary" id="submitBtn">Create Course Term</button>
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete Course Term</button>
             </div>
-        </form>
-    </div>
-</div>
-
-<!-- Delete Modal -->
-<div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title">Delete Course Term</h2>
-            <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
-        </div>
-        <p style="margin-bottom: 24px; color: #666;">
-            Are you sure you want to delete "<span id="deleteTimeframeName"></span>"? This action cannot be undone.
-        </p>
-        <div class="form-actions">
-            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
-            <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete Course Term</button>
         </div>
     </div>
 </div>
