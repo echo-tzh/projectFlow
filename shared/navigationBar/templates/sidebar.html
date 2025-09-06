@@ -93,7 +93,8 @@
     
     .sidebar.collapsed .nav-text,
     .sidebar.collapsed .user-name,
-    .sidebar.collapsed .user-role {
+    .sidebar.collapsed .user-role,
+    .sidebar.collapsed .sidebar-header h3 {
         opacity: 0;
         width: 0;
         overflow: hidden;
@@ -148,24 +149,32 @@
     }
     
     .user-info {
-        padding: 20px 24px !important;
+        margin: 2px 16px !important;
+        padding: 10px 12px !important;
         border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
         border-bottom: none !important;
+        border-radius: 8px !important;
         display: flex;
         align-items: center;
+        justify-content: flex-start;
         gap: 12px;
         background: rgba(0, 122, 255, 0.02) !important;
         flex-shrink: 0;
-        transition: border-top 0.3s ease;
+        transition: all 0.3s ease;
     }
 
     .sidebar.collapsed .user-info {
         border-top: none !important;
+        justify-content: center;
+    }
+    
+    .sidebar:not(.collapsed) .user-info {
+        justify-content: flex-start;
     }
     
     .user-avatar {
-        width: 40px !important;
-        height: 40px !important;
+        width: 20px !important;
+        height: 20px !important;
         border-radius: 50% !important;
         background: linear-gradient(45deg, #007AFF, #5856D6) !important;
         display: flex !important;
@@ -175,7 +184,7 @@
     }
     
     .user-avatar i {
-        font-size: 20px !important;
+        font-size: 16px !important;
         color: white !important;
     }
     
@@ -330,9 +339,14 @@
     
     .sidebar.collapsed:hover .nav-text,
     .sidebar.collapsed:hover .user-name,
-    .sidebar.collapsed:hover .user-role {
+    .sidebar.collapsed:hover .user-role,
+    .sidebar.collapsed:hover .sidebar-header h3 {
         opacity: 1;
         width: auto;
+    }
+    
+    .sidebar.collapsed:hover .user-info {
+        justify-content: flex-start;
     }
 
     /* --- New logout button styling --- */
@@ -359,9 +373,33 @@
         color: white !important;
     }
     
+    .logout-btn i {
+        width: 20px !important;
+        height: 20px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        font-size: 16px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .sidebar.collapsed .logout-btn i {
+        margin-right: 0 !important;
+    }
+    
     .sidebar.collapsed .logout-btn .nav-text {
         opacity: 0;
         width: 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    /* Restore logout button text when sidebar is expanded or on hover */
+    .sidebar:not(.collapsed) .logout-btn .nav-text,
+    .sidebar.collapsed:hover .logout-btn .nav-text {
+        opacity: 1;
+        width: auto;
     }
 </style>
 
