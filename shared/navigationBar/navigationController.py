@@ -102,25 +102,53 @@ def get_navigation_items(user_roles):
             'icon': 'fas fa-key',
             'url': url_for('change_password.change_password'),
             'active_class': 'change-password'
-        },
-        {
-            'title': 'Logout',
-            'icon': 'fas fa-sign-out-alt',
-            'url': url_for('login_bp.logout'),
-            'active_class': 'logout'
         }
     ])
     
     return nav_items
+
+def get_current_role(user):
+    """Get the current active role for the user"""
+    # If role is specified in session, use that
+    if 'current_role' in session:
+        # Verify the user actually has this role
+        user_role_names = [role.name for role in user.roles]
+        if session['current_role'] in user_role_names:
+            return session['current_role']
+    
+    # Default to first role if no valid session role
+    first_role = user.roles.first()
+    if first_role:
+        session['current_role'] = first_role.name
+        return first_role.name
+    
+    return None
 
 def inject_navigation():
     """Make navigation data available to all templates"""
     if 'user_id' not in session:
         return {}
     
+    user = User.query.get(session['user_id'])
+    if not user:
+        return {}
+    
     user_role_names = get_user_roles()  # List of role name strings
     nav_items = get_navigation_items(user_role_names)
     
+    # Get current role information
+    current_role = get_current_role(user)
+    current_role_display = None
+    if current_role:
+        current_role_display = next((role.description or role.name for role in user.roles if role.name == current_role), current_role)
+    
+    # Get all user roles for potential role switching
+    user_roles = [{'name': role.name, 'display_name': role.description or role.name} 
+                  for role in user.roles]
+    
     return {
-        'nav_items': nav_items
+        'nav_items': nav_items,
+        'user': user,
+        'current_role_display': current_role_display,
+        'user_roles': user_roles
     }
