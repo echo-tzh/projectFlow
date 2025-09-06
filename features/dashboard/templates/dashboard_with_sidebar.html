@@ -290,6 +290,11 @@
         background: linear-gradient(45deg, #FF9500, #FFCC02);
     }
 
+    /* Third card gradient for education admin */
+    .education-admin .dashboard-card:nth-child(3) .card-icon {
+        background: linear-gradient(45deg, #34C759, #00C7BE);
+    }
+
     /* Coming Soon Card */
     .coming-soon-card {
         background: rgba(255, 255, 255, 0.6);
@@ -419,8 +424,6 @@
         </a>
     </div>
 
-
-
     <div class="dashboard-card education-admin">
         <div class="card-icon">
             <i class="fas fa-envelope-open-text"></i>
@@ -431,17 +434,17 @@
             Configure Email
         </a>
     </div>
-</div>
 
-<div class="dashboard-card education-admin">
-    <div class="card-icon">
-        <i class="fas fa-cogs"></i>
+    <div class="dashboard-card education-admin">
+        <div class="card-icon">
+            <i class="fas fa-cogs"></i>
+        </div>
+        <h3 class="card-title">Setup API</h3>
+        <p class="card-description">Configure external database connection for automated student data sync.</p>
+        <a href="{{ url_for('setup_api.index') }}" class="card-action">
+            Setup API
+        </a>
     </div>
-    <h3 class="card-title">Setup API</h3>
-    <p class="card-description">Configure external database connection for automated student data sync.</p>
-    <a href="{{ url_for('setup_api.index') }}" class="card-action">
-        Setup API
-    </a>
 </div>
 
 {% elif current_role == 'system admin' %}
