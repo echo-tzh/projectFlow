@@ -1,3 +1,12 @@
+import sys
+import os
+
+# Fix encoding issues on Windows
+if sys.platform == "win32":
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
 from database import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash

@@ -380,3 +380,8 @@ zict
 zipp
 zope.interface
 zstandard
+
+# Additional packages for Setup API section - Education admin
+flask-migrate==4.1.0
+mysql-connector-python==9.4.0
+requests==2.32.5
