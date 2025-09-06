@@ -1,22 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "shared/navigationBar/templates/base_with_sidebar.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Marketing Content</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% block title %}Edit Marketing Content{% endblock %}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
-            background: #f8f9fa;
-            color: #1d1d1f;
-            line-height: 1.5;
+{% block extra_head %}
+<style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
         /* New CSS for the alert container */
@@ -32,25 +23,16 @@
             gap: 10px;
         }
 
-        .header {
-            background: #fff;
-            border-bottom: 1px solid #e5e5e7;
-            padding: 20px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+        .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            border-bottom: 1px solid #e5e5e7;
         }
 
-        .header h1 {
+        .page-header h1 {
             font-size: 28px;
             font-weight: 600;
             color: #1d1d1f;
@@ -100,11 +82,6 @@
             background: #ff453a;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
 
         .section {
             background: white;
@@ -402,22 +379,19 @@
             }
         }
     </style>
-</head>
+{% endblock %}
 
-<body>
+{% block content %}
     <div id="alert-container"></div>
-    <header class="header">
-        <div class="header-container">
+    
+    <div class="container">
+        <div class="page-header">
             <h1>Edit Marketing Content</h1>
             <div class="btn-group">
                 <a href="/dashboard" class="btn btn-secondary">Back to Dashboard</a>
                 <button onclick="saveAllChanges()" class="btn btn-primary">Save All Changes</button>
             </div>
         </div>
-    </header>
-
-    <div class="container">
-        <div id="alert-container"></div>
 
         <div id="loading" class="loading">
             <div class="spinner"></div>
@@ -1021,6 +995,5 @@
             setupFeaturedCheckboxes();
         });
     </script>
-</body>
-
-</html>
+    </div>
+{% endblock %}

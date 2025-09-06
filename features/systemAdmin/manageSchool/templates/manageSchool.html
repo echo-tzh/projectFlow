@@ -1,38 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "shared/navigationBar/templates/base_with_sidebar.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Schools - ProjectFlow Admin</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% block title %}Manage Schools - ProjectFlow Admin{% endblock %}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #f5f5f7;
-            color: #1d1d1f;
-            line-height: 1.6;
-        }
+{% block extra_head %}
+<style>
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 0 20px;
         }
 
-        .header {
+        .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 40px;
+            padding: 20px 0;
+            border-bottom: 1px solid #e5e5e7;
         }
 
-        .header h1 {
+        .page-header h1 {
             font-size: 2.5rem;
             font-weight: 700;
             color: #1d1d1f;
@@ -371,23 +359,12 @@
             gap: 8px;
         }
     </style>
-</head>
+{% endblock %}
 
-<body>
+{% block content %}
     <div class="container">
-        <!-- Flash Messages -->
-        <div class="flash-messages">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            {% for category, message in messages %}
-            <div class="flash-message {{ category }}">{{ message }}</div>
-            {% endfor %}
-            {% endif %}
-            {% endwith %}
-        </div>
-
         <!-- Header -->
-        <div class="header">
+        <div class="page-header">
             <a href="{{ url_for('universal_dashboard.dashboard') }}" class="add-btn" style="background: #86868b;">
                 <span>←</span>
                 Back to Dashboard
@@ -548,6 +525,5 @@
         // Auto-focus search input
         document.getElementById('searchInput').focus();
     </script>
-</body>
-
-</html>
+    </div>
+{% endblock %}
