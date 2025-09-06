@@ -5,12 +5,22 @@ from shared.models import User, Role, Timeframe, ExternalAPIConfig, School
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 import logging
+import secrets
+import string
+
+# Import the passwords dictionary from loadDataController
+from features.educationAdmin.load_data.loadDataController import passwords_for_email
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 load_data_api_bp = Blueprint('load_data_api', __name__)
+
+def generate_random_password(length=12):
+    """Generate a secure random password"""
+    characters = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(secrets.choice(characters) for _ in range(length))
 
 def get_external_api_config(api_config):
     """
@@ -120,7 +130,7 @@ def create_or_update_user(user_data, school_id, timeframe_id):
         existing_user = User.query.filter_by(email=user_data['email']).first()
         
         if existing_user:
-            # Update existing user
+            # Update existing user - NO password generation for existing users
             existing_user.name = user_data['student_name']
             existing_user.course = user_data['course']
             existing_user.student_staff_id = user_data['student_id']
@@ -133,17 +143,20 @@ def create_or_update_user(user_data, school_id, timeframe_id):
                 # Clear existing roles and add new one
                 existing_user.roles = [role]
             
-            logger.info(f"Updated existing user: {existing_user.email}")
+            logger.info(f"Updated existing user (no password generated): {existing_user.email}")
             return existing_user, False
         else:
-            # Create new user
-            # Generate a default password (should be changed on first login)
-            default_password = generate_password_hash('TempPass123!')
+            # Create NEW user - ONLY generate password for truly new users
+            temp_password = generate_random_password()
+            passwords_for_email[user_data['email']] = temp_password
+            
+            # Generate hash for database storage
+            password_hash = generate_password_hash(temp_password)
             
             new_user = User(
                 name=user_data['student_name'],
                 email=user_data['email'],
-                password_hash=default_password,
+                password_hash=password_hash,
                 course=user_data['course'],
                 student_staff_id=user_data['student_id'],
                 school_id=school_id,
@@ -166,7 +179,7 @@ def create_or_update_user(user_data, school_id, timeframe_id):
             new_user.roles.append(role)
             
             db.session.add(new_user)
-            logger.info(f"Created new user: {new_user.email}")
+            logger.info(f"Created NEW user with generated password: {new_user.email}")
             return new_user, True
             
     except Exception as e:

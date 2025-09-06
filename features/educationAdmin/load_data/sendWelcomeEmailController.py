@@ -1,6 +1,7 @@
 from flask import Blueprint, request, redirect, url_for, flash
 from shared.models import db, Timeframe
 from shared.service.email_service import send_welcome_emails
+
 # Import the passwords dictionary at module level for better performance
 from features.educationAdmin.load_data.loadDataController import passwords_for_email
 
@@ -14,7 +15,7 @@ def send_welcome_notifications(timeframe_id):
         timeframe = Timeframe.query.get_or_404(timeframe_id)
         users_in_timeframe = timeframe.users
         
-        # 📧 Call the email service with the pre-generated passwords
+        # 📧 Call the email service with the pre-generated passwords (exactly like Excel version)
         result = send_welcome_emails(users_in_timeframe, timeframe, passwords=passwords_for_email)
         
         if result['success']:
