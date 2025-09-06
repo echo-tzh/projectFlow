@@ -133,8 +133,10 @@ def inject_navigation():
     if not user:
         return {}
     
-    user_role_names = get_user_roles()  # List of role name strings
-    nav_items = get_navigation_items(user_role_names)
+    # Get current active role instead of all roles
+    current_role = get_current_role(user)
+    current_role_names = [current_role] if current_role else []
+    nav_items = get_navigation_items(current_role_names)
     
     # Get current role information
     current_role = get_current_role(user)
