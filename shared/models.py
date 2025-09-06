@@ -183,6 +183,31 @@ class Project(db.Model):
     timeframe_id = db.Column(db.Integer, db.ForeignKey('timeframes.id'), nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Academic Coordinator
 
+
+class ExternalAPIConfig(db.Model):
+    __tablename__ = 'external_api_configs'
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # API credentials 
+    api_key = db.Column(db.String(255), nullable=False)
+    api_secret = db.Column(db.String(255), nullable=True)
+    
+
+    
+    # Auto-populated from logged-in user
+    school_id = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=False)
+    
+    # Settings
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+
+
+
+
+
+
+
 # ------------------------
 # Default Data Creation Function
 # ------------------------

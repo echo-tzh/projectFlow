@@ -136,7 +136,7 @@
         opacity: 0;
         animation: fadeInUp 0.8s ease forwards;
     }
-    
+
     .welcome-title {
         font-size: 48px;
         font-weight: 700;
@@ -146,13 +146,13 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
-    
+
     .welcome-subtitle {
         font-size: 20px;
         color: #888;
         margin-bottom: 8px;
     }
-    
+
     .role-badge {
         display: inline-block;
         background: rgba(0, 122, 255, 0.1);
@@ -162,7 +162,7 @@
         font-size: 14px;
         font-weight: 500;
     }
-    
+
     /* Dashboard Grid */
     .dashboard-grid {
         display: grid;
@@ -170,7 +170,7 @@
         gap: 24px;
         margin-bottom: 40px;
     }
-    
+
     /* Dashboard Cards */
     .dashboard-card {
         background: rgba(255, 255, 255, 0.8);
@@ -200,7 +200,7 @@
         transform: translateY(-4px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
     }
-    
+
     .card-icon {
         width: 50px;
         height: 50px;
@@ -213,20 +213,20 @@
         color: white;
         background: linear-gradient(45deg, #007AFF, #5856D6);
     }
-    
+
     .card-title {
         font-size: 20px;
         font-weight: 600;
         margin-bottom: 10px;
         color: #1d1d1f;
     }
-    
+
     .card-description {
         color: #888;
         line-height: 1.5;
         margin-bottom: 20px;
     }
-    
+
     .card-action {
         background: #007AFF;
         color: white;
@@ -239,7 +239,7 @@
         text-decoration: none;
         display: inline-block;
     }
-    
+
     .card-action:hover {
         background: #0056CC;
         transform: translateY(-1px);
@@ -259,22 +259,22 @@
         color: #888;
         transform: none;
     }
-    
+
     /* Role-specific card colors */
-    .system-admin .card-icon { 
-        background: linear-gradient(45deg, #FF2D92, #FF6B35); 
+    .system-admin .card-icon {
+        background: linear-gradient(45deg, #FF2D92, #FF6B35);
     }
-    
-    .education-admin .card-icon { 
-        background: linear-gradient(45deg, #FF3B30, #FF9500); 
+
+    .education-admin .card-icon {
+        background: linear-gradient(45deg, #FF3B30, #FF9500);
     }
-    
-    .student .card-icon { 
-        background: linear-gradient(45deg, #5856D6, #AF52DE); 
+
+    .student .card-icon {
+        background: linear-gradient(45deg, #5856D6, #AF52DE);
     }
-    
-    .academic-coordinator .card-icon { 
-        background: linear-gradient(45deg, #34C759, #00C7BE); 
+
+    .academic-coordinator .card-icon {
+        background: linear-gradient(45deg, #34C759, #00C7BE);
     }
 
     /* Different gradient for the second card in each role */
@@ -289,7 +289,7 @@
     .student .dashboard-card:nth-child(3) .card-icon {
         background: linear-gradient(45deg, #FF9500, #FFCC02);
     }
-    
+
     /* Coming Soon Card */
     .coming-soon-card {
         background: rgba(255, 255, 255, 0.6);
@@ -301,20 +301,20 @@
         opacity: 0;
         animation: fadeInUp 0.8s ease forwards;
     }
-    
+
     .coming-soon-icon {
         font-size: 48px;
         margin-bottom: 20px;
         opacity: 0.6;
     }
-    
+
     .coming-soon-title {
         font-size: 24px;
         font-weight: 600;
         color: #666;
         margin-bottom: 12px;
     }
-    
+
     .coming-soon-description {
         color: #888;
         line-height: 1.5;
@@ -326,28 +326,33 @@
             opacity: 0;
             transform: translateY(20px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
-    
+
     /* Responsive Design */
     @media (max-width: 768px) {
-        .welcome-title { 
-            font-size: 32px; 
+        .welcome-title {
+            font-size: 32px;
         }
-        .dashboard-grid { 
-            grid-template-columns: 1fr; 
+
+        .dashboard-grid {
+            grid-template-columns: 1fr;
         }
+
         .nav-controls {
             gap: 10px;
         }
+
         .dashboard-nav-container {
             flex-direction: column;
             gap: 15px;
             align-items: stretch;
         }
+
         .nav-controls {
             justify-content: center;
         }
@@ -360,7 +365,7 @@
 <div class="dashboard-top-nav">
     <div class="dashboard-nav-container">
         <a href="{{ url_for('universal_dashboard.dashboard') }}" class="nav-brand">ProjectFlow</a>
-        
+
         <div class="nav-controls">
             {% if user_roles|length > 1 %}
             <div class="role-selector">
@@ -375,7 +380,7 @@
             {% else %}
             <span class="role-badge-nav">{{ current_role_display }}</span>
             {% endif %}
-            
+
             <div class="user-info">
                 <div class="user-avatar">
                     {{ user.name[0]|upper if user.name else user.email[0]|upper }}
@@ -388,13 +393,13 @@
 
 <div class="welcome-section">
     <h1 class="welcome-title">
-        Welcome, 
+        Welcome,
         {% if user.name %}
-            {{ user.name }}
+        {{ user.name }}
         {% elif user.school and user.school.name %}
-            {{ user.school.name }}
+        {{ user.school.name }}
         {% else %}
-            User
+        User
         {% endif %}
     </h1>
     <p class="welcome-subtitle">{{ current_role_display }} Dashboard</p>
@@ -426,6 +431,17 @@
             Configure Email
         </a>
     </div>
+</div>
+
+<div class="dashboard-card education-admin">
+    <div class="card-icon">
+        <i class="fas fa-cogs"></i>
+    </div>
+    <h3 class="card-title">Setup API</h3>
+    <p class="card-description">Configure external database connection for automated student data sync.</p>
+    <a href="{{ url_for('setup_api.index') }}" class="card-action">
+        Setup API
+    </a>
 </div>
 
 {% elif current_role == 'system admin' %}
@@ -517,38 +533,38 @@
 {% endif %}
 
 <script>
-// Role switching functionality
-function switchRole() {
-    const roleSelector = document.getElementById('roleSelector');
-    const selectedRole = roleSelector.value;
-    
-    // Show loading state
-    roleSelector.disabled = true;
-    
-    fetch('/switch-role', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            role: selectedRole
+    // Role switching functionality
+    function switchRole() {
+        const roleSelector = document.getElementById('roleSelector');
+        const selectedRole = roleSelector.value;
+
+        // Show loading state
+        roleSelector.disabled = true;
+
+        fetch('/switch-role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                role: selectedRole
+            })
         })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Redirect to dashboard to refresh content
-            window.location.href = data.redirect_url;
-        } else {
-            alert(data.message || 'Error switching role');
-            roleSelector.disabled = false;
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error switching role. Please try again.');
-        roleSelector.disabled = false;
-    });
-}
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirect to dashboard to refresh content
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert(data.message || 'Error switching role');
+                    roleSelector.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error switching role. Please try again.');
+                roleSelector.disabled = false;
+            });
+    }
 </script>
 {% endblock %}

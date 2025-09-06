@@ -3,11 +3,13 @@
 from flask import Flask, redirect, url_for
 from config import Config
 from database import db
+from flask_cors import CORS
+from flask_migrate import Migrate  # <-- NEW
+
+# Blueprints
 from features.authentication.login.loginController import login_bp
 from features.systemAdmin.marketing.marketingController import marketing_bp
-# New import line for the editMarketing blueprint
 from features.systemAdmin.marketing.editMarketing.editMarketingController import edit_marketing_bp
-from flask_cors import CORS
 from features.createSchool.createSchoolController import create_school_bp
 from features.educationAdmin.manageTimeframe.manageTimeframeController import manage_timeframe_bp
 from features.educationAdmin.load_data.loadDataController import load_data_bp
@@ -20,41 +22,39 @@ from features.authentication.changePassword.changePassword import change_passwor
 from shared.models import create_default_admin_account
 from features.systemAdmin.manageSchool.manageSchoolController import manage_school_bp
 from features.academicCoordinator.viewCourseTerm.viewCourseTermController import view_course_term_bp
-from shared.navigationBar.navigationController import navigation_bp
+from shared.navigationBar.navigationController import navigation_bp, inject_navigation
+from features.educationAdmin.setupAPI.setupAPIController import setup_api_bp
+from features.educationAdmin.load_data.loadDataAPIController import load_data_api_bp
 
-
+# --- APP SETUP ---
 app = Flask(__name__, template_folder='.')
 app.config.from_object(Config)
 db.init_app(app)
+migrate = Migrate(app, db)  # <-- NEW: enable Flask-Migrate
 CORS(app)
 
-# Register all blueprints
+# --- REGISTER BLUEPRINTS ---
 app.register_blueprint(login_bp)
 app.register_blueprint(marketing_bp)
-# New registration line for the editMarketing blueprint
 app.register_blueprint(edit_marketing_bp)
 app.register_blueprint(create_school_bp)
-# Corrected: Registered the blueprint
 app.register_blueprint(manage_timeframe_bp)
 app.register_blueprint(load_data_bp)
 app.register_blueprint(universal_dashboard_bp)
 app.register_blueprint(send_welcome_email_bp)
 app.register_blueprint(setup_email_bp)
-# Student projects blueprint
 app.register_blueprint(student_projects_bp, url_prefix="/student")
 app.register_blueprint(viewProfile_bp)
-#change password
 app.register_blueprint(change_password_bp)
-#manage users 
 app.register_blueprint(manage_school_bp, url_prefix='/admin')
-#view course term for academic coordinator 
 app.register_blueprint(view_course_term_bp)
-# Navigation bar blueprint
 app.register_blueprint(navigation_bp)
-
-# Import and register navigation context processor at app level
-from shared.navigationBar.navigationController import inject_navigation
+app.register_blueprint(setup_api_bp)
+app.register_blueprint(load_data_api_bp)
+# --- CONTEXT PROCESSORS ---
 app.context_processor(inject_navigation)
+
+# --- ROUTES ---
 @app.route('/')
 def index():
     return redirect(url_for('marketing_bp.marketing'))
@@ -67,9 +67,8 @@ def login_redirect():
 def setup_school():
     return redirect(url_for('create_school_bp.create_school'))
 
-@app.route('/educational_admin_dashboard') # Renamed route to be distinct from blueprint name
+@app.route('/educational_admin_dashboard')
 def educational_admin_dashboard_redirect():
-    # Assuming the dashboard route within educational_admin_bp is named 'dashboard'
     return redirect(url_for('educational_admin_bp.dashboard'))
 
 @app.route('/manage-timeframes-redirect')
@@ -80,10 +79,9 @@ def manage_timeframes_redirect():
 def dashboard_redirect():
     return redirect(url_for('universal_dashboard_bp.dashboard'))
 
+# --- MAIN ---
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        # Create default admin account
         create_default_admin_account()
-        
     app.run(debug=True)

@@ -239,6 +239,26 @@
             box-shadow: 0 8px 20px rgba(255, 149, 0, 0.3);
         }
 
+        .load-external-btn {
+            background: rgba(88, 86, 214, 0.05);
+            color: #5856D6;
+            border: 1px solid rgba(88, 86, 214, 0.2);
+        }
+
+        .load-external-btn:hover:not(:disabled) {
+            background: rgba(88, 86, 214, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(88, 86, 214, 0.3);
+        }
+
+        .load-external-btn:disabled {
+            background: rgba(0, 0, 0, 0.05);
+            color: #999;
+            border-color: rgba(0, 0, 0, 0.1);
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .actions {
             display: flex;
             gap: 16px;
@@ -510,6 +530,38 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* API Status Indicator */
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+
+        .api-status.configured {
+            color: #34C759;
+        }
+
+        .api-status.not-configured {
+            color: #FF9500;
+        }
+
+        .api-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .api-indicator.configured {
+            background-color: #34C759;
+        }
+
+        .api-indicator.not-configured {
+            background-color: #FF9500;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -601,7 +653,7 @@
 {% block content %}
     <div class="header">
         <h1>Load Data</h1>
-        <p>Import users into Course Term. Upload Excel file to input the data.</p>
+        <p>Import users into Course Term. Upload Excel file or load from external database.</p>
     </div>
 
     <!-- Custom alerts for Load Data functionality -->
@@ -734,6 +786,36 @@
                     </div>
                 </form>
 
+                <!-- Load from External Database Section -->
+                <div class="card" style="margin-top: 32px; background: rgba(255, 255, 255, 0.7);">
+                    <div style="padding: 24px;">
+                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; color: #1d1d1f;">Load from External Database</h3>
+                        <p style="color: #6e6e73; font-size: 0.95rem; margin-bottom: 20px;">Import eligible students directly from your external school database for this timeframe.</p>
+                        
+                        <!-- API Status Indicator -->
+                        <div class="api-status" id="api-status-load-data">
+                            <span class="api-indicator"></span>
+                            <span class="api-text">Checking API configuration...</span>
+                        </div>
+                        
+                        <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
+                            <button type="button" 
+                                    class="btn load-external-btn" 
+                                    id="load-external-btn"
+                                    onclick="loadFromExternalDatabase({{ timeframe.id }})"
+                                    disabled>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12,3A9,9 0 0,0 3,12A9,9 0 0,0 12,21A9,9 0 0,0 21,12C21,11.11 20.9,10.25 20.71,9.42C20.23,9.79 19.67,10 19.08,10A4.93,4.93 0 0,1 14.15,5.08C14.39,4.65 14.69,4.25 15.06,3.92C14.1,3.33 13,3 12,3M9,12A3,3 0 0,1 12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12Z"/>
+                                </svg>
+                                Load from External Database
+                            </button>
+                            <p style="font-size: 0.85rem; color: #999; margin: 0; font-style: italic;">
+                                * Setup external API configuration first
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="loading" id="loadingState">
                     <div class="spinner"></div>
                     <p>Processing your file...</p>
@@ -794,7 +876,6 @@
                                 {% for user in users %}
                                 <li class="user-list-item" style="padding: 12px; border-bottom: 1px solid #e5e5ea;">
                                     <div>
-                                       
                                         <strong>{{ user.name or 'No name' }}</strong> – {{ user.email }}
                                         {% if user.student_staff_id %}<span> (ID: {{ user.student_staff_id }})</span>{% endif %}
                                         {% if user.course %}<span> – {{ user.course }}</span>{% endif %}
@@ -1001,6 +1082,138 @@
         window.location.href = `/load_data/select_timeframe/${timeframeId}`;
     }
 
+    // External database loading function
+// External database loading function
+// External database loading function
+function loadFromExternalDatabase(timeframeId) {
+    const btn = document.getElementById('load-external-btn');
+    if (!btn || btn.disabled) return;
+    
+    // Show loading state
+    btn.disabled = true;
+    btn.innerHTML = `
+        <div class="spinner" style="width: 20px; height: 20px; margin-right: 8px;"></div>
+        Loading from database...
+    `;
+    
+    // Make API call
+    fetch(`/load_data/load_external/${timeframeId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Always reload the page regardless of success/failure
+        // Flask flash messages will be shown after reload
+        window.location.reload();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Still reload the page - any error messages will be shown via flash
+        window.location.reload();
+    });
+}
+
+// Helper function to reset the load external button
+function resetLoadExternalButton() {
+    const btn = document.getElementById('load-external-btn');
+    if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,3A9,9 0 0,0 3,12A9,9 0 0,0 12,21A9,9 0 0,0 21,12C21,11.11 20.9,10.25 20.71,9.42C20.23,9.79 19.67,10 19.08,10A4.93,4.93 0 0,1 14.15,5.08C14.39,4.65 14.69,4.25 15.06,3.92C14.1,3.33 13,3 12,3M9,12A3,3 0 0,1 12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12Z"/>
+            </svg>
+            Load from External Database
+        `;
+    }
+}
+
+// Helper function to show temporary alert messages
+function showTemporaryAlert(message, type) {
+    // Create alert element
+    const alert = document.createElement('div');
+    alert.className = `load-data-alert ${type}`;
+    alert.textContent = message;
+    
+    // Find or create alerts container
+    let alertsContainer = document.querySelector('.alerts');
+    if (!alertsContainer) {
+        alertsContainer = document.createElement('div');
+        alertsContainer.className = 'alerts';
+        document.body.appendChild(alertsContainer);
+    }
+    
+    // Add alert to container
+    alertsContainer.appendChild(alert);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (alert && alert.parentNode) {
+            alert.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 300);
+        }
+    }, 5000);
+}
+    // Check API configuration status
+    function checkApiConfiguration() {
+        // Get school ID from the timeframe data or user session
+        // You'll need to pass this from your Flask template
+        const schoolId = {{ timeframe.school_id if timeframe else 'null' }};
+        
+        if (!schoolId) {
+            console.error('School ID not available');
+            const statusElement = document.getElementById('api-status-load-data');
+            statusElement.className = 'api-status not-configured';
+            statusElement.innerHTML = `
+                <span class="api-indicator not-configured"></span>
+                <span class="api-text">School information not available</span>
+            `;
+            return;
+        }
+        
+        fetch(`/check_api_status/${schoolId}`)
+        .then(response => response.json())
+        .then(data => {
+            const statusElement = document.getElementById('api-status-load-data');
+            const btnElement = document.getElementById('load-external-btn');
+            
+            if (data.configured) {
+                statusElement.className = 'api-status configured';
+                statusElement.innerHTML = `
+                    <span class="api-indicator configured"></span>
+                    <span class="api-text">External database API configured</span>
+                `;
+                if (btnElement) {
+                    btnElement.disabled = false;
+                }
+            } else {
+                statusElement.className = 'api-status not-configured';
+                statusElement.innerHTML = `
+                    <span class="api-indicator not-configured"></span>
+                    <span class="api-text">External database API not configured</span>
+                `;
+                if (btnElement) {
+                    btnElement.disabled = true;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error checking API configuration:', error);
+            const statusElement = document.getElementById('api-status-load-data');
+            statusElement.className = 'api-status not-configured';
+            statusElement.innerHTML = `
+                <span class="api-indicator not-configured"></span>
+                <span class="api-text">Unable to check API configuration</span>
+            `;
+        });
+    }
+
     // Auto-hide alerts (use load-data-alert to target only our custom alerts)
     setTimeout(() => {
         const alerts = document.querySelectorAll('.load-data-alert');
@@ -1020,6 +1233,9 @@
         if (userItems.length > 0 && paginationControls) {
             setupPagination(userItems);
         }
+        
+        // Check API configuration when page loads
+        checkApiConfiguration();
     });
 
     function setupPagination(items) {

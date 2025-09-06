@@ -1,0 +1,14 @@
+# MySQL Configuration for External School Database
+# Save as: external_db_config.cnf
+
+[client]
+host=localhost
+port=3306
+user=root
+password=
+
+[mysql]
+default-character-set=utf8mb4
+
+[mysqldump]
+default-character-set=utf8mb4

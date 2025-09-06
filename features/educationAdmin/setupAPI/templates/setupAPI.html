@@ -1,0 +1,374 @@
+{% extends "shared/navigationBar/templates/base_with_sidebar.html" %}
+
+{% block title %}API Setup - ProjectFlow{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Reset and base styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Override main content background */
+    .main-content {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+    }
+
+    .content-wrapper {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        color: #1d1d1f;
+        line-height: 1.6;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 60px;
+    }
+
+    .header h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #1d1d1f;
+        margin-bottom: 16px;
+        letter-spacing: -0.02em;
+    }
+
+    .header p {
+        font-size: 1.25rem;
+        color: #6e6e73;
+        font-weight: 400;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        margin-bottom: 32px;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+        padding: 32px 32px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header h2 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #1d1d1f;
+    }
+
+    .card-header p {
+        color: #6e6e73;
+        font-size: 1rem;
+        margin-bottom: 24px;
+    }
+
+    .card-body {
+        padding: 32px;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1d1d1f;
+        margin-bottom: 8px;
+        letter-spacing: -0.01em;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 16px 20px;
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        font-size: 1rem;
+        font-family: inherit;
+        background: rgba(255, 255, 255, 0.8);
+        transition: all 0.3s ease;
+        color: #1d1d1f;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #007AFF;
+        background: rgba(255, 255, 255, 1);
+        box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+    }
+
+    .form-control::placeholder {
+        color: #86868b;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 16px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: none;
+        font-size: 1rem;
+        font-family: inherit;
+        letter-spacing: -0.01em;
+        min-height: 56px;
+    }
+
+    .btn-primary {
+        background: #007AFF;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+    }
+
+    .btn-secondary {
+        background: rgba(0, 0, 0, 0.05);
+        color: #1d1d1f;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 16px;
+        justify-content: flex-end;
+        margin-top: 32px;
+    }
+
+    .alerts {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        max-width: 400px;
+    }
+
+    .alert {
+        background: white;
+        padding: 16px 20px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #007AFF;
+        animation: slideIn 0.3s ease;
+    }
+
+    .alert.success {
+        border-left-color: #34C759;
+    }
+
+    .alert.error {
+        border-left-color: #FF3B30;
+    }
+
+    .alert.warning {
+        border-left-color: #FF9500;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideOut {
+        to {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+    }
+
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .loading-content {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(0, 122, 255, 0.1);
+        border-top: 4px solid #007AFF;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+        .header h1 {
+            font-size: 2rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="header">
+        <h1>API Setup</h1>
+        <p>Configure external database connection for automated student data synchronization.</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alerts">
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="card">
+        <div class="card-header">
+            <h2>External API Configuration</h2>
+            <p>Enter the credentials for your school's external API.</p>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('setup_api.save_config') }}" id="configForm">
+                <div class="form-group">
+                    <label for="api_key" class="form-label">API Key</label>
+                    <input type="text" class="form-control" id="api_key" name="api_key" 
+                           placeholder="Enter your API key" 
+                           value="{{ existing_config.api_key if existing_config else '' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="api_secret" class="form-label">API Secret (Optional)</label>
+                    <input type="password" class="form-control" id="api_secret" name="api_secret" 
+                           placeholder="Enter your API secret if required"
+                           value="{{ existing_config.api_secret if existing_config and existing_config.api_secret else '' }}">
+                </div>
+               
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17,9H7V7H17M17,13H7V11H17M14,17H7V15H14M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3Z"/>
+                        </svg>
+                        {{ 'Update Configuration' if existing_config else 'Save Configuration' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Testing connection...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show alert function
+    function showAlert(type, message) {
+        const alertsContainer = document.querySelector('.alerts') || createAlertsContainer();
+        
+        const alert = document.createElement('div');
+        alert.className = `alert ${type}`;
+        alert.textContent = message;
+        
+        alertsContainer.appendChild(alert);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            alert.remove();
+        }, 5000);
+    }
+
+    function createAlertsContainer() {
+        const container = document.createElement('div');
+        container.className = 'alerts';
+        document.body.appendChild(container);
+        return container;
+    }
+
+    // Auto-hide existing alerts
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            alert.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => alert.remove(), 300);
+        });
+    }, 5000);
+</script>
+{% endblock %}
