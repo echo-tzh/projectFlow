@@ -26,6 +26,9 @@ from shared.navigationBar.navigationController import navigation_bp, inject_navi
 from features.educationAdmin.setupAPI.setupAPIController import setup_api_bp
 from features.educationAdmin.load_data.loadDataAPIController import load_data_api_bp
 
+
+from features.academicCoordinator.manageProjects.manageProjectsController import manage_projects_bp
+
 # --- APP SETUP ---
 app = Flask(__name__, template_folder='.')
 app.config.from_object(Config)
@@ -51,6 +54,8 @@ app.register_blueprint(view_course_term_bp)
 app.register_blueprint(navigation_bp)
 app.register_blueprint(setup_api_bp)
 app.register_blueprint(load_data_api_bp)
+
+app.register_blueprint(manage_projects_bp)
 # --- CONTEXT PROCESSORS ---
 app.context_processor(inject_navigation)
 

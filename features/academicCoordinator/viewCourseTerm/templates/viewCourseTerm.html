@@ -580,8 +580,7 @@
                         </div>
 
                         <div class="card-footer">
-                            <a href="{{ url_for('view_course_term.view_course_term_detail', timeframe_id=timeframe.id) }}"
-                                class="view-btn">View Details</a>
+                            <a href="{{ url_for('manage_projects.manage_projects', timeframe_id=timeframe.id) }}" class="view-btn">Manage Projects</a>
                             <div class="school-info">School {{ timeframe.school.name }}</div>
                         </div>
                     </div>
@@ -639,8 +638,7 @@
                         </div>
 
                         <div class="card-footer">
-                            <a href="{{ url_for('view_course_term.view_course_term_detail', timeframe_id=timeframe.id) }}"
-                                class="view-btn">View Details</a>
+                            <a href="{{ url_for('manage_projects.manage_projects', timeframe_id=timeframe.id) }}" class="view-btn">Manage Projects</a>
                             <div class="school-info">School: {{ timeframe.school.name }}</div>
                         </div>
                     </div>
@@ -698,8 +696,7 @@
                         </div>
 
                         <div class="card-footer">
-                            <a href="{{ url_for('view_course_term.view_course_term_detail', timeframe_id=timeframe.id) }}"
-                                class="view-btn secondary">View Details</a>
+                            <a href="{{ url_for('manage_projects.manage_projects', timeframe_id=timeframe.id) }}" class="view-btn">Manage Projects</a>
                             <div class="school-info">School: {{ timeframe.school.name }}</div>
                         </div>
                     </div>
