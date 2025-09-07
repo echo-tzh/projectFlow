@@ -12,11 +12,11 @@ DROP TABLE IF EXISTS fyp_data;
 
 -- Create the main table
 CREATE TABLE fyp_data (
-    student_id VARCHAR(50) PRIMARY KEY,
-    student_name VARCHAR(100) NOT NULL,
+    id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
     email VARCHAR(120) NOT NULL UNIQUE,
     course VARCHAR(200) NOT NULL,
-    academic_period VARCHAR(100) NOT NULL,
+    fyp_session VARCHAR(100) NOT NULL,
     fyp_eligible BOOLEAN DEFAULT TRUE,
     student_status VARCHAR(20) DEFAULT 'active',
     role VARCHAR(50) DEFAULT 'student',
@@ -24,7 +24,7 @@ CREATE TABLE fyp_data (
 );
 
 -- Insert sample data (5 roles)
-INSERT INTO fyp_data (student_id, student_name, email, course, academic_period, role) VALUES
+INSERT INTO fyp_data (id, name, email, course, fyp_session, role) VALUES
 ('AC001', 'Tan Zhang Hong', 'tanzhanghong2009@gmail.com', 'Information Systems', '2025-Sem1', 'academic coordinator'),
 ('ST001', 'Project', 'projectflow25@gmail.com', 'Computer Science', '2025-Sem1', 'student'),
 ('SV001', 'Jeff', 'zhtan034@mymail.sim.edu.sg', 'Software Engineering', '2025-Sem1', 'supervisor'),

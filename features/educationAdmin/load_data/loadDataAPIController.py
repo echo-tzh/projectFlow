@@ -131,9 +131,9 @@ def create_or_update_user(user_data, school_id, timeframe_id):
         
         if existing_user:
             # Update existing user - NO password generation for existing users
-            existing_user.name = user_data['student_name']
+            existing_user.name = user_data['name']
             existing_user.course = user_data['course']
-            existing_user.student_staff_id = user_data['student_id']
+            existing_user.student_staff_id = user_data['id']
             existing_user.school_id = school_id
             
             # Update role if needed
@@ -154,11 +154,11 @@ def create_or_update_user(user_data, school_id, timeframe_id):
             password_hash = generate_password_hash(temp_password)
             
             new_user = User(
-                name=user_data['student_name'],
+                name=user_data['name'],
                 email=user_data['email'],
                 password_hash=password_hash,
                 course=user_data['course'],
-                student_staff_id=user_data['student_id'],
+                student_staff_id=user_data['id'],
                 school_id=school_id,
                 created_at=datetime.utcnow()
             )
