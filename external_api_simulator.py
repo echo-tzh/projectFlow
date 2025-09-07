@@ -51,7 +51,7 @@ def get_fyp_eligible_students():
         SELECT id, name, email, course, fyp_session as academic_period, 
                fyp_eligible, role, last_updated
         FROM fyp_data
-        WHERE fyp_eligible = TRUE AND student_status = 'active'
+        WHERE fyp_eligible = TRUE AND status = 'active'
         """
         
         params = []
@@ -101,7 +101,7 @@ def get_students_by_period(period):
         SELECT id, name, email, course, fyp_session as academic_period, 
                fyp_eligible, role, last_updated
         FROM fyp_data 
-        WHERE fyp_session = %s AND fyp_eligible = TRUE AND student_status = 'active'
+        WHERE fyp_session = %s AND fyp_eligible = TRUE AND status = 'active'
         ORDER BY name
         """, (period,))
         

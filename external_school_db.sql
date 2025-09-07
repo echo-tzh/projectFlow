@@ -18,7 +18,7 @@ CREATE TABLE fyp_data (
     course VARCHAR(200) NOT NULL,
     fyp_session VARCHAR(100) NOT NULL,
     fyp_eligible BOOLEAN DEFAULT TRUE,
-    student_status VARCHAR(20) DEFAULT 'active',
+    status VARCHAR(20) DEFAULT 'active',
     role VARCHAR(50) DEFAULT 'student',
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
