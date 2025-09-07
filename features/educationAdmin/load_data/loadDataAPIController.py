@@ -170,7 +170,7 @@ def create_or_update_user(user_data, school_id, timeframe_id):
                 # Create role if it doesn't exist
                 role = Role(
                     name=role_name,
-                    description=f"Auto-created role: {role_name}",
+                    description=f"{role_name}",
                     created_at=datetime.utcnow()
                 )
                 db.session.add(role)

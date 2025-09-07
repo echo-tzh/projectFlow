@@ -188,9 +188,135 @@ class Project(db.Model):
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    student_capacity = db.Column(db.Integer)
+    assessor_capacity = db.Column(db.Integer)
+    supervisor_capacity = db.Column(db.Integer)
 
     timeframe_id = db.Column(db.Integer, db.ForeignKey('timeframes.id'), nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Academic Coordinator
+    
+    
+class Wishlist(db.Model):
+    __tablename__ = 'wishlists'
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Foreign keys
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+    
+    user = db.relationship('User', backref=db.backref('wishlists', lazy='dynamic', cascade='all, delete-orphan'))
+    project = db.relationship('Project', backref=db.backref('wishlisted_by', lazy='dynamic'))
+    
+    
+# Preference Model
+# ------------------------
+class Preference(db.Model):
+    __tablename__ = 'preferences'
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Foreign keys
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+    timeframe_id = db.Column(db.Integer, db.ForeignKey('timeframes.id'), nullable=False, index=True)
+    
+    # Preference ranking (1 = most preferred, 2 = second choice, etc.)
+    preference_rank = db.Column(db.Integer, nullable=False, index=True)
+    
+    # Metadata
+    selected_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    notes = db.Column(db.Text, nullable=True)
+    
+    # Composite unique constraints
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'project_id', 'timeframe_id', name='unique_user_project_timeframe_preference'),
+        db.UniqueConstraint('user_id', 'timeframe_id', 'preference_rank', name='unique_user_timeframe_rank'),
+        db.Index('idx_user_timeframe_rank', 'user_id', 'timeframe_id', 'preference_rank'),
+        db.Index('idx_timeframe_rank', 'timeframe_id', 'preference_rank'),
+    )
+    
+    # Relationships
+    user = db.relationship('User', backref=db.backref('preferences', lazy='dynamic', cascade='all, delete-orphan'))
+    project = db.relationship('Project', backref=db.backref('preferred_by', lazy='dynamic'))
+    timeframe = db.relationship('Timeframe', backref=db.backref('user_preferences', lazy='dynamic'))
+    
+   
+   # ------------------------
+# Allocation Results Model
+# ------------------------
+class AllocationResult(db.Model):
+    __tablename__ = 'allocation_results'
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Core allocation data
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+    timeframe_id = db.Column(db.Integer, db.ForeignKey('timeframes.id'), nullable=False)
+    role_type = db.Column(db.Enum('student', 'supervisor', 'assessor', name='allocation_role_enum'), nullable=False)
+    
+    # Allocation metadata
+    preference_rank_fulfilled = db.Column(db.Integer, nullable=True)  # Which preference was fulfilled (1st, 2nd, 3rd choice)
+    allocation_batch_id = db.Column(db.String(100), nullable=False)  # Group allocations from same run
+    allocation_method = db.Column(db.String(50), nullable=False)  # 'automatic', 'manual', 'override'
+    
+    # Status tracking
+    status = db.Column(db.Enum('pending', 'confirmed', 'rejected', 'withdrawn', name='allocation_status_enum'), 
+                      default='pending', nullable=False)
+    
+    # Timestamps
+    allocated_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    confirmed_at = db.Column(db.DateTime, nullable=True)
+    status_updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Administrative fields
+    allocated_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # Who ran the allocation
+    notes = db.Column(db.Text, nullable=True)  # Admin notes or special conditions
+    
+    # Constraints
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'timeframe_id', 'role_type', name='unique_user_timeframe_role_allocation'),
+        db.Index('idx_allocation_batch', 'allocation_batch_id'),
+        db.Index('idx_timeframe_role', 'timeframe_id', 'role_type'),
+        db.Index('idx_user_timeframe', 'user_id', 'timeframe_id'),
+    )
+    
+    # Relationships
+    user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('allocations', lazy='dynamic'))
+    project = db.relationship('Project', backref=db.backref('allocated_users', lazy='dynamic'))
+    timeframe = db.relationship('Timeframe', backref=db.backref('allocations', lazy='dynamic'))
+    allocator = db.relationship('User', foreign_keys=[allocated_by], backref=db.backref('allocations_made', lazy='dynamic'))
+    
+# ------------------------
+# Unallocated Users Tracking
+# ------------------------
+class UnallocatedUser(db.Model):
+    __tablename__ = 'unallocated_users'
+    id = db.Column(db.Integer, primary_key=True)
+    
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    timeframe_id = db.Column(db.Integer, db.ForeignKey('timeframes.id'), nullable=False)
+    allocation_batch_id = db.Column(db.String(100), nullable=False)
+    expected_role = db.Column(db.Enum('student', 'supervisor', 'assessor', name='expected_role_enum'), nullable=False)
+    
+    # Reasons for non-allocation
+    reason = db.Column(db.Enum('no_preferences', 'all_preferences_full', 'capacity_exceeded', 
+                              'manual_hold', 'eligibility_issue', 'insufficient_projects', 
+                              name='unallocated_reason_enum'), nullable=False)
+    details = db.Column(db.Text, nullable=True)
+    
+    # Follow-up tracking
+    manual_intervention_required = db.Column(db.Boolean, default=True)
+    resolved = db.Column(db.Boolean, default=False)
+    resolved_at = db.Column(db.DateTime, nullable=True)
+    resolved_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    resolution_notes = db.Column(db.Text, nullable=True)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('unallocated_records', lazy='dynamic'))
+    timeframe = db.relationship('Timeframe', backref=db.backref('unallocated_users', lazy='dynamic'))
+    resolver = db.relationship('User', foreign_keys=[resolved_by])
+
 
 
 class ExternalAPIConfig(db.Model):
