@@ -28,19 +28,19 @@ def view_projects():
         flash("User not found.", "error")
         return redirect(url_for("login_bp.logout"))
 
-    # If user has dynamic relationship for timeframes, call .all()
-    user_timeframes = user.timeframes.all() if hasattr(user.timeframes, "all") else (user.timeframes or [])
+    # Get user timeframes - since timeframes relationship is defined with lazy='dynamic', it returns a query object
+    user_timeframes = user.timeframes.all()
     user_tf_ids = [tf.id for tf in user_timeframes]
 
     # today must be inside the timeframe window, and timeframe must belong to the student's school
-    q = (Project.query
-         .join(Timeframe, Project.timeframe_id == Timeframe.id))
+    q = Project.query.join(Timeframe, Project.timeframe_id == Timeframe.id)
 
     if user.school_id:
         q = q.filter(Timeframe.school_id == user.school_id)
 
     today = date.today()
-    q = q.filter(Timeframe.start_date <= today, Timeframe.end_date >= today)
+    # Students can only view projects during the preference period
+    q = q.filter(Timeframe.preference_startTiming <= today, Timeframe.preference_endTiming >= today)
 
     # Require that the project is in a timeframe the student is assigned to
     if user_tf_ids:
