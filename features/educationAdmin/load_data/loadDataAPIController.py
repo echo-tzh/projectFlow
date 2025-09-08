@@ -186,10 +186,96 @@ def create_or_update_user(user_data, school_id, timeframe_id):
         logger.error(f"Error creating/updating user {user_data['email']}: {e}")
         return None, False
 
+def sync_users_with_timeframe(external_data, school_id, timeframe_id):
+    """
+    Synchronize users with timeframe - add/update/remove users based on external data
+    Returns (created, updated, removed, assigned, errors)
+    """
+    try:
+        timeframe = Timeframe.query.get(timeframe_id)
+        if not timeframe:
+            raise ValueError(f"Timeframe {timeframe_id} not found")
+        
+        # Get emails from external data
+        external_emails = {user_data['email'].lower() for user_data in external_data}
+        
+        # Get current users assigned to this timeframe from the same school
+        current_users_in_timeframe = User.query.join(User.timeframes).filter(
+            Timeframe.id == timeframe_id,
+            User.school_id == school_id
+        ).all()
+        
+        current_emails = {user.email.lower() for user in current_users_in_timeframe}
+        
+        # Track changes
+        created_count = 0
+        updated_count = 0
+        removed_count = 0
+        assigned_count = 0
+        error_count = 0
+        
+        # 1. Process users from external data (create/update/assign)
+        for user_data in external_data:
+            try:
+                user, created = create_or_update_user(user_data, school_id, timeframe_id)
+                
+                if user:
+                    if created:
+                        created_count += 1
+                    else:
+                        updated_count += 1
+                    
+                    # Assign user to timeframe if not already assigned
+                    if timeframe not in user.timeframes:
+                        user.timeframes.append(timeframe)
+                        assigned_count += 1
+                        logger.info(f"Assigned user {user.email} to timeframe {timeframe.name}")
+                else:
+                    error_count += 1
+                    
+            except Exception as e:
+                logger.error(f"Error processing user data: {e}")
+                error_count += 1
+                continue
+        
+        # 2. Remove users who are no longer in external data
+        emails_to_remove = current_emails - external_emails
+        
+        for email in emails_to_remove:
+            try:
+                user = User.query.filter(
+                    User.email.ilike(email),
+                    User.school_id == school_id
+                ).first()
+                
+                if user and timeframe in user.timeframes:
+                    # Remove user from timeframe
+                    user.timeframes.remove(timeframe)
+                    removed_count += 1
+                    logger.info(f"Removed user {user.email} from timeframe {timeframe.name}")
+                    
+                    # Optional: If user is not in any other timeframes, you might want to 
+                    # deactivate or delete the user entirely
+                    if not user.timeframes:
+                        logger.info(f"User {user.email} is no longer in any timeframes")
+                        # Uncomment the next line if you want to delete users completely
+                        db.session.delete(user)
+                        
+            except Exception as e:
+                logger.error(f"Error removing user {email}: {e}")
+                error_count += 1
+                continue
+        
+        return created_count, updated_count, removed_count, assigned_count, error_count
+        
+    except Exception as e:
+        logger.error(f"Error in sync_users_with_timeframe: {e}")
+        raise
+
 @load_data_api_bp.route('/load_data/load_external/<int:timeframe_id>', methods=['POST'])
 def load_from_external_database(timeframe_id):
     """
-    Load data from external API for a specific timeframe
+    Load and synchronize data from external API for a specific timeframe
     """
     try:
         # Get current user's school
@@ -225,47 +311,23 @@ def load_from_external_database(timeframe_id):
         # Fetch data from external API
         external_data = fetch_external_data_via_api(api_config, academic_period)
         
-        if not external_data:
-            flash(f'Successfully connected to external database. No eligible data found for academic period: {academic_period}', 'warning')
+        if external_data is None:
+            flash('Failed to connect to external API. Please check configuration.', 'error')
             return jsonify({
-                'success': True,
-                'message': f'No data found for period: {academic_period}',
-                'count': 0
-            })
+                'success': False,
+                'message': 'Failed to connect to external API'
+            }), 500
         
-        # Process the data
-        created_count = 0
-        updated_count = 0
-        error_count = 0
-        assigned_count = 0
+        if not external_data:
+            # Even if no data, we still want to sync (remove users who shouldn't be there)
+            logger.info(f'No data found for academic period: {academic_period}, proceeding with cleanup')
         
-        for user_data in external_data:
-            try:
-                # Create or update user
-                user, created = create_or_update_user(
-                    user_data, 
-                    current_user.school_id, 
-                    timeframe_id
-                )
-                
-                if user:
-                    if created:
-                        created_count += 1
-                    else:
-                        updated_count += 1
-                    
-                    # Assign user to timeframe if not already assigned
-                    if timeframe not in user.timeframes:
-                        user.timeframes.append(timeframe)
-                        assigned_count += 1
-                    
-                else:
-                    error_count += 1
-                    
-            except Exception as e:
-                logger.error(f"Error processing user data: {e}")
-                error_count += 1
-                continue
+        # Synchronize users with timeframe
+        created_count, updated_count, removed_count, assigned_count, error_count = sync_users_with_timeframe(
+            external_data, 
+            current_user.school_id, 
+            timeframe_id
+        )
         
         # Commit all changes
         db.session.commit()
@@ -278,8 +340,13 @@ def load_from_external_database(timeframe_id):
             message_parts.append(f"{updated_count} users updated")
         if assigned_count > 0:
             message_parts.append(f"{assigned_count} users assigned to timeframe")
+        if removed_count > 0:
+            message_parts.append(f"{removed_count} users removed from timeframe")
         
-        success_message = "Data loaded successfully: " + ", ".join(message_parts)
+        if not message_parts:
+            message_parts.append("No changes needed - data already synchronized")
+        
+        success_message = "Sync completed: " + ", ".join(message_parts)
         
         if error_count > 0:
             success_message += f" ({error_count} errors occurred)"
@@ -287,26 +354,27 @@ def load_from_external_database(timeframe_id):
         else:
             flash(success_message, 'success')
         
-        logger.info(f"Data load completed for timeframe {timeframe_id}: {success_message}")
+        logger.info(f"Data sync completed for timeframe {timeframe_id}: {success_message}")
         
         # Return JSON response for the JavaScript
         return jsonify({
             'success': True,
             'message': success_message,
-            'count': len(external_data),
+            'total_external': len(external_data),
             'created': created_count,
             'updated': updated_count,
             'assigned': assigned_count,
+            'removed': removed_count,
             'errors': error_count
         })
             
     except Exception as e:
         db.session.rollback()
-        logger.error(f"Error loading data from external API: {e}")
-        flash(f'Error loading data: {str(e)}', 'error')
+        logger.error(f"Error synchronizing data from external API: {e}")
+        flash(f'Error synchronizing data: {str(e)}', 'error')
         return jsonify({
             'success': False,
-            'message': f'Error loading data: {str(e)}'
+            'message': f'Error synchronizing data: {str(e)}'
         }), 500
         
 @load_data_api_bp.route('/check_api_status/<int:school_id>')
