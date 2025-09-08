@@ -12,9 +12,10 @@ DROP TABLE IF EXISTS fyp_data;
 
 -- Create the main table
 CREATE TABLE fyp_data (
-    id VARCHAR(50) PRIMARY KEY,
+    id_num INT AUTO_INCREMENT PRIMARY KEY,
+    id VARCHAR(50) NOT NULL,
     name VARCHAR(100) NOT NULL,
-    email VARCHAR(120) NOT NULL UNIQUE,
+    email VARCHAR(120) NOT NULL,
     course VARCHAR(200) NOT NULL,
     fyp_session VARCHAR(100) NOT NULL,
     fyp_eligible BOOLEAN DEFAULT TRUE,
