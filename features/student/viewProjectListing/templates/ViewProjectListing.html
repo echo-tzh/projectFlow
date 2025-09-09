@@ -53,13 +53,13 @@
             gap: 8px;
             text-decoration: none;
             transition: all 0.2s ease;
-            cursor: not-allowed;
-            opacity: 0.6;
+            cursor: pointer;
             border: 2px solid rgba(0, 122, 255, 0.2);
         }
 
-        .wishlist-counter.disabled {
-            pointer-events: none;
+        .wishlist-counter:hover {
+            background: rgba(0, 122, 255, 0.15);
+            border-color: rgba(0, 122, 255, 0.3);
         }
 
         .wishlist-badge {
@@ -202,17 +202,6 @@
             text-align: center;
         }
 
-        .project-description {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            font-size: 15px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
         .project-meta {
             display: flex;
             justify-content: space-between;
@@ -240,21 +229,40 @@
         }
 
         .btn-primary {
-            background: #ccc;
-            color: #666;
+            background: #007AFF;
+            color: white;
             border: none;
             padding: 12px 20px;
             border-radius: 12px;
             font-weight: 500;
             font-size: 14px;
-            cursor: not-allowed;
+            cursor: pointer;
             transition: all 0.2s ease;
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
+        }
+
+        .btn-primary:hover {
+            background: #0056D6;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            color: #666;
+            cursor: not-allowed;
             opacity: 0.6;
+        }
+
+        .btn-primary.in-wishlist {
+            background: #34C759;
+            color: white;
+        }
+
+        .btn-primary.in-wishlist:hover {
+            background: #28A745;
         }
 
         .btn-secondary {
@@ -410,6 +418,169 @@
             justify-content: flex-end;
         }
 
+        /* Wishlist Modal Styles */
+        .wishlist-modal-content {
+            max-width: 800px;
+            max-height: 90vh;
+        }
+
+        .wishlist-modal-header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid rgba(0, 122, 255, 0.1);
+        }
+
+        .wishlist-modal-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1d1d1f;
+        }
+
+        .wishlist-modal-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin: 0;
+        }
+
+        .wishlist-loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 122, 255, 0.1);
+            border-left: 4px solid #007AFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        .wishlist-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .wishlist-empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .wishlist-empty-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .wishlist-empty-subtitle {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .wishlist-grid {
+            display: grid;
+            gap: 16px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .wishlist-item {
+            background: rgba(0, 122, 255, 0.05);
+            border: 1px solid rgba(0, 122, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            transform-origin: left center;
+        }
+
+        .wishlist-item:hover {
+            background: rgba(0, 122, 255, 0.08);
+            border-color: rgba(0, 122, 255, 0.2);
+        }
+
+        .wishlist-item.removing {
+            background: rgba(255, 59, 48, 0.05);
+            border-color: rgba(255, 59, 48, 0.1);
+            opacity: 0.6;
+            transform: scale(0.98);
+        }
+
+        .wishlist-item.removed {
+            opacity: 0;
+            transform: translateX(-100%) scale(0.8);
+            pointer-events: none;
+        }
+
+        .wishlist-item-content {
+            flex: 1;
+        }
+
+        .wishlist-item-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #1d1d1f;
+            line-height: 1.3;
+        }
+
+        .wishlist-item-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .wishlist-delete-btn {
+            background: rgba(255, 59, 48, 0.1);
+            color: #FF3B30;
+            border: 1px solid rgba(255, 59, 48, 0.2);
+            padding: 6px;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+
+        .wishlist-delete-btn:hover {
+            background: #FF3B30;
+            color: white;
+            border-color: #FF3B30;
+            transform: scale(1.1);
+        }
+
+        .wishlist-delete-btn:disabled {
+            background: rgba(204, 204, 204, 0.1);
+            color: #ccc;
+            border-color: rgba(204, 204, 204, 0.2);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -466,6 +637,30 @@
                 padding: 6px 12px;
                 font-size: 13px;
             }
+
+            .wishlist-modal-content {
+                margin: 16px;
+                padding: 20px;
+                max-height: 90vh;
+            }
+
+            .wishlist-modal-title {
+                font-size: 24px;
+            }
+
+            .wishlist-item {
+                padding: 14px 16px;
+                gap: 12px;
+            }
+
+            .wishlist-item-title {
+                font-size: 15px;
+            }
+
+            .wishlist-item-meta {
+                gap: 12px;
+                font-size: 12px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -494,8 +689,8 @@
                     <p class="page-subtitle">Discover exciting projects and build your wishlist</p>
                 </div>
                 <div class="wishlist-section">
-                    <div class="wishlist-counter disabled" title="Wishlist feature coming soon">
-                        ❤️ My Wishlist <span class="wishlist-badge" id="wishlistCount">0</span>
+                    <div class="wishlist-counter" id="wishlistCounterBtn" title="View my wishlist">
+                        ❤️ My Wishlist <span class="wishlist-badge" id="wishlistCount">{{ wishlist_project_ids|length }}</span>
                     </div>
                 </div>
             </div>
@@ -526,16 +721,22 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Removed project description from here -->
                         <div class="project-meta">
                             <div class="project-spots">
                                 👥 {{ project.student_capacity or 'TBD' }} students
                             </div>
                         </div>
                         <div class="project-actions">
-                            <button class="btn-primary" title="Wishlist feature coming soon">
-                                Add to Wishlist
+                            <button class="btn-primary{%- if project.id in wishlist_project_ids %} in-wishlist{%- endif %} wishlist-btn" 
+                                    data-project-id="{{ project.id }}">
+                                {%- if project.id in wishlist_project_ids %}
+                                    ❤️ In Wishlist
+                                {%- else %}
+                                    Add to Wishlist
+                                {%- endif %}
                             </button>
-                            <button class="btn-secondary" onclick="showProjectDetails({{ project.id }})">
+                            <button class="btn-secondary details-btn" data-project-id="{{ project.id }}">
                                 Details
                             </button>
                         </div>
@@ -549,7 +750,7 @@
                 </div>
             {% else %}
                 <div class="no-results">
-                    <div class="no-results-icon">📝</div>
+                    <div class="no-results-icon">📋</div>
                     <div class="no-results-text">No projects are available at the moment.</div>
                     <div class="no-results-subtitle">Check back later or contact your academic coordinator</div>
                 </div>
@@ -565,26 +766,473 @@
         </div>
     </div>
 
-    <script>
-        const projects = [
-            {% for project in projects %}
+    <!-- Wishlist Modal -->
+    <div class="modal" id="wishlistModal">
+        <div class="modal-content wishlist-modal-content">
+            <button class="modal-close" onclick="closeWishlistModal()">&times;</button>
+            <div class="wishlist-modal-header">
+                <h2 class="wishlist-modal-title">❤️ My Wishlist</h2>
+                <p class="wishlist-modal-subtitle">Projects you're interested in</p>
+            </div>
+            <div class="wishlist-modal-body" id="wishlistModalBody">
+                <div class="wishlist-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading your wishlist...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="application/json" id="projects-data">
+        [
+            {%- for project in projects -%}
             {
-                id: {{ project.id }},
-                title: {{ project.title|tojson }},
-                description: {{ (project.description or 'No description provided.')|tojson }},
-                timeframe: {{ (project.timeframe.name if project.timeframe else 'Unscheduled Term')|tojson }},
-                studentCapacity: {{ project.student_capacity or 0 }},
-                createdAt: {{ (project.created_at.strftime('%Y-%m-%d') if project.created_at else 'Unknown')|tojson }}
-            }{% if not loop.last %},{% endif %}
-            {% endfor %}
-        ];
+                "id": {{ project.id }},
+                "title": {{ project.title|tojson }},
+                "description": {{ (project.description or 'No description provided.')|tojson }},
+                "timeframe": {{ (project.timeframe.name if project.timeframe else 'Unscheduled Term')|tojson }},
+                "studentCapacity": {{ project.student_capacity or 0 }},
+                "createdAt": {{ (project.created_at.strftime('%Y-%m-%d') if project.created_at else 'Unknown')|tojson }}
+            }{%- if not loop.last -%},{%- endif -%}
+            {%- endfor %}
+        ]
+    </script>
+
+    <script type="application/json" id="wishlist-data">
+        {{ wishlist_project_ids|tojson }}
+    </script>
+
+    <script>
+        // Load data from JSON script tags
+        const projects = JSON.parse(document.getElementById('projects-data').textContent);
+        let wishlistProjectIds = JSON.parse(document.getElementById('wishlist-data').textContent);
+
+        // Debug function to check button states
+        function debugButtonStates(projectId) {
+            console.log('Debug for project ' + projectId + ':');
+            console.log('Wishlist IDs:', wishlistProjectIds);
+            const buttons = document.querySelectorAll('.btn-primary[data-project-id="' + projectId + '"]');
+            buttons.forEach((btn, index) => {
+                console.log('Button ' + index + ':', {
+                    element: btn,
+                    hasInWishlist: btn.classList.contains('in-wishlist'),
+                    innerHTML: btn.innerHTML,
+                    isVisible: btn.offsetParent !== null
+                });
+            });
+        }
+
+        // Simple function to ensure wishlist buttons exist and are updated
+        function ensureWishlistButtons(projectId, isInWishlist, excludeButton = null) {
+            console.log('Ensuring wishlist buttons for project ' + projectId + ', isInWishlist: ' + isInWishlist);
+            
+            // Find all Details buttons for this project
+            const detailsBtns = document.querySelectorAll('.details-btn[data-project-id="' + projectId + '"]');
+            console.log('Found ' + detailsBtns.length + ' Details buttons for project ' + projectId);
+            
+            detailsBtns.forEach((detailsBtn, index) => {
+                const actionsContainer = detailsBtn.parentElement;
+                if (!actionsContainer || !actionsContainer.classList.contains('project-actions')) {
+                    console.log('Invalid actions container for Details button ' + index);
+                    return;
+                }
+                
+                // Look for existing wishlist button in this container
+                let wishlistBtn = actionsContainer.querySelector('.wishlist-btn[data-project-id="' + projectId + '"]');
+                
+                if (!wishlistBtn) {
+                    console.log('Creating missing wishlist button for project ' + projectId);
+                    // Create the missing wishlist button
+                    wishlistBtn = document.createElement('button');
+                    wishlistBtn.className = 'btn-primary wishlist-btn';
+                    wishlistBtn.setAttribute('data-project-id', projectId);
+                    
+                    // Insert before the Details button
+                    actionsContainer.insertBefore(wishlistBtn, detailsBtn);
+                }
+                
+                // Skip updating the button that triggered this (to avoid conflicts)
+                if (excludeButton === wishlistBtn) {
+                    console.log('Skipping update for trigger button');
+                    return;
+                }
+                
+                // Update button state
+                if (isInWishlist) {
+                    wishlistBtn.classList.add('in-wishlist');
+                    wishlistBtn.innerHTML = '❤️ In Wishlist';
+                } else {
+                    wishlistBtn.classList.remove('in-wishlist');
+                    wishlistBtn.innerHTML = 'Add to Wishlist';
+                }
+                
+                // Ensure button is visible
+                wishlistBtn.style.display = '';
+                wishlistBtn.style.opacity = '1';
+                wishlistBtn.disabled = false;
+                
+                console.log('Updated wishlist button ' + index + ' to: "' + wishlistBtn.innerHTML + '"');
+            });
+        }
+
+        // Wishlist functionality
+        async function toggleWishlist(projectId, buttonElement) {
+            const isInWishlist = wishlistProjectIds.includes(projectId);
+            const action = isInWishlist ? 'remove' : 'add';
+            
+            // Disable button during request
+            buttonElement.disabled = true;
+            buttonElement.style.opacity = '0.6';
+            buttonElement.innerHTML = isInWishlist ? 'Removing...' : 'Adding...';
+            
+            try {
+                const response = await fetch('/student/wishlist/' + action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ project_id: projectId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update local wishlist tracking
+                    if (action === 'add') {
+                        wishlistProjectIds.push(projectId);
+                        buttonElement.classList.add('in-wishlist');
+                        buttonElement.innerHTML = '❤️ In Wishlist';
+                    } else {
+                        wishlistProjectIds = wishlistProjectIds.filter(id => id !== projectId);
+                        buttonElement.classList.remove('in-wishlist');
+                        buttonElement.innerHTML = 'Add to Wishlist';
+                    }
+                    
+                    // Update wishlist counter
+                    document.getElementById('wishlistCount').textContent = result.wishlist_count;
+                    
+                    // Update all buttons for this project on the main page
+                    ensureWishlistButtons(projectId, action === 'add', buttonElement);
+                    
+                    // Update modal button if it exists
+                    const modalBtn = document.getElementById('modalWishlistBtn-' + projectId);
+                    if (modalBtn) {
+                        updateModalButton(modalBtn, projectId);
+                    }
+                    
+                    showNotification(result.message, 'success');
+                } else {
+                    showNotification(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error toggling wishlist:', error);
+                showNotification('An error occurred. Please try again.', 'error');
+            } finally {
+                // Re-enable button
+                buttonElement.disabled = false;
+                buttonElement.style.opacity = '1';
+            }
+        }
+
+
+        function updateModalButton(buttonElement, projectId) {
+            const isInWishlist = wishlistProjectIds.includes(projectId);
+            if (isInWishlist) {
+                buttonElement.classList.add('in-wishlist');
+                buttonElement.innerHTML = '❤️ In Wishlist';
+            } else {
+                buttonElement.classList.remove('in-wishlist');
+                buttonElement.innerHTML = 'Add to Wishlist';
+            }
+        }
+
+        async function viewWishlist() {
+            const modal = document.getElementById('wishlistModal');
+            const modalBody = document.getElementById('wishlistModalBody');
+            
+            // Show modal with loading state
+            modal.classList.add('show');
+            modalBody.innerHTML = 
+                '<div class="wishlist-loading">' +
+                    '<div class="loading-spinner"></div>' +
+                    '<p>Loading your wishlist...</p>' +
+                '</div>';
+            
+            try {
+                const response = await fetch('/student/wishlist', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (result.projects.length === 0) {
+                        modalBody.innerHTML = 
+                            '<div class="wishlist-empty">' +
+                                '<div class="wishlist-empty-icon">💔</div>' +
+                                '<div class="wishlist-empty-title">Your wishlist is empty</div>' +
+                                '<div class="wishlist-empty-subtitle">Start adding projects you\'re interested in!</div>' +
+                            '</div>';
+                    } else {
+                        var wishlistItemsHtml = '';
+                        for (var i = 0; i < result.projects.length; i++) {
+                            var project = result.projects[i];
+                            wishlistItemsHtml += 
+                                '<div class="wishlist-item" data-project-id="' + project.id + '">' +
+                                    '<div class="wishlist-item-content">' +
+                                        '<div class="wishlist-item-title">' + project.title + '</div>' +
+                                        '<div class="wishlist-item-meta">' +
+                                            '<span>📅 ' + project.timeframe + '</span>' +
+                                            '<span>👥 ' + (project.student_capacity || 'TBD') + ' students</span>' +
+                                        '</div>' +
+                                    '</div>' +
+                                    '<button class="wishlist-delete-btn" data-project-id="' + project.id + '" title="Remove from wishlist">' +
+                                        '×' +
+                                    '</button>' +
+                                '</div>';
+                        }
+                        modalBody.innerHTML = 
+                            '<div class="wishlist-grid">' +
+                                wishlistItemsHtml +
+                            '</div>';
+                    }
+                } else {
+                    modalBody.innerHTML = 
+                        '<div class="wishlist-empty">' +
+                            '<div class="wishlist-empty-icon">⚠️</div>' +
+                            '<div class="wishlist-empty-title">Error loading wishlist</div>' +
+                            '<div class="wishlist-empty-subtitle">' + result.message + '</div>' +
+                        '</div>';
+                }
+            } catch (error) {
+                console.error('Error fetching wishlist:', error);
+                modalBody.innerHTML = 
+                    '<div class="wishlist-empty">' +
+                        '<div class="wishlist-empty-icon">⚠️</div>' +
+                        '<div class="wishlist-empty-title">Error loading wishlist</div>' +
+                        '<div class="wishlist-empty-subtitle">Please try again later.</div>' +
+                    '</div>';
+            }
+        }
+
+        function closeWishlistModal() {
+            document.getElementById('wishlistModal').classList.remove('show');
+            
+            // Force check for missing buttons after modal closes
+            setTimeout(() => {
+                console.log('Checking for missing wishlist buttons after modal close...');
+                checkForMissingWishlistButtons();
+            }, 100);
+        }
+        
+        // Function to check and fix any missing wishlist buttons
+        function checkForMissingWishlistButtons() {
+            const allDetailsBtns = document.querySelectorAll('.details-btn');
+            console.log('Checking ' + allDetailsBtns.length + ' project cards for missing wishlist buttons');
+            
+            allDetailsBtns.forEach((detailsBtn, index) => {
+                const actionsContainer = detailsBtn.parentElement;
+                if (!actionsContainer || !actionsContainer.classList.contains('project-actions')) {
+                    return;
+                }
+                
+                // Extract project ID from the data attribute
+                const projectId = parseInt(detailsBtn.getAttribute('data-project-id'));
+                if (!projectId) {
+                    return;
+                }
+                
+                // Check if wishlist button exists
+                const wishlistBtn = actionsContainer.querySelector('.wishlist-btn[data-project-id="' + projectId + '"]');
+                
+                if (!wishlistBtn) {
+                    console.log('Found missing wishlist button for project ' + projectId + ', recreating...');
+                    
+                    // Create the missing button
+                    const newWishlistBtn = document.createElement('button');
+                    newWishlistBtn.className = 'btn-primary wishlist-btn';
+                    newWishlistBtn.setAttribute('data-project-id', projectId);
+                    
+                    // Set correct state based on wishlist
+                    if (wishlistProjectIds.includes(projectId)) {
+                        newWishlistBtn.classList.add('in-wishlist');
+                        newWishlistBtn.innerHTML = '❤️ In Wishlist';
+                    } else {
+                        newWishlistBtn.innerHTML = 'Add to Wishlist';
+                    }
+                    
+                    // Insert before Details button
+                    actionsContainer.insertBefore(newWishlistBtn, detailsBtn);
+                    
+                    console.log('Recreated wishlist button for project ' + projectId + ': "' + newWishlistBtn.innerHTML + '"');
+                }
+            });
+        }
+
+        async function removeFromWishlistModal(projectId, buttonElement) {
+            // Get the wishlist item element before starting
+            const wishlistItem = buttonElement.closest('.wishlist-item');
+            
+            // Immediately start the removal animation for instant feedback
+            if (wishlistItem) {
+                wishlistItem.classList.add('removing');
+            }
+            
+            // Disable button and show loading state
+            buttonElement.disabled = true;
+            buttonElement.innerHTML = '...';
+            
+            try {
+                const response = await fetch('/student/wishlist/remove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ project_id: projectId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update local wishlist tracking immediately
+                    wishlistProjectIds = wishlistProjectIds.filter(id => id !== projectId);
+                    
+                    // Update wishlist counter immediately
+                    document.getElementById('wishlistCount').textContent = result.wishlist_count;
+                    
+                    // Complete the removal animation
+                    if (wishlistItem) {
+                        wishlistItem.classList.remove('removing');
+                        wishlistItem.classList.add('removed');
+                        
+                        setTimeout(() => {
+                            wishlistItem.remove();
+                            
+                            // Check if wishlist is now empty
+                            const remainingItems = document.querySelectorAll('.wishlist-item');
+                            if (remainingItems.length === 0) {
+                                document.getElementById('wishlistModalBody').innerHTML = 
+                                    '<div class="wishlist-empty">' +
+                                        '<div class="wishlist-empty-icon">💔</div>' +
+                                        '<div class="wishlist-empty-title">Your wishlist is empty</div>' +
+                                        '<div class="wishlist-empty-subtitle">Start adding projects you\'re interested in!</div>' +
+                                    '</div>';
+                            }
+                        }, 300);
+                    }
+                    
+                    // Update all main page buttons for this project immediately
+                    ensureWishlistButtons(projectId, false); // false means not in wishlist
+                    
+                    // Also update modal button if it exists
+                    const modalBtn = document.getElementById('modalWishlistBtn-' + projectId);
+                    if (modalBtn && modalBtn.classList.contains('in-wishlist')) {
+                        modalBtn.classList.remove('in-wishlist');
+                        modalBtn.innerHTML = 'Add to Wishlist';
+                    }
+                    
+                    showNotification(result.message, 'success');
+                } else {
+                    // API failed - revert the visual changes
+                    if (wishlistItem) {
+                        wishlistItem.classList.remove('removing');
+                    }
+                    
+                    showNotification(result.message, 'error');
+                    // Re-enable button
+                    buttonElement.disabled = false;
+                    buttonElement.innerHTML = '×';
+                }
+            } catch (error) {
+                console.error('Error removing from wishlist:', error);
+                
+                // API error - revert the visual changes
+                if (wishlistItem) {
+                    wishlistItem.classList.remove('removing');
+                }
+                
+                showNotification('An error occurred. Please try again.', 'error');
+                // Re-enable button
+                buttonElement.disabled = false;
+                buttonElement.innerHTML = '×';
+            }
+        }
+
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = 'notification notification-' + type;
+            notification.innerHTML = 
+                '<span>' + message + '</span>' +
+                '<button onclick="this.parentElement.remove()">&times;</button>';
+            
+            // Add notification styles
+            var backgroundColor = type === 'success' ? '#34C759' : type === 'error' ? '#FF3B30' : '#007AFF';
+            notification.style.cssText = 
+                'position: fixed;' +
+                'top: 20px;' +
+                'right: 20px;' +
+                'padding: 12px 16px;' +
+                'border-radius: 8px;' +
+                'background: ' + backgroundColor + ';' +
+                'color: white;' +
+                'z-index: 10000;' +
+                'display: flex;' +
+                'align-items: center;' +
+                'justify-content: space-between;' +
+                'gap: 12px;' +
+                'font-size: 14px;' +
+                'font-weight: 500;' +
+                'min-width: 300px;' +
+                'box-shadow: 0 4px 12px rgba(0,0,0,0.15);' +
+                'animation: slideInRight 0.3s ease;';
+            
+            // Add close button styles
+            const closeBtn = notification.querySelector('button');
+            closeBtn.style.cssText = 
+                'background: none;' +
+                'border: none;' +
+                'color: white;' +
+                'font-size: 18px;' +
+                'cursor: pointer;' +
+                'padding: 0;' +
+                'width: 20px;' +
+                'height: 20px;' +
+                'display: flex;' +
+                'align-items: center;' +
+                'justify-content: center;';
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // Add animation keyframe
+        const style = document.createElement('style');
+        style.textContent = 
+            '@keyframes slideInRight {' +
+                'from {' +
+                    'transform: translateX(100%);' +
+                    'opacity: 0;' +
+                '}' +
+                'to {' +
+                    'transform: translateX(0);' +
+                    'opacity: 1;' +
+                '}' +
+            '}';
+        document.head.appendChild(style);
 
         function showProjectDetails(projectId) {
-            console.log('Showing details for project:', projectId);
-            console.log('Available projects:', projects);
-            
             const project = projects.find(p => p.id === projectId);
-            console.log('Found project:', project);
             
             if (!project) {
                 alert('Project not found!');
@@ -594,43 +1242,41 @@
             const modal = document.getElementById('projectModal');
             const modalContent = document.getElementById('modalContent');
             
-            console.log('Modal element:', modal);
-            console.log('Modal content element:', modalContent);
-            
             if (!modal || !modalContent) {
                 alert('Modal elements not found!');
                 return;
             }
 
-            modalContent.innerHTML = `
-                <div class="modal-title">${project.title}</div>
-                <div class="modal-meta">
-                    <div class="meta-item">
-                        <div class="meta-label">Project ID</div>
-                        <div class="meta-value">#${project.id}</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">Course Term</div>
-                        <div class="meta-value">${project.timeframe}</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">Student Capacity</div>
-                        <div class="meta-value">${project.studentCapacity || 'TBD'}</div>
-                    </div>
-                </div>
-                <p class="modal-description">${project.description}</p>
-                <div class="modal-actions">
-                    <button class="btn-primary" title="Wishlist feature coming soon">
-                        Add to Wishlist
-                    </button>
-                    <button class="btn-secondary" onclick="closeModal()">
-                        Close
-                    </button>
-                </div>
-            `;
-            console.log('Adding show class to modal');
+            const isInWishlist = wishlistProjectIds.includes(project.id);
+            
+            modalContent.innerHTML = 
+                '<div class="modal-title">' + project.title + '</div>' +
+                '<div class="modal-meta">' +
+                    '<div class="meta-item">' +
+                        '<div class="meta-label">Project ID</div>' +
+                        '<div class="meta-value">#' + project.id + '</div>' +
+                    '</div>' +
+                    '<div class="meta-item">' +
+                        '<div class="meta-label">Course Term</div>' +
+                        '<div class="meta-value">' + project.timeframe + '</div>' +
+                    '</div>' +
+                    '<div class="meta-item">' +
+                        '<div class="meta-label">Student Capacity</div>' +
+                        '<div class="meta-value">' + (project.studentCapacity || 'TBD') + '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<p class="modal-description">' + project.description + '</p>' +
+                '<div class="modal-actions">' +
+                    '<button class="btn-primary wishlist-btn' + (isInWishlist ? ' in-wishlist' : '') + '" ' +
+                            'data-project-id="' + project.id + '"' +
+                            'id="modalWishlistBtn-' + project.id + '">' +
+                        (isInWishlist ? '❤️ In Wishlist' : 'Add to Wishlist') +
+                    '</button>' +
+                    '<button class="btn-secondary modal-close-btn">' +
+                        'Close' +
+                    '</button>' +
+                '</div>';
             modal.classList.add('show');
-            console.log('Modal should now be visible');
         }
 
         function closeModal() {
@@ -674,6 +1320,39 @@
         document.getElementById('projectModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal();
+            }
+        });
+
+        // Close wishlist modal when clicking outside
+        document.getElementById('wishlistModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeWishlistModal();
+            }
+        });
+
+        // Event delegation for wishlist buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('wishlist-btn')) {
+                var projectId = parseInt(e.target.getAttribute('data-project-id'));
+                toggleWishlist(projectId, e.target);
+            }
+            
+            if (e.target.classList.contains('details-btn')) {
+                var projectId = parseInt(e.target.getAttribute('data-project-id'));
+                showProjectDetails(projectId);
+            }
+            
+            if (e.target.classList.contains('modal-close-btn')) {
+                closeModal();
+            }
+            
+            if (e.target.classList.contains('wishlist-delete-btn')) {
+                var projectId = parseInt(e.target.getAttribute('data-project-id'));
+                removeFromWishlistModal(projectId, e.target);
+            }
+            
+            if (e.target.id === 'wishlistCounterBtn' || e.target.closest('#wishlistCounterBtn')) {
+                viewWishlist();
             }
         });
     </script>

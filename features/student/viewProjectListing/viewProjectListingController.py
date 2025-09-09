@@ -50,4 +50,23 @@ def view_projects():
         q = q.filter(False)
 
     projects = q.order_by(Project.created_at.desc()).all()
-    return render_template("ViewProjectListing.html", projects=projects, user=user)
+    
+    # Convert projects to dictionaries for JSON serialization
+    projects_data = []
+    for project in projects:
+        projects_data.append({
+            'id': project.id,
+            'title': project.title,
+            'description': project.description or 'No description provided.',
+            'student_capacity': project.student_capacity,
+            'created_at': project.created_at.strftime('%Y-%m-%d') if project.created_at else 'Unknown',
+            'timeframe': {
+                'name': project.timeframe.name if project.timeframe else 'Unscheduled Term'
+            }
+        })
+    
+    # Get user's wishlist project IDs for frontend display
+    wishlist_project_ids = [w.project_id for w in user.wishlists.all()] if user else []
+    
+    return render_template("ViewProjectListing.html", projects=projects, projects_data=projects_data, user=user, wishlist_project_ids=wishlist_project_ids)
+
