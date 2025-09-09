@@ -26,7 +26,7 @@ from features.academicCoordinator.viewCourseTerm.viewCourseTermController import
 from shared.navigationBar.navigationController import navigation_bp, inject_navigation
 from features.educationAdmin.setupAPI.setupAPIController import setup_api_bp
 from features.educationAdmin.load_data.loadDataAPIController import load_data_api_bp
-
+from features.student.studentPreferences.studentPreferencesController import student_preferences_bp
 
 from features.academicCoordinator.manageProjects.manageProjectsController import manage_projects_bp
 
@@ -56,6 +56,7 @@ app.register_blueprint(view_course_term_bp)
 app.register_blueprint(navigation_bp)
 app.register_blueprint(setup_api_bp)
 app.register_blueprint(load_data_api_bp)
+app.register_blueprint(student_preferences_bp)
 
 app.register_blueprint(manage_projects_bp)
 # --- CONTEXT PROCESSORS ---

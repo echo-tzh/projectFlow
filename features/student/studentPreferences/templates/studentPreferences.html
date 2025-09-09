@@ -1,0 +1,873 @@
+{% extends "shared/navigationBar/templates/base_with_sidebar.html" %}
+
+{% block title %}Submit Project Preferences - ProjectFlow{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='shared/static/css/navigation.css') }}">
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #1d1d1f;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .main-content {
+            padding: 40px 0;
+        }
+
+        .page-header {
+            text-align: left;
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .page-title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(45deg, #007AFF, #5856D6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .deadline-info {
+            background: rgba(255, 152, 0, 0.1);
+            color: #FF9500;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .no-timeframes {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            margin: 40px 0;
+        }
+
+        .no-timeframes h2 {
+            color: #666;
+            margin-bottom: 16px;
+        }
+
+        .no-timeframes p {
+            color: #888;
+        }
+
+        .preference-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .wishlist-section {
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards 0.1s;
+        }
+
+        .preference-panel {
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards 0.2s;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #007AFF, #5856D6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 28px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .project-card:nth-child(odd) {
+            animation-delay: 0.1s;
+        }
+
+        .project-card:nth-child(even) {
+            animation-delay: 0.2s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border-color: rgba(0, 122, 255, 0.2);
+        }
+
+        .project-card.selected {
+            border-color: #007AFF;
+            background: rgba(0, 122, 255, 0.05);
+        }
+
+        .project-card.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .project-info {
+            flex: 1;
+        }
+
+        .project-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .project-department {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .project-spots {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .project-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            background: rgba(52, 199, 89, 0.1);
+            color: #34C759;
+        }
+
+        .project-description {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .project-capacity {
+            padding: 2px 8px;
+            border-radius: 8px;
+            background: rgba(0, 122, 255, 0.1);
+            color: #007AFF;
+            font-weight: 500;
+        }
+
+        .preference-panel-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 120px;
+            height: fit-content;
+        }
+
+        .preference-panel-aligned {
+            margin-top: 140px;
+        }
+
+        .preference-slots {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .preference-slot {
+            background: rgba(0, 122, 255, 0.05);
+            border: 2px dashed rgba(0, 122, 255, 0.3);
+            border-radius: 12px;
+            padding: 30px 20px 20px 20px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .preference-slot.has-project {
+            background: rgba(0, 122, 255, 0.1);
+            border-style: solid;
+            border-color: #007AFF;
+        }
+
+        .preference-slot.drag-over {
+            background: rgba(0, 122, 255, 0.15);
+            border-color: #007AFF;
+            transform: scale(1.02);
+        }
+
+        .slot-label {
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #007AFF;
+            z-index: 10;
+        }
+
+        .slot-placeholder {
+            color: #666;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .slot-project {
+            width: 100%;
+            background: transparent;
+            border-radius: 8px;
+            padding: 12px;
+            border: none;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .slot-project-title {
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-size: 14px;
+        }
+
+        .slot-project-dept {
+            font-size: 11px;
+            color: #666;
+        }
+
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .submit-btn {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: #0056CC;
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .clear-btn {
+            background: transparent;
+            color: #FF3B30;
+            border: 2px solid #FF3B30;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .clear-btn:hover {
+            background: #FF3B30;
+            color: white;
+        }
+
+        .preference-count {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .count-highlight {
+            color: #007AFF;
+            font-weight: 600;
+        }
+
+        .floating-feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .floating-feedback.show {
+            opacity: 1;
+        }
+
+        .empty-wishlist {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            color: #666;
+        }
+
+        .empty-wishlist h3 {
+            margin-bottom: 12px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 32px;
+            }
+
+            .page-subtitle {
+                font-size: 16px;
+            }
+
+            .preference-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .project-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .project-card {
+                padding: 20px;
+                border-radius: 14px;
+            }
+
+            .preference-panel-card {
+                position: static;
+                padding: 24px;
+                margin-bottom: 20px;
+            }
+
+            .preference-slots {
+                gap: 12px;
+            }
+
+            .preference-slot {
+                min-height: 100px;
+                padding: 25px 16px 16px 16px;
+                border-radius: 10px;
+            }
+
+            .slot-project {
+                padding: 12px;
+                border-radius: 6px;
+            }
+
+
+            .submit-btn, .clear-btn {
+                padding: 16px;
+                font-size: 16px;
+                border-radius: 10px;
+                min-height: 52px;
+            }
+
+            .section-title {
+                font-size: 20px;
+            }
+
+            .container {
+                padding: 0 16px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="container">
+            {% if not active_timeframes %}
+            <div class="no-timeframes">
+                <h2>No Active Preference Periods</h2>
+                <p>There are currently no active preference submission periods. Please check back later or contact your academic coordinator.</p>
+            </div>
+            {% else %}
+            <div class="preference-container">
+                <div class="wishlist-section">
+                    <div class="page-header">
+                        <h1 class="page-title">Submit Project Preferences</h1>
+                        <p class="page-subtitle">Rank your wishlist projects in order of preference</p>
+                        <div class="deadline-info">⏰ Submission deadline: {{ current_timeframe.preference_endTiming.strftime('%B %d, %Y') }}</div>
+                    </div>
+                    <h2 class="section-title">
+                        <div class="section-icon">📋</div>
+                        Your Wishlist Projects
+                    </h2>
+                    
+                    {% if wishlist_projects %}
+                    <div class="project-grid" id="projectGrid">
+                        {% for project, wishlist in wishlist_projects %}
+                        <div class="project-card" draggable="true" data-project-id="{{ project.id }}">
+                            <div class="project-header">
+                                <div class="project-info">
+                                    <div class="project-title">{{ project.title }}</div>
+                                    <div class="project-department">Project ID: #{{ project.id }}</div>
+                                </div>
+                            </div>
+                            <div class="project-meta">
+                                <div class="project-spots">
+                                    <span>👥</span>
+                                    <span>{{ project.student_capacity or 0 }} students</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-wishlist">
+                        <h3>No Projects in Wishlist</h3>
+                        <p>Add projects to your wishlist first to set preferences.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="preference-panel">
+                    <div class="preference-panel-card preference-panel-aligned">
+                        <h2 class="section-title">
+                            <div class="section-icon">🎯</div>
+                            Preference Ranking
+                        </h2>
+                        
+                        <div class="preference-count">
+                            Selected: <span class="count-highlight" id="selectedCount">{{ existing_preferences|length }}</span> of {{ preference_limit }} projects
+                        </div>
+
+                        <div class="preference-slots" id="preferenceSlots">
+                            {% for i in range(1, preference_limit + 1) %}
+                            <div class="preference-slot" data-preference="{{ i }}">
+                                <div class="slot-label">Choice {{ i }}</div>
+                                {% if existing_preferences.get(i) %}
+                                <div class="slot-project">
+                                    <div class="slot-project-title">{{ existing_preferences[i].project.title }}</div>
+                                </div>
+                                {% else %}
+                                <div class="slot-placeholder">Click a project or drag here</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="submit-btn" id="submitBtn" {% if not existing_preferences or existing_preferences|length < preference_limit %}disabled{% endif %}>
+                                Submit Preferences
+                            </button>
+                            <button class="clear-btn" id="clearBtn">
+                                Clear All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <div class="floating-feedback" id="feedback"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='shared/js/navigation.js') }}"></script>
+
+<script type="application/json" id="timeframe-data">
+    {
+        "id": {{ current_timeframe.id if current_timeframe else 'null' }},
+        "preferenceLimit": {{ preference_limit if current_timeframe else 0 }}
+    }
+</script>
+
+<script type="application/json" id="existing-preferences-data">
+    {
+        {% if existing_preferences %}
+        {% for rank, pref_data in existing_preferences.items() %}
+        "{{ rank }}": {
+            "id": {{ pref_data.project.id }},
+            "title": {{ pref_data.project.title|tojson }},
+            "department": {{ current_timeframe.name|tojson if current_timeframe else '""' }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+        {% endif %}
+    }
+</script>
+
+<script>
+        // Load data from JSON script tags
+        const timeframeData = JSON.parse(document.getElementById('timeframe-data').textContent);
+        const existingPreferencesData = JSON.parse(document.getElementById('existing-preferences-data').textContent);
+        
+        const timeframeId = timeframeData.id;
+        const preferenceLimit = timeframeData.preferenceLimit;
+        let preferences = [];
+        let selectedProjects = new Set();
+
+        // Initialize existing preferences
+        for (const rank in existingPreferencesData) {
+            const prefData = existingPreferencesData[rank];
+            preferences[parseInt(rank) - 1] = {
+                id: prefData.id,
+                title: prefData.title,
+                department: prefData.department
+            };
+            selectedProjects.add(prefData.id);
+        }
+
+        function initializeEventListeners() {
+            // Project card click handlers
+            document.querySelectorAll('.project-card').forEach(card => {
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragend', handleDragEnd);
+                card.addEventListener('click', handleProjectClick);
+            });
+
+            // Preference slot drop handlers
+            document.querySelectorAll('.preference-slot').forEach(slot => {
+                slot.addEventListener('dragover', handleDragOver);
+                slot.addEventListener('drop', handleDrop);
+                slot.addEventListener('dragleave', handleDragLeave);
+            });
+
+
+            // Submit and Clear button event listeners
+            document.getElementById('submitBtn').addEventListener('click', submitPreferences);
+            document.getElementById('clearBtn').addEventListener('click', clearAllPreferences);
+
+            updateUI();
+        }
+
+        function handleProjectClick(e) {
+            const projectId = parseInt(e.currentTarget.dataset.projectId);
+            const projectCard = e.currentTarget;
+            const project = {
+                id: projectId,
+                title: projectCard.querySelector('.project-title').textContent.trim(),
+                department: ''
+            };
+            
+            if (selectedProjects.has(projectId)) {
+                showFeedback('Project already selected!');
+                return;
+            }
+
+            // Find the first empty slot
+            const emptySlot = document.querySelector('.preference-slot:not(.has-project)');
+            if (!emptySlot) {
+                showFeedback('All preference slots are filled!');
+                return;
+            }
+
+            addProjectToSlot(project, emptySlot);
+        }
+
+        function handleDragStart(e) {
+            const projectId = parseInt(e.target.dataset.projectId);
+            
+            if (selectedProjects.has(projectId)) {
+                e.preventDefault();
+                showFeedback('Project already selected!');
+                return;
+            }
+
+            const projectCard = e.target;
+            const project = {
+                id: projectId,
+                title: projectCard.querySelector('.project-title').textContent.trim(),
+                department: ''
+            };
+
+            e.dataTransfer.setData('application/json', JSON.stringify(project));
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            const projectData = e.dataTransfer.getData('application/json');
+            const project = JSON.parse(projectData);
+            const slot = e.currentTarget;
+
+            if (slot.classList.contains('has-project')) {
+                showFeedback('This slot is already occupied!');
+                return;
+            }
+
+            addProjectToSlot(project, slot);
+        }
+
+        function addProjectToSlot(project, slot) {
+            const preference = parseInt(slot.dataset.preference);
+            
+            slot.classList.add('has-project');
+            slot.innerHTML = `
+                <div class="slot-label">Choice ${preference}</div>
+                <div class="slot-project">
+                    <div class="slot-project-title">${project.title}</div>
+                </div>
+            `;
+
+            preferences[preference - 1] = project;
+            selectedProjects.add(project.id);
+            
+            // Update project card visual state
+            const projectCard = document.querySelector(`[data-project-id="${project.id}"]`);
+            if (projectCard) {
+                projectCard.classList.add('selected');
+            }
+            
+            updateUI();
+            showFeedback(`Added "${project.title}" as Choice ${preference}`);
+        }
+
+
+        function clearAllPreferences() {
+            // Clear via API (removed confirmation dialog)
+            fetch('/student/preferences/clear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    timeframe_id: timeframeId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    preferences = [];
+                    selectedProjects.clear();
+                    
+                    // Reset all project cards
+                    document.querySelectorAll('.project-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                    
+                    // Reset all slots
+                    document.querySelectorAll('.preference-slot').forEach((slot, index) => {
+                        slot.classList.remove('has-project');
+                        slot.innerHTML = `
+                            <div class="slot-label">Choice ${index + 1}</div>
+                            <div class="slot-placeholder">Click a project or drag here</div>
+                        `;
+                    });
+                    
+                    updateUI();
+                    showFeedback(data.message);
+                } else {
+                    showFeedback(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error clearing preferences:', error);
+                showFeedback('Failed to clear preferences', 'error');
+            });
+        }
+
+        function updateUI() {
+            const selectedCount = selectedProjects.size;
+            document.getElementById('selectedCount').textContent = selectedCount;
+            
+            const submitBtn = document.getElementById('submitBtn');
+            // Enable submit only if all preference slots are filled
+            submitBtn.disabled = selectedCount < preferenceLimit;
+        }
+
+        function submitPreferences() {
+            const finalPreferences = preferences.filter(p => p !== null && p !== undefined);
+            
+            if (finalPreferences.length === 0) {
+                showFeedback('Please select at least one project!');
+                return;
+            }
+            
+            // Check if all preference choices are filled
+            if (finalPreferences.length < preferenceLimit) {
+                showFeedback(`Please fill all ${preferenceLimit} preference choices before submitting!`);
+                return;
+            }
+
+            // Prepare preferences data
+            const preferencesData = finalPreferences.map((project, index) => ({
+                project_id: project.id,
+                rank: index + 1,
+                notes: ''
+            }));
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            fetch('/student/preferences/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    timeframe_id: timeframeId,
+                    preferences: preferencesData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showFeedback(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = "{{ url_for('universal_dashboard.dashboard') }}";
+                    }, 2000);
+                } else {
+                    showFeedback(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting preferences:', error);
+                showFeedback('Failed to submit preferences', 'error');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Preferences';
+            });
+        }
+
+        function showFeedback(message, type = 'info') {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.classList.add('show');
+            
+            // Add color based on type
+            if (type === 'success') {
+                feedback.style.background = 'rgba(52, 199, 89, 0.9)';
+            } else if (type === 'error') {
+                feedback.style.background = 'rgba(255, 59, 48, 0.9)';
+            } else {
+                feedback.style.background = 'rgba(0, 0, 0, 0.8)';
+            }
+            
+            setTimeout(() => {
+                feedback.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            if (timeframeId !== null) {
+                initializeEventListeners();
+            }
+        });
+</script>
+{% endblock %}
