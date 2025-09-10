@@ -81,6 +81,12 @@ def get_navigation_items(user_roles):
                 'icon': 'fas fa-project-diagram',
                 'url': url_for('student_projects.view_projects'),
                 'active_class': 'view-projects'
+            },
+            {
+                'title': 'Submit Preferences',
+                'icon': 'fas fa-list-ol',
+                'url': url_for('student_preferences.preferences'),
+                'active_class': 'submit-preferences'
             }
         ])
     

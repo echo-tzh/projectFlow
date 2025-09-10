@@ -413,6 +413,179 @@
             }
         }
 
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 30px 30px 20px 30px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+            color: #1d1d1f;
+            text-align: center;
+        }
+
+        .modal-body {
+            padding: 20px 30px;
+        }
+
+        .modal-body p {
+            margin-bottom: 16px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .preference-summary {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        .preference-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .preference-item:last-child {
+            border-bottom: none;
+        }
+
+        .preference-rank {
+            background: #007AFF;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .preference-title {
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
+        .modal-footer {
+            padding: 20px 30px 30px 30px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: transparent;
+            color: #666;
+            border: 2px solid #e0e0e0;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-confirm {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-confirm:hover {
+            background: #0056CC;
+        }
+
+        /* Submitted state styles */
+        .preference-container.submitted .project-card {
+            opacity: 0.7;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .preference-container.submitted .preference-slot {
+            pointer-events: none;
+        }
+
+        .preference-container.submitted .submit-btn,
+        .preference-container.submitted .clear-btn {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .submitted-notice {
+            background: rgba(52, 199, 89, 0.1);
+            color: #34C759;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 0 0 30px 0;
+            text-align: center;
+            font-weight: 500;
+            font-size: 14px;
+            border: 1px solid rgba(52, 199, 89, 0.3);
+            width: auto;
+            display: block;
+            position: relative;
+            clear: both;
+            line-height: 1.4;
+        }
+
         /* Mobile responsive */
         @media (max-width: 768px) {
             .page-title {
@@ -474,6 +647,13 @@
             .container {
                 padding: 0 16px;
             }
+
+            .submitted-notice {
+                padding: 10px 12px;
+                font-size: 13px;
+                margin: 0 0 20px 0;
+                border-radius: 6px;
+            }
         }
     </style>
 {% endblock %}
@@ -487,7 +667,13 @@
                 <p>There are currently no active preference submission periods. Please check back later or contact your academic coordinator.</p>
             </div>
             {% else %}
-            <div class="preference-container">
+            {% if existing_preferences|length > 0 %}
+            <div class="submitted-notice">
+                Your preferences have been submitted! You cannot make changes after submission.
+            </div>
+            {% endif %}
+            
+            <div class="preference-container" id="preferenceContainer">
                 <div class="wishlist-section">
                     <div class="page-header">
                         <h1 class="page-title">Submit Project Preferences</h1>
@@ -568,6 +754,26 @@
     </main>
 
     <div class="floating-feedback" id="feedback"></div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Your Preferences</h3>
+            </div>
+            <div class="modal-body">
+                <p><strong>Important:</strong> Once you submit your preferences, you <strong>cannot change them</strong>.</p>
+                <p>Please review your selections:</p>
+                <div class="preference-summary" id="preferenceSummary">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="cancelSubmission">Cancel</button>
+                <button class="btn-confirm" id="confirmSubmission">Yes, Submit Preferences</button>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -616,24 +822,42 @@
         }
 
         function initializeEventListeners() {
-            // Project card click handlers
-            document.querySelectorAll('.project-card').forEach(card => {
-                card.addEventListener('dragstart', handleDragStart);
-                card.addEventListener('dragend', handleDragEnd);
-                card.addEventListener('click', handleProjectClick);
-            });
+            // Check if preferences are already submitted
+            const hasExistingPreferences = Object.keys(existingPreferencesData).length > 0;
+            
+            if (hasExistingPreferences) {
+                setSubmittedState();
+            } else {
+                // Only add event listeners if not submitted
+                // Project card click handlers
+                document.querySelectorAll('.project-card').forEach(card => {
+                    card.addEventListener('dragstart', handleDragStart);
+                    card.addEventListener('dragend', handleDragEnd);
+                    card.addEventListener('click', handleProjectClick);
+                });
 
-            // Preference slot drop handlers
-            document.querySelectorAll('.preference-slot').forEach(slot => {
-                slot.addEventListener('dragover', handleDragOver);
-                slot.addEventListener('drop', handleDrop);
-                slot.addEventListener('dragleave', handleDragLeave);
-            });
-
+                // Preference slot drop handlers
+                document.querySelectorAll('.preference-slot').forEach(slot => {
+                    slot.addEventListener('dragover', handleDragOver);
+                    slot.addEventListener('drop', handleDrop);
+                    slot.addEventListener('dragleave', handleDragLeave);
+                });
+            }
 
             // Submit and Clear button event listeners
             document.getElementById('submitBtn').addEventListener('click', submitPreferences);
             document.getElementById('clearBtn').addEventListener('click', clearAllPreferences);
+
+            // Modal event listeners
+            document.getElementById('cancelSubmission').addEventListener('click', hideConfirmationModal);
+            document.getElementById('confirmSubmission').addEventListener('click', actuallySubmitPreferences);
+
+            // Close modal on overlay click
+            document.getElementById('confirmationModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hideConfirmationModal();
+                }
+            });
 
             updateUI();
         }
@@ -737,6 +961,13 @@
 
 
         function clearAllPreferences() {
+            // Check if preferences are submitted (cannot clear)
+            const hasExistingPreferences = Object.keys(existingPreferencesData).length > 0;
+            if (hasExistingPreferences) {
+                showFeedback('Cannot clear preferences after submission!', 'error');
+                return;
+            }
+
             // Clear via API (removed confirmation dialog)
             fetch('/student/preferences/clear', {
                 method: 'POST',
@@ -802,6 +1033,37 @@
                 return;
             }
 
+            // Show confirmation modal
+            showConfirmationModal(finalPreferences);
+        }
+
+        function showConfirmationModal(finalPreferences) {
+            const modal = document.getElementById('confirmationModal');
+            const summary = document.getElementById('preferenceSummary');
+            
+            // Build preference summary
+            let summaryHTML = '';
+            finalPreferences.forEach((project, index) => {
+                summaryHTML += `
+                    <div class="preference-item">
+                        <div class="preference-rank">${index + 1}</div>
+                        <div class="preference-title">${project.title}</div>
+                    </div>
+                `;
+            });
+            
+            summary.innerHTML = summaryHTML;
+            modal.classList.add('show');
+        }
+
+        function hideConfirmationModal() {
+            const modal = document.getElementById('confirmationModal');
+            modal.classList.remove('show');
+        }
+
+        function actuallySubmitPreferences() {
+            const finalPreferences = preferences.filter(p => p !== null && p !== undefined);
+            
             // Prepare preferences data
             const preferencesData = finalPreferences.map((project, index) => ({
                 project_id: project.id,
@@ -810,8 +1072,12 @@
             }));
 
             const submitBtn = document.getElementById('submitBtn');
+            const confirmBtn = document.getElementById('confirmSubmission');
+            
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Submitting...';
 
             fetch('/student/preferences/submit', {
                 method: 'POST',
@@ -826,22 +1092,43 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    hideConfirmationModal();
                     showFeedback(data.message, 'success');
+                    // Enable submitted state
+                    setSubmittedState();
                     setTimeout(() => {
-                        window.location.href = "{{ url_for('universal_dashboard.dashboard') }}";
+                        location.reload(); // Reload to show submitted state properly
                     }, 2000);
                 } else {
                     showFeedback(data.message, 'error');
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = 'Yes, Submit Preferences';
                 }
             })
             .catch(error => {
                 console.error('Error submitting preferences:', error);
                 showFeedback('Failed to submit preferences', 'error');
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Yes, Submit Preferences';
             })
             .finally(() => {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Submit Preferences';
             });
+        }
+
+        function setSubmittedState() {
+            const container = document.getElementById('preferenceContainer');
+            container.classList.add('submitted');
+            
+            // Disable all interactive elements
+            const submitBtn = document.getElementById('submitBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Preferences Submitted';
+            clearBtn.disabled = true;
+            clearBtn.textContent = 'Cannot Clear';
         }
 
         function showFeedback(message, type = 'info') {
