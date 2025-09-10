@@ -90,6 +90,23 @@ def get_navigation_items(user_roles):
             }
         ])
     
+    # Supervisor specific items
+    if 'supervisor' in user_roles:
+        nav_items.extend([
+            {
+                'title': 'View Projects',
+                'icon': 'fas fa-project-diagram',
+                'url': url_for('supervisor_projects.view_supervisor_projects'),
+                'active_class': 'supervisor-projects'
+            },
+            {
+                'title': 'Submit Preferences',
+                'icon': 'fas fa-list-ol',
+                'url': url_for('supervisor_preferences.preferences'),
+                'active_class': 'supervisor-preferences'
+            }
+        ])
+
     # Academic Coordinator specific items  
     if 'academic coordinator' in user_roles:
         nav_items.extend([
