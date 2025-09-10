@@ -34,6 +34,52 @@ def generate_random_password(length=12):
     characters = string.ascii_letters + string.digits + string.punctuation
     return ''.join(secrets.choice(characters) for _ in range(length))
 
+def _get_or_create_role(role_name: str):
+    """Helper function to get or create a role - matches API controller"""
+    role = Role.query.filter_by(name=role_name).first()
+    if not role:
+        role = Role(name=role_name, description=role_name, is_active=True)
+        db.session.add(role)
+        db.session.flush()
+    return role
+
+def assign_user_role_timeframe(user, role_name: str, timeframe):
+    """
+    Ensure user has role `role_name` in `timeframe`. Also ensures legacy link in user_timeframes.
+    Accepts model instances or ids for user and timeframe.
+    This is the SAME function from the API controller - duplicated here to avoid circular imports.
+    """
+    user_id = user.id if hasattr(user, "id") else int(user)
+    timeframe_id = timeframe.id if hasattr(timeframe, "id") else int(timeframe)
+    role = _get_or_create_role(role_name)
+
+    logger.info(f"DEBUG: Excel - Assigning user_id={user_id}, role={role_name} (role_id={role.id}), timeframe_id={timeframe_id}")
+
+    # Insert into role-scoped table if missing
+    exists = db.session.query(user_role_timeframes).filter_by(
+        user_id=user_id, role_id=role.id, timeframe_id=timeframe_id
+    ).first()
+    
+    if not exists:
+        db.session.execute(
+            user_role_timeframes.insert().values(
+                user_id=user_id, role_id=role.id, timeframe_id=timeframe_id
+            )
+        )
+        logger.info(f"DEBUG: Excel - Inserted into user_role_timeframes - user_id={user_id}, role_id={role.id}, timeframe_id={timeframe_id}")
+        db.session.flush()
+        
+        # Verify the insert worked
+        verify = db.session.query(user_role_timeframes).filter_by(
+            user_id=user_id, role_id=role.id, timeframe_id=timeframe_id
+        ).first()
+        if verify:
+            logger.info(f"DEBUG: Excel - Verified insert successful in user_role_timeframes")
+        else:
+            logger.error(f"DEBUG: Excel - Insert failed - record not found after flush")
+    else:
+        logger.info(f"DEBUG: Excel - Record already exists in user_role_timeframes")
+
 def get_or_create_role(role_name):
     role = Role.query.filter_by(name=role_name.lower()).first()
     if not role:
@@ -121,8 +167,6 @@ def get_user_roles_for_other_timeframes(user, current_timeframe_id, school_id):
         logger.error(f"Error getting roles for other timeframes for user {user.email}: {e}")
         # Fallback: return empty list to allow complete override
         return []
-
-
 
 def get_current_user():
     """Get current user from session"""
@@ -468,9 +512,14 @@ def upload_excel(timeframe_id):
                         if not existing_user.school_id:
                             existing_user.school_id = current_user.school_id
                         
-                        # FIXED: Use role-scoped assignment instead of legacy only
+                        # FIXED: Add role-scoped assignment for Excel upload
                         assign_user_role_timeframe(existing_user, role_name, timeframe)
-                        print(f"DEBUG: Created role-scoped assignment: {email} as {role_name} in {timeframe.name}")
+                        print(f"DEBUG: Excel - Created role-scoped assignment: {email} as {role_name} in {timeframe.name}")
+                        
+                        # Add user to timeframe if not already there (legacy)
+                        if timeframe not in existing_user.timeframes:
+                            existing_user.timeframes.append(timeframe)
+                            print(f"DEBUG: Excel - Added user to timeframe: {email} in {timeframe.name}")
                         
                         # Get the new role from the Excel file
                         new_role = get_or_create_role(role_name)
@@ -478,9 +527,9 @@ def upload_excel(timeframe_id):
                         # Add the new role if the user doesn't already have it
                         if new_role not in existing_user.roles:
                             existing_user.roles.append(new_role)
-                            print(f"DEBUG: ADDED new role '{new_role.name}' to existing user {email}.")
+                            print(f"DEBUG: Excel - ADDED new role '{new_role.name}' to existing user {email}.")
                         else:
-                            print(f"DEBUG: User {email} already has role '{new_role.name}'. No change needed.")
+                            print(f"DEBUG: Excel - User {email} already has role '{new_role.name}'. No change needed.")
                             
                     else:
                         print(f"DEBUG: Creating new user: {email}")
@@ -501,18 +550,22 @@ def upload_excel(timeframe_id):
                         db.session.add(new_user)
                         db.session.flush()
                         
-                        # FIXED: Use role-scoped assignment instead of legacy only
-                        print(f"DEBUG: About to get_or_create_role for new user with: '{role_name}'")
+                        # FIXED: Add role-scoped assignment for Excel upload
+                        print(f"DEBUG: Excel - About to get_or_create_role for new user with: '{role_name}'")
                         role = get_or_create_role(role_name)
-                        print(f"DEBUG: Got role: {role.name} (ID: {role.id})")
+                        print(f"DEBUG: Excel - Got role: {role.name} (ID: {role.id})")
                         
-                        # Create both legacy and role-scoped assignments
+                        # Create role-scoped assignment FIRST
                         assign_user_role_timeframe(new_user, role_name, timeframe)
-                        print(f"DEBUG: Created role-scoped assignment: {email} as {role_name} in {timeframe.name}")
+                        print(f"DEBUG: Excel - Created role-scoped assignment: {email} as {role_name} in {timeframe.name}")
+                        
+                        # Add user to timeframe (legacy)
+                        new_user.timeframes.append(timeframe)
+                        print(f"DEBUG: Excel - Added new user to timeframe: {email} in {timeframe.name}")
                         
                         # Also add the role to user.roles for general queries
                         new_user.roles.append(role)
-                        print(f"DEBUG: Added role '{role.name}' to new user {email}")
+                        print(f"DEBUG: Excel - Added role '{role.name}' to new user {email}")
                     
                     success_count += 1
                     
@@ -529,11 +582,19 @@ def upload_excel(timeframe_id):
             final_roles = Role.query.all()
             print(f"DEBUG: Final roles in DB before commit: {[r.name for r in final_roles]}")
             
+            # Check what's in the user_role_timeframes table before commit
+            role_assignments_count = db.session.query(user_role_timeframes).count()
+            print(f"DEBUG: Excel - Total role assignments in user_role_timeframes table before commit: {role_assignments_count}")
+            
             db.session.commit()
             
             # DEBUG: Final role check after commit
             committed_roles = Role.query.all()
             print(f"DEBUG: Final roles in DB after commit: {[r.name for r in committed_roles]}")
+            
+            # Check what's in the table after commit
+            role_assignments_count_after = db.session.query(user_role_timeframes).count()
+            print(f"DEBUG: Excel - Role assignments in user_role_timeframes after commit: {role_assignments_count_after}")
             
             flash(f'Successfully processed {success_count} users for {current_user.school.name} with roles: {", ".join(selected_roles)}', 'success')
             
