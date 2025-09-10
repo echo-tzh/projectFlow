@@ -19,6 +19,8 @@ from features.educationAdmin.setupEmail.setupEmailController import setup_email_
 from features.viewProfile.viewProfileController import viewProfile_bp
 from features.student.viewProjectListing.viewProjectListingController import student_projects_bp
 from features.student.viewProjectListing.wishlistController import student_wishlist_bp
+from features.supervisor.viewProjectListing.supervisorViewProjectListingController import supervisor_projects_bp
+from features.supervisor.viewProjectListing.supervisorWishlistController import supervisor_wishlist_bp
 from features.authentication.changePassword.changePassword import change_password_bp
 from shared.models import create_default_admin_account
 from features.systemAdmin.manageSchool.manageSchoolController import manage_school_bp
@@ -49,6 +51,8 @@ app.register_blueprint(send_welcome_email_bp)
 app.register_blueprint(setup_email_bp)
 app.register_blueprint(student_projects_bp, url_prefix="/student")
 app.register_blueprint(student_wishlist_bp, url_prefix="/student")
+app.register_blueprint(supervisor_projects_bp, url_prefix="/supervisor")
+app.register_blueprint(supervisor_wishlist_bp, url_prefix="/supervisor")
 app.register_blueprint(viewProfile_bp)
 app.register_blueprint(change_password_bp)
 app.register_blueprint(manage_school_bp, url_prefix='/admin')

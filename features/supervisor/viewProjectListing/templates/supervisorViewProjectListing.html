@@ -1,0 +1,1369 @@
+{% extends "shared/navigationBar/templates/base_with_sidebar.html" %}
+
+{% block title %}Browse Projects - Supervisor - ProjectFlow{% endblock %}
+
+{% block extra_head %}
+<style>
+        /* Override base styles for project listing page */
+        .main-content {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: calc(100vh - 60px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+
+        .page-content {
+            padding: 20px 0;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .page-header-content {
+            text-align: center;
+            flex: 1;
+        }
+
+        .wishlist-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .wishlist-counter {
+            background: rgba(255, 152, 0, 0.1);
+            color: #FF9800;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 2px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .wishlist-counter:hover {
+            background: rgba(255, 152, 0, 0.15);
+            border-color: rgba(255, 152, 0, 0.3);
+        }
+
+        .wishlist-badge {
+            background: #FF9800;
+            color: white;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(45deg, #FF9800, #FF6F00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .search-container {
+            max-width: 500px;
+            margin: 0 auto 40px;
+            position: relative;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards 0.2s;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: #FF9800;
+            background: white;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 18px;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 28px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .project-card:nth-child(odd) {
+            animation-delay: 0.1s;
+        }
+
+        .project-card:nth-child(even) {
+            animation-delay: 0.2s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border-color: rgba(255, 152, 0, 0.2);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .project-info {
+            flex: 1;
+        }
+
+        .project-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .project-department {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .project-term {
+            font-size: 14px;
+            color: #FF9800;
+            font-weight: 500;
+        }
+
+        .project-status {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .availability-badge {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            background: rgba(255, 152, 0, 0.1);
+            color: #FF9800;
+            text-align: center;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .project-duration {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .project-spots {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .project-supervisor-capacity {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #FF9800;
+            font-weight: 500;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-primary {
+            background: #FF9800;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary:hover {
+            background: #F57C00;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            color: #666;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-primary.in-wishlist {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary.in-wishlist:hover {
+            background: #45a049;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #FF9800;
+            border: 2px solid #FF9800;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-secondary:hover {
+            background: #FF9800;
+            color: white;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .no-results-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .no-results-text {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .no-results-subtitle {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        /* Project Details Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            margin: 20px;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-right: 40px;
+        }
+
+        .modal-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: rgba(255, 152, 0, 0.05);
+            border-radius: 12px;
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .meta-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        .modal-description {
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 24px;
+            font-size: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        /* Wishlist Modal Styles */
+        .wishlist-modal-content {
+            max-width: 800px;
+            max-height: 90vh;
+        }
+
+        .wishlist-modal-header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid rgba(255, 152, 0, 0.1);
+        }
+
+        .wishlist-modal-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1d1d1f;
+        }
+
+        .wishlist-modal-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin: 0;
+        }
+
+        .wishlist-loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 152, 0, 0.1);
+            border-left: 4px solid #FF9800;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        .wishlist-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .wishlist-empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .wishlist-empty-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .wishlist-empty-subtitle {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .wishlist-grid {
+            display: grid;
+            gap: 16px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .wishlist-item {
+            background: rgba(255, 152, 0, 0.05);
+            border: 1px solid rgba(255, 152, 0, 0.1);
+            border-radius: 12px;
+            padding: 16px 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            transform-origin: left center;
+        }
+
+        .wishlist-item:hover {
+            background: rgba(255, 152, 0, 0.08);
+            border-color: rgba(255, 152, 0, 0.2);
+        }
+
+        .wishlist-item.removing {
+            background: rgba(255, 59, 48, 0.05);
+            border-color: rgba(255, 59, 48, 0.1);
+            opacity: 0.6;
+            transform: scale(0.98);
+        }
+
+        .wishlist-item.removed {
+            opacity: 0;
+            transform: translateX(-100%) scale(0.8);
+            pointer-events: none;
+        }
+
+        .wishlist-item-content {
+            flex: 1;
+        }
+
+        .wishlist-item-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #1d1d1f;
+            line-height: 1.3;
+        }
+
+        .wishlist-item-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .wishlist-delete-btn {
+            background: rgba(255, 59, 48, 0.1);
+            color: #FF3B30;
+            border: 1px solid rgba(255, 59, 48, 0.2);
+            padding: 6px;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+
+        .wishlist-delete-btn:hover {
+            background: #FF3B30;
+            color: white;
+            border-color: #FF3B30;
+            transform: scale(1.1);
+        }
+
+        .wishlist-delete-btn:disabled {
+            background: rgba(204, 204, 204, 0.1);
+            color: #ccc;
+            border-color: rgba(204, 204, 204, 0.2);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 32px;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .project-card {
+                padding: 24px;
+                margin: 0 4px;
+            }
+
+            .search-container {
+                margin: 0 16px 32px;
+            }
+
+            .project-actions {
+                flex-direction: column;
+            }
+
+            .btn-primary, .btn-secondary {
+                padding: 14px 20px;
+            }
+
+            .modal-content {
+                margin: 16px;
+                padding: 24px;
+                max-height: 85vh;
+            }
+
+            .modal-meta {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .nav-actions {
+                gap: 12px;
+            }
+
+            .wishlist-counter {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+
+            .wishlist-modal-content {
+                margin: 16px;
+                padding: 20px;
+                max-height: 90vh;
+            }
+
+            .wishlist-modal-title {
+                font-size: 24px;
+            }
+
+            .wishlist-item {
+                padding: 14px 16px;
+                gap: 12px;
+            }
+
+            .wishlist-item-title {
+                font-size: 15px;
+            }
+
+            .wishlist-item-meta {
+                gap: 12px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 12px;
+            }
+
+            .project-card {
+                padding: 20px;
+                margin: 0;
+            }
+
+            .page-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="page-content">
+        <div class="container">
+            <div class="page-header">
+                <div class="page-header-content">
+                    <h1 class="page-title">Explore Projects</h1>
+                    <p class="page-subtitle">Discover exciting projects to supervise and build your wishlist</p>
+                </div>
+                <div class="wishlist-section">
+                    <div class="wishlist-counter" id="wishlistCounterBtn" title="View my wishlist">
+                        ⭐ My Wishlist <span class="wishlist-badge" id="wishlistCount">{{ wishlist_project_ids|length }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search projects or descriptions..." id="searchInput">
+                <div class="search-icon">🔍</div>
+            </div>
+
+            {% if projects and projects|length > 0 %}
+                <div class="projects-grid" id="projectsGrid">
+                    {% for project in projects %}
+                    <div class="project-card" 
+                         data-title="{{ project.title|lower }}"
+                         data-timeframe="{{ (project.timeframe.name if project.timeframe else '')|lower }}"
+                         data-description="{{ (project.description or '')|lower }}">
+                        <div class="project-header">
+                            <div class="project-info">
+                                <div class="project-title">{{ project.title }}</div>
+                                <div class="project-department">Project ID: #{{ project.id }}</div>
+                                <div class="project-term">
+                                    {{ project.timeframe.name if project.timeframe else 'Unscheduled Term' }}
+                                </div>
+                            </div>
+                            <div class="project-status">
+                                <div class="availability-badge">
+                                    Available
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-meta">
+                            <div class="project-spots">
+                                👥 {{ project.student_capacity or 'TBD' }} students
+                            </div>
+                            {% if project.supervisor_capacity %}
+                            <div class="project-supervisor-capacity">
+                                👨‍🏫 {{ project.supervisor_capacity }} supervisors
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="project-actions">
+                            <button class="btn-primary{%- if project.id in wishlist_project_ids %} in-wishlist{%- endif %} wishlist-btn" 
+                                    data-project-id="{{ project.id }}">
+                                {%- if project.id in wishlist_project_ids %}
+                                    ⭐ In Wishlist
+                                {%- else %}
+                                    Add to Wishlist
+                                {%- endif %}
+                            </button>
+                            <button class="btn-secondary details-btn" data-project-id="{{ project.id }}">
+                                Details
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="no-results" id="noResults" style="display: none;">
+                    <div class="no-results-icon">🔍</div>
+                    <div class="no-results-text">No projects found</div>
+                    <div class="no-results-subtitle">Try adjusting your search</div>
+                </div>
+            {% else %}
+                <div class="no-results">
+                    <div class="no-results-icon">📋</div>
+                    <div class="no-results-text">No projects are available at the moment.</div>
+                    <div class="no-results-subtitle">Check back later or contact your academic coordinator</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div id="modalContent">
+            </div>
+        </div>
+    </div>
+
+    <!-- Wishlist Modal -->
+    <div class="modal" id="wishlistModal">
+        <div class="modal-content wishlist-modal-content">
+            <button class="modal-close" onclick="closeWishlistModal()">&times;</button>
+            <div class="wishlist-modal-header">
+                <h2 class="wishlist-modal-title">⭐ My Wishlist</h2>
+                <p class="wishlist-modal-subtitle">Projects you're interested in supervising</p>
+            </div>
+            <div class="wishlist-modal-body" id="wishlistModalBody">
+                <div class="wishlist-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading your wishlist...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="application/json" id="projects-data">
+        [
+            {%- for project in projects -%}
+            {
+                "id": {{ project.id }},
+                "title": {{ project.title|tojson }},
+                "description": {{ (project.description or 'No description provided.')|tojson }},
+                "timeframe": {{ (project.timeframe.name if project.timeframe else 'Unscheduled Term')|tojson }},
+                "studentCapacity": {{ project.student_capacity or 0 }},
+                "supervisorCapacity": {{ project.supervisor_capacity or 0 }},
+                "createdAt": {{ (project.created_at.strftime('%Y-%m-%d') if project.created_at else 'Unknown')|tojson }}
+            }{%- if not loop.last -%},{%- endif -%}
+            {%- endfor %}
+        ]
+    </script>
+
+    <script type="application/json" id="wishlist-data">
+        {{ wishlist_project_ids|tojson }}
+    </script>
+
+    <script>
+        // Load data from JSON script tags
+        const projects = JSON.parse(document.getElementById('projects-data').textContent);
+        let wishlistProjectIds = JSON.parse(document.getElementById('wishlist-data').textContent);
+
+        // Simple function to ensure wishlist buttons exist and are updated
+        function ensureWishlistButtons(projectId, isInWishlist, excludeButton = null) {
+            console.log('Ensuring wishlist buttons for project ' + projectId + ', isInWishlist: ' + isInWishlist);
+            
+            // Find all Details buttons for this project
+            const detailsBtns = document.querySelectorAll('.details-btn[data-project-id="' + projectId + '"]');
+            console.log('Found ' + detailsBtns.length + ' Details buttons for project ' + projectId);
+            
+            detailsBtns.forEach((detailsBtn, index) => {
+                const actionsContainer = detailsBtn.parentElement;
+                if (!actionsContainer || !actionsContainer.classList.contains('project-actions')) {
+                    console.log('Invalid actions container for Details button ' + index);
+                    return;
+                }
+                
+                // Look for existing wishlist button in this container
+                let wishlistBtn = actionsContainer.querySelector('.wishlist-btn[data-project-id="' + projectId + '"]');
+                
+                if (!wishlistBtn) {
+                    console.log('Creating missing wishlist button for project ' + projectId);
+                    // Create the missing wishlist button
+                    wishlistBtn = document.createElement('button');
+                    wishlistBtn.className = 'btn-primary wishlist-btn';
+                    wishlistBtn.setAttribute('data-project-id', projectId);
+                    
+                    // Insert before the Details button
+                    actionsContainer.insertBefore(wishlistBtn, detailsBtn);
+                }
+                
+                // Skip updating the button that triggered this (to avoid conflicts)
+                if (excludeButton === wishlistBtn) {
+                    console.log('Skipping update for trigger button');
+                    return;
+                }
+                
+                // Update button state
+                if (isInWishlist) {
+                    wishlistBtn.classList.add('in-wishlist');
+                    wishlistBtn.innerHTML = '⭐ In Wishlist';
+                } else {
+                    wishlistBtn.classList.remove('in-wishlist');
+                    wishlistBtn.innerHTML = 'Add to Wishlist';
+                }
+                
+                // Ensure button is visible
+                wishlistBtn.style.display = '';
+                wishlistBtn.style.opacity = '1';
+                wishlistBtn.disabled = false;
+                
+                console.log('Updated wishlist button ' + index + ' to: "' + wishlistBtn.innerHTML + '"');
+            });
+        }
+
+        // Wishlist functionality - updated for supervisor endpoints
+        async function toggleWishlist(projectId, buttonElement) {
+            const isInWishlist = wishlistProjectIds.includes(projectId);
+            const action = isInWishlist ? 'remove' : 'add';
+            
+            // Disable button during request
+            buttonElement.disabled = true;
+            buttonElement.style.opacity = '0.6';
+            buttonElement.innerHTML = isInWishlist ? 'Removing...' : 'Adding...';
+            
+            try {
+                const response = await fetch('/supervisor/wishlist/' + action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ project_id: projectId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update local wishlist tracking
+                    if (action === 'add') {
+                        wishlistProjectIds.push(projectId);
+                        buttonElement.classList.add('in-wishlist');
+                        buttonElement.innerHTML = '⭐ In Wishlist';
+                    } else {
+                        wishlistProjectIds = wishlistProjectIds.filter(id => id !== projectId);
+                        buttonElement.classList.remove('in-wishlist');
+                        buttonElement.innerHTML = 'Add to Wishlist';
+                    }
+                    
+                    // Update wishlist counter
+                    document.getElementById('wishlistCount').textContent = result.wishlist_count;
+                    
+                    // Update all buttons for this project on the main page
+                    ensureWishlistButtons(projectId, action === 'add', buttonElement);
+                    
+                    // Update modal button if it exists
+                    const modalBtn = document.getElementById('modalWishlistBtn-' + projectId);
+                    if (modalBtn) {
+                        updateModalButton(modalBtn, projectId);
+                    }
+                    
+                    showNotification(result.message, 'success');
+                } else {
+                    showNotification(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error toggling wishlist:', error);
+                showNotification('An error occurred. Please try again.', 'error');
+            } finally {
+                // Re-enable button
+                buttonElement.disabled = false;
+                buttonElement.style.opacity = '1';
+            }
+        }
+
+        function updateModalButton(buttonElement, projectId) {
+            const isInWishlist = wishlistProjectIds.includes(projectId);
+            if (isInWishlist) {
+                buttonElement.classList.add('in-wishlist');
+                buttonElement.innerHTML = '⭐ In Wishlist';
+            } else {
+                buttonElement.classList.remove('in-wishlist');
+                buttonElement.innerHTML = 'Add to Wishlist';
+            }
+        }
+
+        async function viewWishlist() {
+            const modal = document.getElementById('wishlistModal');
+            const modalBody = document.getElementById('wishlistModalBody');
+            
+            // Show modal with loading state
+            modal.classList.add('show');
+            modalBody.innerHTML = 
+                '<div class="wishlist-loading">' +
+                    '<div class="loading-spinner"></div>' +
+                    '<p>Loading your wishlist...</p>' +
+                '</div>';
+            
+            try {
+                const response = await fetch('/supervisor/wishlist', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (result.projects.length === 0) {
+                        modalBody.innerHTML = 
+                            '<div class="wishlist-empty">' +
+                                '<div class="wishlist-empty-icon">⭐</div>' +
+                                '<div class="wishlist-empty-title">Your wishlist is empty</div>' +
+                                '<div class="wishlist-empty-subtitle">Start adding projects you\'re interested in supervising!</div>' +
+                            '</div>';
+                    } else {
+                        var wishlistItemsHtml = '';
+                        for (var i = 0; i < result.projects.length; i++) {
+                            var project = result.projects[i];
+                            var supervisorCapacityText = project.supervisor_capacity ? 
+                                '<span>👨‍🏫 ' + project.supervisor_capacity + ' supervisors</span>' : 
+                                '';
+                            wishlistItemsHtml += 
+                                '<div class="wishlist-item" data-project-id="' + project.id + '">' +
+                                    '<div class="wishlist-item-content">' +
+                                        '<div class="wishlist-item-title">' + project.title + '</div>' +
+                                        '<div class="wishlist-item-meta">' +
+                                            '<span>📅 ' + project.timeframe + '</span>' +
+                                            '<span>👥 ' + (project.student_capacity || 'TBD') + ' students</span>' +
+                                            supervisorCapacityText +
+                                        '</div>' +
+                                    '</div>' +
+                                    '<button class="wishlist-delete-btn" data-project-id="' + project.id + '" title="Remove from wishlist">' +
+                                        '×' +
+                                    '</button>' +
+                                '</div>';
+                        }
+                        modalBody.innerHTML = 
+                            '<div class="wishlist-grid">' +
+                                wishlistItemsHtml +
+                            '</div>';
+                    }
+                } else {
+                    modalBody.innerHTML = 
+                        '<div class="wishlist-empty">' +
+                            '<div class="wishlist-empty-icon">⚠️</div>' +
+                            '<div class="wishlist-empty-title">Error loading wishlist</div>' +
+                            '<div class="wishlist-empty-subtitle">' + result.message + '</div>' +
+                        '</div>';
+                }
+            } catch (error) {
+                console.error('Error fetching wishlist:', error);
+                modalBody.innerHTML = 
+                    '<div class="wishlist-empty">' +
+                        '<div class="wishlist-empty-icon">⚠️</div>' +
+                        '<div class="wishlist-empty-title">Error loading wishlist</div>' +
+                        '<div class="wishlist-empty-subtitle">Please try again later.</div>' +
+                    '</div>';
+            }
+        }
+
+        function closeWishlistModal() {
+            document.getElementById('wishlistModal').classList.remove('show');
+            
+            // Force check for missing buttons after modal closes
+            setTimeout(() => {
+                console.log('Checking for missing wishlist buttons after modal close...');
+                checkForMissingWishlistButtons();
+            }, 100);
+        }
+        
+        // Function to check and fix any missing wishlist buttons
+        function checkForMissingWishlistButtons() {
+            const allDetailsBtns = document.querySelectorAll('.details-btn');
+            console.log('Checking ' + allDetailsBtns.length + ' project cards for missing wishlist buttons');
+            
+            allDetailsBtns.forEach((detailsBtn, index) => {
+                const actionsContainer = detailsBtn.parentElement;
+                if (!actionsContainer || !actionsContainer.classList.contains('project-actions')) {
+                    return;
+                }
+                
+                // Extract project ID from the data attribute
+                const projectId = parseInt(detailsBtn.getAttribute('data-project-id'));
+                if (!projectId) {
+                    return;
+                }
+                
+                // Check if wishlist button exists
+                const wishlistBtn = actionsContainer.querySelector('.wishlist-btn[data-project-id="' + projectId + '"]');
+                
+                if (!wishlistBtn) {
+                    console.log('Found missing wishlist button for project ' + projectId + ', recreating...');
+                    
+                    // Create the missing button
+                    const newWishlistBtn = document.createElement('button');
+                    newWishlistBtn.className = 'btn-primary wishlist-btn';
+                    newWishlistBtn.setAttribute('data-project-id', projectId);
+                    
+                    // Set correct state based on wishlist
+                    if (wishlistProjectIds.includes(projectId)) {
+                        newWishlistBtn.classList.add('in-wishlist');
+                        newWishlistBtn.innerHTML = '⭐ In Wishlist';
+                    } else {
+                        newWishlistBtn.innerHTML = 'Add to Wishlist';
+                    }
+                    
+                    // Insert before Details button
+                    actionsContainer.insertBefore(newWishlistBtn, detailsBtn);
+                    
+                    console.log('Recreated wishlist button for project ' + projectId + ': "' + newWishlistBtn.innerHTML + '"');
+                }
+            });
+        }
+
+        async function removeFromWishlistModal(projectId, buttonElement) {
+            // Get the wishlist item element before starting
+            const wishlistItem = buttonElement.closest('.wishlist-item');
+            
+            // Immediately start the removal animation for instant feedback
+            if (wishlistItem) {
+                wishlistItem.classList.add('removing');
+            }
+            
+            // Disable button and show loading state
+            buttonElement.disabled = true;
+            buttonElement.innerHTML = '...';
+            
+            try {
+                const response = await fetch('/supervisor/wishlist/remove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ project_id: projectId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update local wishlist tracking immediately
+                    wishlistProjectIds = wishlistProjectIds.filter(id => id !== projectId);
+                    
+                    // Update wishlist counter immediately
+                    document.getElementById('wishlistCount').textContent = result.wishlist_count;
+                    
+                    // Complete the removal animation
+                    if (wishlistItem) {
+                        wishlistItem.classList.remove('removing');
+                        wishlistItem.classList.add('removed');
+                        
+                        setTimeout(() => {
+                            wishlistItem.remove();
+                            
+                            // Check if wishlist is now empty
+                            const remainingItems = document.querySelectorAll('.wishlist-item');
+                            if (remainingItems.length === 0) {
+                                document.getElementById('wishlistModalBody').innerHTML = 
+                                    '<div class="wishlist-empty">' +
+                                        '<div class="wishlist-empty-icon">⭐</div>' +
+                                        '<div class="wishlist-empty-title">Your wishlist is empty</div>' +
+                                        '<div class="wishlist-empty-subtitle">Start adding projects you\'re interested in supervising!</div>' +
+                                    '</div>';
+                            }
+                        }, 300);
+                    }
+                    
+                    // Update all main page buttons for this project immediately
+                    ensureWishlistButtons(projectId, false); // false means not in wishlist
+                    
+                    // Also update modal button if it exists
+                    const modalBtn = document.getElementById('modalWishlistBtn-' + projectId);
+                    if (modalBtn && modalBtn.classList.contains('in-wishlist')) {
+                        modalBtn.classList.remove('in-wishlist');
+                        modalBtn.innerHTML = 'Add to Wishlist';
+                    }
+                    
+                    showNotification(result.message, 'success');
+                } else {
+                    // API failed - revert the visual changes
+                    if (wishlistItem) {
+                        wishlistItem.classList.remove('removing');
+                    }
+                    
+                    showNotification(result.message, 'error');
+                    // Re-enable button
+                    buttonElement.disabled = false;
+                    buttonElement.innerHTML = '×';
+                }
+            } catch (error) {
+                console.error('Error removing from wishlist:', error);
+                
+                // API error - revert the visual changes
+                if (wishlistItem) {
+                    wishlistItem.classList.remove('removing');
+                }
+                
+                showNotification('An error occurred. Please try again.', 'error');
+                // Re-enable button
+                buttonElement.disabled = false;
+                buttonElement.innerHTML = '×';
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = 'notification notification-' + type;
+            notification.innerHTML = 
+                '<span>' + message + '</span>' +
+                '<button onclick="this.parentElement.remove()">&times;</button>';
+            
+            // Add notification styles - using orange colors for supervisor
+            var backgroundColor = type === 'success' ? '#4CAF50' : type === 'error' ? '#FF3B30' : '#FF9800';
+            notification.style.cssText = 
+                'position: fixed;' +
+                'top: 20px;' +
+                'right: 20px;' +
+                'padding: 12px 16px;' +
+                'border-radius: 8px;' +
+                'background: ' + backgroundColor + ';' +
+                'color: white;' +
+                'z-index: 10000;' +
+                'display: flex;' +
+                'align-items: center;' +
+                'justify-content: space-between;' +
+                'gap: 12px;' +
+                'font-size: 14px;' +
+                'font-weight: 500;' +
+                'min-width: 300px;' +
+                'box-shadow: 0 4px 12px rgba(0,0,0,0.15);' +
+                'animation: slideInRight 0.3s ease;';
+            
+            // Add close button styles
+            const closeBtn = notification.querySelector('button');
+            closeBtn.style.cssText = 
+                'background: none;' +
+                'border: none;' +
+                'color: white;' +
+                'font-size: 18px;' +
+                'cursor: pointer;' +
+                'padding: 0;' +
+                'width: 20px;' +
+                'height: 20px;' +
+                'display: flex;' +
+                'align-items: center;' +
+                'justify-content: center;';
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // Add animation keyframe
+        const style = document.createElement('style');
+        style.textContent = 
+            '@keyframes slideInRight {' +
+                'from {' +
+                    'transform: translateX(100%);' +
+                    'opacity: 0;' +
+                '}' +
+                'to {' +
+                    'transform: translateX(0);' +
+                    'opacity: 1;' +
+                '}' +
+            '}';
+        document.head.appendChild(style);
+
+        function showProjectDetails(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            
+            if (!project) {
+                alert('Project not found!');
+                return;
+            }
+            
+            const modal = document.getElementById('projectModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            if (!modal || !modalContent) {
+                alert('Modal elements not found!');
+                return;
+            }
+
+            const isInWishlist = wishlistProjectIds.includes(project.id);
+            
+            var supervisorCapacityHtml = '';
+            if (project.supervisorCapacity) {
+                supervisorCapacityHtml = 
+                    '<div class="meta-item">' +
+                        '<div class="meta-label">Supervisor Capacity</div>' +
+                        '<div class="meta-value">' + project.supervisorCapacity + '</div>' +
+                    '</div>';
+            }
+            
+            modalContent.innerHTML = 
+                '<div class="modal-title">' + project.title + '</div>' +
+                '<div class="modal-meta">' +
+                    '<div class="meta-item">' +
+                        '<div class="meta-label">Project ID</div>' +
+                        '<div class="meta-value">#' + project.id + '</div>' +
+                    '</div>' +
+                    '<div class="meta-item">' +
+                        '<div class="meta-label">Course Term</div>' +
+                        '<div class="meta-value">' + project.timeframe + '</div>' +
+                    '</div>' +
+                    '<div class="meta-item">' +
+                        '<div class="meta-label">Student Capacity</div>' +
+                        '<div class="meta-value">' + (project.studentCapacity || 'TBD') + '</div>' +
+                    '</div>' +
+                    supervisorCapacityHtml +
+                '</div>' +
+                '<p class="modal-description">' + project.description + '</p>' +
+                '<div class="modal-actions">' +
+                    '<button class="btn-primary wishlist-btn' + (isInWishlist ? ' in-wishlist' : '') + '" ' +
+                            'data-project-id="' + project.id + '"' +
+                            'id="modalWishlistBtn-' + project.id + '">' +
+                        (isInWishlist ? '⭐ In Wishlist' : 'Add to Wishlist') +
+                    '</button>' +
+                    '<button class="btn-secondary modal-close-btn">' +
+                        'Close' +
+                    '</button>' +
+                '</div>';
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('projectModal').classList.remove('show');
+        }
+
+        // Search functionality
+        function applyFiltersAndSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const projectCards = document.querySelectorAll('.project-card');
+            const noResults = document.getElementById('noResults');
+            let visibleCount = 0;
+
+            projectCards.forEach(card => {
+                const title = card.getAttribute('data-title') || '';
+                const timeframe = card.getAttribute('data-timeframe') || '';
+                const description = card.getAttribute('data-description') || '';
+                
+                const matchesSearch = !searchTerm || 
+                    title.includes(searchTerm) ||
+                    timeframe.includes(searchTerm) ||
+                    description.includes(searchTerm);
+                
+                if (matchesSearch) {
+                    card.style.display = '';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (noResults) {
+                noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+            }
+        }
+
+        // Event listener for search input
+        document.getElementById('searchInput').addEventListener('input', applyFiltersAndSearch);
+
+        // Close modal when clicking outside
+        document.getElementById('projectModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close wishlist modal when clicking outside
+        document.getElementById('wishlistModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeWishlistModal();
+            }
+        });
+
+        // Event delegation for wishlist buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('wishlist-btn')) {
+                var projectId = parseInt(e.target.getAttribute('data-project-id'));
+                toggleWishlist(projectId, e.target);
+            }
+            
+            if (e.target.classList.contains('details-btn')) {
+                var projectId = parseInt(e.target.getAttribute('data-project-id'));
+                showProjectDetails(projectId);
+            }
+            
+            if (e.target.classList.contains('modal-close-btn')) {
+                closeModal();
+            }
+            
+            if (e.target.classList.contains('wishlist-delete-btn')) {
+                var projectId = parseInt(e.target.getAttribute('data-project-id'));
+                removeFromWishlistModal(projectId, e.target);
+            }
+            
+            if (e.target.id === 'wishlistCounterBtn' || e.target.closest('#wishlistCounterBtn')) {
+                viewWishlist();
+            }
+        });
+    </script>
+{% endblock %}

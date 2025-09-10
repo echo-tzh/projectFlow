@@ -277,11 +277,16 @@
         background: linear-gradient(45deg, #34C759, #00C7BE);
     }
 
+    .supervisor .card-icon {
+        background: linear-gradient(45deg, #FF9500, #FFCC02);
+    }
+
     /* Different gradient for the second card in each role */
     .system-admin .dashboard-card:nth-child(2) .card-icon,
     .education-admin .dashboard-card:nth-child(2) .card-icon,
     .student .dashboard-card:nth-child(2) .card-icon,
-    .academic-coordinator .dashboard-card:nth-child(2) .card-icon {
+    .academic-coordinator .dashboard-card:nth-child(2) .card-icon,
+    .supervisor .dashboard-card:nth-child(2) .card-icon {
         background: linear-gradient(45deg, #007AFF, #5856D6);
     }
 
@@ -292,6 +297,11 @@
 
     /* Third card gradient for education admin */
     .education-admin .dashboard-card:nth-child(3) .card-icon {
+        background: linear-gradient(45deg, #34C759, #00C7BE);
+    }
+
+    /* Third card gradient for supervisor */
+    .supervisor .dashboard-card:nth-child(3) .card-icon {
         background: linear-gradient(45deg, #34C759, #00C7BE);
     }
 
@@ -519,6 +529,42 @@
         <a href="{{ url_for('view_course_term.view_course_terms') }}" class="card-action">
             View Course Terms
         </a>
+    </div>
+</div>
+
+{% elif current_role == 'supervisor' %}
+<div class="dashboard-grid">
+    <div class="dashboard-card supervisor">
+        <div class="card-icon">
+            <i class="fas fa-project-diagram"></i>
+        </div>
+        <h3 class="card-title">View Projects</h3>
+        <p class="card-description">Find projects that match your expertise and supervision interests.</p>
+        <a href="{{ url_for('supervisor_projects.view_supervisor_projects') }}" class="card-action">
+            View Projects
+        </a>
+    </div>
+
+    <div class="dashboard-card supervisor">
+        <div class="card-icon">
+            <i class="fas fa-clipboard-list"></i>
+        </div>
+        <h3 class="card-title">Submit Preferences</h3>
+        <p class="card-description">Set your preferences for projects you would like to supervise.</p>
+        <button type="button" class="card-action" disabled>
+            Coming Soon
+        </button>
+    </div>
+
+    <div class="dashboard-card supervisor">
+        <div class="card-icon">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <h3 class="card-title">View Results</h3>
+        <p class="card-description">See your allocated projects and assigned students once results are released.</p>
+        <button type="button" class="card-action" disabled>
+            Coming Soon
+        </button>
     </div>
 </div>
 
