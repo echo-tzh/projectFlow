@@ -211,7 +211,7 @@ def view_course_term_detail(timeframe_id: int):
     projects = timeframe.projects
 
     return render_template(
-        "viewCourseTermDetail.html",
+        "viewCourseTerm.html",
         timeframe=timeframe,
         projects=projects,
         status=status,

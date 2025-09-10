@@ -645,9 +645,8 @@
 <body>
     <nav class="nav-bar">
         <div class="nav-container">
-            <a href="{{ url_for('view_course_term.view_course_term_detail', timeframe_id=timeframe.id) }}"
-                class="back-btn">
-                ← Back to Course Term
+            <a href="{{ url_for('view_course_term.view_course_terms') }}" class="btn btn-secondary">
+                 ← Back to Course Terms
             </a>
             <div class="nav-title">Manage Projects</div>
             <div style="color: #86868b; font-size: 14px;">{{ user.name or user.email }}</div>
