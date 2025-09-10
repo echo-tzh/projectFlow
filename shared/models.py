@@ -1,3 +1,4 @@
+# models.py
 import sys
 import os
 
@@ -7,97 +8,108 @@ if sys.platform == "win32":
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
     sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
 
-from database import db
-from datetime import datetime
+from datetime import datetime, date
 from werkzeug.security import generate_password_hash
+from sqlalchemy import and_, Index, UniqueConstraint
+from database import db
 
 # ------------------------
-# Association Table for Many-to-Many User-Role Relationship
+# Association tables
 # ------------------------
-user_roles = db.Table('user_roles',
+
+# Many-to-many: User ↔ Role
+user_roles = db.Table(
+    'user_roles',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
     db.Column('role_id', db.Integer, db.ForeignKey('roles.id'), primary_key=True),
     db.Column('assigned_at', db.DateTime, default=datetime.utcnow)
 )
 
-# ------------------------
-# Association Table for Many-to-Many User-Timeframe Relationship
-# ------------------------
-user_timeframes = db.Table('user_timeframes',
+# Many-to-many: User ↔ Timeframe (role-agnostic legacy link)
+user_timeframes = db.Table(
+    'user_timeframes',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
     db.Column('timeframe_id', db.Integer, db.ForeignKey('timeframes.id'), primary_key=True),
     db.Column('assigned_at', db.DateTime, default=datetime.utcnow)
 )
 
+# Role-scoped assignment: User ↔ Role ↔ Timeframe
+user_role_timeframes = db.Table(
+    'user_role_timeframes',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('role_id', db.Integer, db.ForeignKey('roles.id'), primary_key=True),
+    db.Column('timeframe_id', db.Integer, db.ForeignKey('timeframes.id'), primary_key=True),
+    db.Column('assigned_at', db.DateTime, default=datetime.utcnow)
+)
+
 # ------------------------
-# New Role Model
+# Core models
 # ------------------------
+
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique=True, nullable=False)  # e.g., 'student', 'supervisor', 'system admin', 'academic coordinator'
+    name = db.Column(db.String(50), unique=True, nullable=False)  # e.g. student, supervisor, academic coordinator, system admin
     description = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
 
-    # Relationship back to users
+    # Users (role-agnostic)
     users = db.relationship('User', secondary=user_roles, back_populates='roles', lazy='dynamic')
 
-# ------------------------
-# Email Configuration Model
-# ------------------------
+    def __repr__(self):
+        return f"<Role {self.name}>"
+
+
 class EmailConfig(db.Model):
     __tablename__ = 'email_configs'
     id = db.Column(db.Integer, primary_key=True)
     smtp_server = db.Column(db.String(255), nullable=False, default='smtp.gmail.com')
     smtp_port = db.Column(db.Integer, nullable=False, default=587)
     smtp_username = db.Column(db.String(255), nullable=False)
-    smtp_password = db.Column(db.String(500), nullable=False)  # Should be encrypted in production
+    smtp_password = db.Column(db.String(500), nullable=False)  # encrypt in production
     from_email = db.Column(db.String(255), nullable=False)
     from_name = db.Column(db.String(100), nullable=True, default='ProjectFlow Team')
-    
-    # Additional settings
+
     use_tls = db.Column(db.Boolean, default=True)
     use_ssl = db.Column(db.Boolean, default=False)
-    
-    # Tie to school
+
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=False)
-    
-    # Metadata
+
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    
-    def __repr__(self):
-        return f'<EmailConfig {self.from_email} - {self.school.name if self.school else "No School"}>'
 
-# ------------------------
-# Updated Models
-# ------------------------
+    def __repr__(self):
+        return f'<EmailConfig {self.from_email}>'
+
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=True)  # Added for better identification
+    name = db.Column(db.String(100), nullable=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(700), nullable=False)
-    course = db.Column(db.String(200), nullable=True)  # Course studying
-    student_staff_id = db.Column(db.String(50), nullable=True)  # Student/Staff ID (not primary key)
+    course = db.Column(db.String(200), nullable=True)
+    student_staff_id = db.Column(db.String(50), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    email_sent = db.Column(db.Boolean, default=False, nullable=False)
 
-    # Relationship to School
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=True)
 
-    # Many-to-Many relationship with roles
+    # Role-agnostic links
     roles = db.relationship('Role', secondary=user_roles, back_populates='users', lazy='dynamic')
-    
-    # Many-to-Many relationship with timeframes
     timeframes = db.relationship('Timeframe', secondary=user_timeframes, backref='users', lazy='dynamic')
 
-    # Other relationships
+    # Other rels
     photos = db.relationship('MarketingPhoto', backref='uploader', lazy=True)
-    projects = db.relationship('Project', backref='creator', lazy=True)  # For coordinators
+    projects = db.relationship('Project', backref='creator', lazy=True)  # created as coordinator
     email_configs = db.relationship('EmailConfig', backref='creator', lazy=True)
+
+    def __repr__(self):
+        return f"<User {self.email}>"
+
 
 class MarketingPhoto(db.Model):
     __tablename__ = 'marketing_photos'
@@ -106,9 +118,8 @@ class MarketingPhoto(db.Model):
     alt_text = db.Column(db.String(255))
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
     uploaded_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    category = db.Column(db.String(100))  # e.g., 'hero', 'slide', 'review'
+    category = db.Column(db.String(100))  # hero, slide, review
 
-    # Hero slide text content
     eyebrow_text = db.Column(db.String(100))
     headline = db.Column(db.String(200))
     subhead = db.Column(db.Text)
@@ -119,6 +130,7 @@ class MarketingPhoto(db.Model):
 
     is_active = db.Column(db.Boolean, default=True)
     display_order = db.Column(db.Integer, default=0)
+
 
 class Plan(db.Model):
     __tablename__ = 'plans'
@@ -134,6 +146,7 @@ class Plan(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     display_order = db.Column(db.Integer, default=0)
 
+
 class Review(db.Model):
     __tablename__ = 'reviews'
     id = db.Column(db.Integer, primary_key=True)
@@ -147,9 +160,7 @@ class Review(db.Model):
     is_featured = db.Column(db.Boolean, default=False)
     display_order = db.Column(db.Integer, default=0)
 
-# ------------------------
-# Project Flow Models
-# ------------------------
+
 class School(db.Model):
     __tablename__ = 'schools'
     id = db.Column(db.Integer, primary_key=True)
@@ -157,10 +168,10 @@ class School(db.Model):
     address = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationships
     users = db.relationship('User', backref='school', lazy=True)
     timeframes = db.relationship('Timeframe', backref='school', lazy=True)
     email_config = db.relationship('EmailConfig', backref='school', lazy=True)
+
 
 class Timeframe(db.Model):
     __tablename__ = 'timeframes'
@@ -170,17 +181,19 @@ class Timeframe(db.Model):
     end_date = db.Column(db.Date, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    location = db.Column(db.String(255), nullable=True)  # the location will be like UOW or SIM etc.
+    location = db.Column(db.String(255), nullable=True)  # UOW, SIM, etc.
     delivery_type = db.Column(db.Enum('on campus', 'off campus', name='delivery_type_enum'), nullable=False)
 
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=False)
     preference_limit = db.Column(db.Integer, nullable=False, default=3)
     preference_startTiming = db.Column(db.Date, nullable=False)
     preference_endTiming = db.Column(db.Date, nullable=False)
-    
-    
-    # Relationships
+
     projects = db.relationship('Project', backref='timeframe', lazy=True)
+
+    def __repr__(self):
+        return f"<Timeframe {self.name}>"
+
 
 class Project(db.Model):
     __tablename__ = 'projects'
@@ -193,171 +206,232 @@ class Project(db.Model):
     supervisor_capacity = db.Column(db.Integer)
 
     timeframe_id = db.Column(db.Integer, db.ForeignKey('timeframes.id'), nullable=False)
-    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Academic Coordinator
-    
-    
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # coordinator
+
+
 class Wishlist(db.Model):
     __tablename__ = 'wishlists'
     id = db.Column(db.Integer, primary_key=True)
-    
-    # Foreign keys
+
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
-    
+
     user = db.relationship('User', backref=db.backref('wishlists', lazy='dynamic', cascade='all, delete-orphan'))
     project = db.relationship('Project', backref=db.backref('wishlisted_by', lazy='dynamic'))
-    
-    
-# Preference Model
-# ------------------------
+
+
 class Preference(db.Model):
     __tablename__ = 'preferences'
     id = db.Column(db.Integer, primary_key=True)
-    
-    # Foreign keys
+
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     timeframe_id = db.Column(db.Integer, db.ForeignKey('timeframes.id'), nullable=False, index=True)
-    
-    # Preference ranking (1 = most preferred, 2 = second choice, etc.)
+
     preference_rank = db.Column(db.Integer, nullable=False, index=True)
-    
-    # Metadata
+
     selected_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     notes = db.Column(db.Text, nullable=True)
-    
-    # Composite unique constraints
+
     __table_args__ = (
-        db.UniqueConstraint('user_id', 'project_id', 'timeframe_id', name='unique_user_project_timeframe_preference'),
-        db.UniqueConstraint('user_id', 'timeframe_id', 'preference_rank', name='unique_user_timeframe_rank'),
-        db.Index('idx_user_timeframe_rank', 'user_id', 'timeframe_id', 'preference_rank'),
-        db.Index('idx_timeframe_rank', 'timeframe_id', 'preference_rank'),
+        UniqueConstraint('user_id', 'project_id', 'timeframe_id', name='unique_user_project_timeframe_preference'),
+        UniqueConstraint('user_id', 'timeframe_id', 'preference_rank', name='unique_user_timeframe_rank'),
+        Index('idx_user_timeframe_rank', 'user_id', 'timeframe_id', 'preference_rank'),
+        Index('idx_timeframe_rank', 'timeframe_id', 'preference_rank'),
     )
-    
-    # Relationships
+
     user = db.relationship('User', backref=db.backref('preferences', lazy='dynamic', cascade='all, delete-orphan'))
     project = db.relationship('Project', backref=db.backref('preferred_by', lazy='dynamic'))
     timeframe = db.relationship('Timeframe', backref=db.backref('user_preferences', lazy='dynamic'))
-    
-   
-   # ------------------------
-# Allocation Results Model
-# ------------------------
+
+
 class AllocationResult(db.Model):
     __tablename__ = 'allocation_results'
     id = db.Column(db.Integer, primary_key=True)
-    
-    # Core allocation data
+
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     timeframe_id = db.Column(db.Integer, db.ForeignKey('timeframes.id'), nullable=False)
     role_type = db.Column(db.Enum('student', 'supervisor', 'assessor', name='allocation_role_enum'), nullable=False)
-    
-    # Allocation metadata
-    preference_rank_fulfilled = db.Column(db.Integer, nullable=True)  # Which preference was fulfilled (1st, 2nd, 3rd choice)
-    allocation_batch_id = db.Column(db.String(100), nullable=False)  # Group allocations from same run
-    allocation_method = db.Column(db.String(50), nullable=False)  # 'automatic', 'manual', 'override'
-    
-    # Status tracking
-    status = db.Column(db.Enum('pending', 'confirmed', 'rejected', 'withdrawn', name='allocation_status_enum'), 
-                      default='pending', nullable=False)
-    
-    # Timestamps
+
+    preference_rank_fulfilled = db.Column(db.Integer, nullable=True)
+    allocation_batch_id = db.Column(db.String(100), nullable=False)
+    allocation_method = db.Column(db.String(50), nullable=False)  # automatic, manual, override
+
+    status = db.Column(db.Enum('pending', 'confirmed', 'rejected', 'withdrawn', name='allocation_status_enum'),
+                       default='pending', nullable=False)
+
     allocated_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     confirmed_at = db.Column(db.DateTime, nullable=True)
     status_updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Administrative fields
-    allocated_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # Who ran the allocation
-    notes = db.Column(db.Text, nullable=True)  # Admin notes or special conditions
-    
-    # Constraints
+
+    allocated_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+
     __table_args__ = (
-        db.UniqueConstraint('user_id', 'timeframe_id', 'role_type', name='unique_user_timeframe_role_allocation'),
-        db.Index('idx_allocation_batch', 'allocation_batch_id'),
-        db.Index('idx_timeframe_role', 'timeframe_id', 'role_type'),
-        db.Index('idx_user_timeframe', 'user_id', 'timeframe_id'),
+        UniqueConstraint('user_id', 'timeframe_id', 'role_type', name='unique_user_timeframe_role_allocation'),
+        Index('idx_allocation_batch', 'allocation_batch_id'),
+        Index('idx_timeframe_role', 'timeframe_id', 'role_type'),
+        Index('idx_user_timeframe', 'user_id', 'timeframe_id'),
     )
-    
-    # Relationships
+
     user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('allocations', lazy='dynamic'))
     project = db.relationship('Project', backref=db.backref('allocated_users', lazy='dynamic'))
     timeframe = db.relationship('Timeframe', backref=db.backref('allocations', lazy='dynamic'))
     allocator = db.relationship('User', foreign_keys=[allocated_by], backref=db.backref('allocations_made', lazy='dynamic'))
-    
-# ------------------------
-# Unallocated Users Tracking
-# ------------------------
+
+
 class UnallocatedUser(db.Model):
     __tablename__ = 'unallocated_users'
     id = db.Column(db.Integer, primary_key=True)
-    
+
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     timeframe_id = db.Column(db.Integer, db.ForeignKey('timeframes.id'), nullable=False)
     allocation_batch_id = db.Column(db.String(100), nullable=False)
     expected_role = db.Column(db.Enum('student', 'supervisor', 'assessor', name='expected_role_enum'), nullable=False)
-    
-    # Reasons for non-allocation
-    reason = db.Column(db.Enum('no_preferences', 'all_preferences_full', 'capacity_exceeded', 
-                              'manual_hold', 'eligibility_issue', 'insufficient_projects', 
-                              name='unallocated_reason_enum'), nullable=False)
+
+    reason = db.Column(db.Enum(
+        'no_preferences', 'all_preferences_full', 'capacity_exceeded',
+        'manual_hold', 'eligibility_issue', 'insufficient_projects',
+        name='unallocated_reason_enum'
+    ), nullable=False)
     details = db.Column(db.Text, nullable=True)
-    
-    # Follow-up tracking
+
     manual_intervention_required = db.Column(db.Boolean, default=True)
     resolved = db.Column(db.Boolean, default=False)
     resolved_at = db.Column(db.DateTime, nullable=True)
     resolved_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     resolution_notes = db.Column(db.Text, nullable=True)
-    
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('unallocated_records', lazy='dynamic'))
-    timeframe = db.relationship('Timeframe', backref=db.backref('unallocated_users', lazy='dynamic'))
-    resolver = db.relationship('User', foreign_keys=[resolved_by])
 
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', foreign_keys=[user_id])
+    timeframe = db.relationship('Timeframe')
+    resolver = db.relationship('User', foreign_keys=[resolved_by])
 
 
 class ExternalAPIConfig(db.Model):
     __tablename__ = 'external_api_configs'
     id = db.Column(db.Integer, primary_key=True)
-    
-    # API credentials 
+
     api_key = db.Column(db.String(255), nullable=False)
     api_secret = db.Column(db.String(255), nullable=True)
-    
 
-    
-    # Auto-populated from logged-in user
+    email_field = db.Column(db.String(100), nullable=False, default='email')
+    name_field = db.Column(db.String(100), nullable=False, default='name')
+    course_field = db.Column(db.String(100), nullable=False, default='course')
+    id_field = db.Column(db.String(100), nullable=False, default='id')
+    role_field = db.Column(db.String(100), nullable=False, default='role')
+    timeframe_field = db.Column(db.String(100), nullable=False, default='fyp_session')
+
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=False)
-    
-    # Settings
+
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
 
+    def get_field_mappings(self):
+        return {
+            'email': self.email_field,
+            'name': self.name_field,
+            'course': self.course_field,
+            'id': self.id_field,
+            'role': self.role_field,
+            'timeframe': self.timeframe_field
+        }
 
-
-
-
-
+    def set_field_mappings(self, mappings: dict):
+        self.email_field = mappings.get('email', 'email')
+        self.name_field = mappings.get('name', 'name')
+        self.course_field = mappings.get('course', 'course')
+        self.id_field = mappings.get('id', 'id')
+        self.role_field = mappings.get('role', 'role')
+        self.timeframe_field = mappings.get('timeframe', 'fyp_session')
 
 # ------------------------
-# Default Data Creation Function
+# Helpers for role-scoped assignments
 # ------------------------
+
+def _get_or_create_role(role_name: str) -> Role:
+    role = Role.query.filter_by(name=role_name).first()
+    if not role:
+        role = Role(name=role_name, description=role_name, is_active=True)
+        db.session.add(role)
+        db.session.flush()
+    return role
+
+def assign_user_role_timeframe(user, role_name: str, timeframe):
+    """
+    Ensure user has role `role_name` in `timeframe`. Also ensures legacy link in user_timeframes.
+    Accepts model instances or ids for user and timeframe.
+    """
+    user_id = user.id if hasattr(user, "id") else int(user)
+    timeframe_id = timeframe.id if hasattr(timeframe, "id") else int(timeframe)
+    role = _get_or_create_role(role_name)
+
+    # Insert into role-scoped table if missing
+    exists = db.session.query(user_role_timeframes).filter_by(
+        user_id=user_id, role_id=role.id, timeframe_id=timeframe_id
+    ).first()
+    if not exists:
+        db.session.execute(
+            user_role_timeframes.insert().values(
+                user_id=user_id, role_id=role.id, timeframe_id=timeframe_id
+            )
+        )
+
+    # Keep legacy user_timeframes in sync for general queries
+    legacy = db.session.query(user_timeframes).filter_by(
+        user_id=user_id, timeframe_id=timeframe_id
+    ).first()
+    if not legacy:
+        db.session.execute(
+            user_timeframes.insert().values(
+                user_id=user_id, timeframe_id=timeframe_id
+            )
+        )
+
+def user_has_role_in_timeframe(user, role_name: str, timeframe) -> bool:
+    user_id = user.id if hasattr(user, "id") else int(user)
+    timeframe_id = timeframe.id if hasattr(timeframe, "id") else int(timeframe)
+    role = Role.query.filter_by(name=role_name).first()
+    if not role:
+        return False
+    row = db.session.query(user_role_timeframes).filter_by(
+        user_id=user_id, role_id=role.id, timeframe_id=timeframe_id
+    ).first()
+    return bool(row)
+
+def get_timeframes_for_user_and_role(user, role_name: str):
+    """
+    Return Timeframes where user holds role_name.
+    """
+    user_id = user.id if hasattr(user, "id") else int(user)
+    role = Role.query.filter_by(name=role_name).first()
+    if not role:
+        return []
+    return (
+        db.session.query(Timeframe)
+        .join(user_role_timeframes, Timeframe.id == user_role_timeframes.c.timeframe_id)
+        .filter(
+            user_role_timeframes.c.user_id == user_id,
+            user_role_timeframes.c.role_id == role.id
+        )
+        .order_by(Timeframe.start_date)
+        .all()
+    )
+
+# ------------------------
+# Default admin bootstrap
+# ------------------------
+
 def create_default_admin_account():
     """
     Creates a default system admin account if it doesn't exist.
-    Call this function after creating your database tables.
-    
-    Login credentials:
-    - Email: projectFlowAdminAccount
-    - Password: 12345678
+    Email: projectFlowAdminAccount
+    Password: 12345678
     """
-    
     try:
-        # Check if system admin role exists, create if not
         admin_role = Role.query.filter_by(name='system admin').first()
         if not admin_role:
             admin_role = Role(
@@ -367,62 +441,28 @@ def create_default_admin_account():
                 is_active=True
             )
             db.session.add(admin_role)
-            print("✅ Created 'system admin' role")
-        else:
-            print("ℹ️  'system admin' role already exists")
 
-        # Check if admin user exists, create if not
         admin_user = User.query.filter_by(email='projectFlowAdminAccount').first()
         if not admin_user:
-            # Hash the password '12345678'
             hashed_password = generate_password_hash('12345678')
-            
             admin_user = User(
                 name='System Administrator',
                 email='projectFlowAdminAccount',
                 password_hash=hashed_password,
-                course=None,  # Not applicable for admin
                 student_staff_id='ADMIN001',
                 created_at=datetime.utcnow(),
-                school_id=None  # Can be assigned to a school later if needed
+                school_id=None
             )
-            
             db.session.add(admin_user)
-            db.session.flush()  # To get the user ID before adding role
-            
-            # Assign the admin role to the user
+            db.session.flush()
             admin_user.roles.append(admin_role)
-            
-            print("✅ Created default admin user: projectFlowAdminAccount")
-            print("🔑 Login credentials:")
-            print("   Email: projectFlowAdminAccount")
-            print("   Password: 12345678")
-            print("⚠️  IMPORTANT: Change this password after first login!")
         else:
-            print("ℹ️  Admin user 'projectFlowAdminAccount' already exists")
-            # Ensure the user has admin role
             if admin_role not in admin_user.roles:
                 admin_user.roles.append(admin_role)
-                print("✅ Added 'system admin' role to existing user")
 
         db.session.commit()
-        print("✅ Default admin account setup completed successfully!")
         return True
-        
     except Exception as e:
         db.session.rollback()
-        print(f"❌ Error creating admin account: {str(e)}")
+        print(f"Error creating admin account: {str(e)}")
         return False
-# ------------------------
-# Usage Example (add to your app initialization)
-# ------------------------
-"""
-To use this in your Flask app, add this to your main app file after creating tables:
-
-from models import create_default_admin_account
-
-# After db.create_all()
-with app.app_context():
-    db.create_all()  # Create tables first
-    create_default_admin_account()  # Then create default admin
-"""

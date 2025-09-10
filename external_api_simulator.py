@@ -48,7 +48,7 @@ def get_fyp_eligible_students():
         cursor = connection.cursor(dictionary=True)
         
         query = """
-        SELECT id, name, email, course, fyp_session as academic_period, 
+        SELECT id, name, email, course, fyp_session, 
                fyp_eligible, role, last_updated
         FROM fyp_data
         WHERE fyp_eligible = TRUE AND status = 'active'
@@ -98,7 +98,7 @@ def get_students_by_period(period):
         cursor = connection.cursor(dictionary=True)
         
         cursor.execute("""
-        SELECT id, name, email, course, fyp_session as academic_period, 
+        SELECT id, name, email, course, fyp_session, 
                fyp_eligible, role, last_updated
         FROM fyp_data 
         WHERE fyp_session = %s AND fyp_eligible = TRUE AND status = 'active'

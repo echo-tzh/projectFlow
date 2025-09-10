@@ -21,7 +21,7 @@
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         color: #1d1d1f;
         line-height: 1.6;
-        max-width: 1000px;
+        max-width: 1200px;
         margin: 0 auto;
         padding: 40px 20px;
     }
@@ -64,7 +64,7 @@
     }
 
     .card-header {
-        padding: 32px 32px 0;
+        padding: 32px 32px 24px;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
 
@@ -78,7 +78,7 @@
     .card-header p {
         color: #6e6e73;
         font-size: 1rem;
-        margin-bottom: 24px;
+        margin-bottom: 0;
     }
 
     .card-body {
@@ -123,8 +123,8 @@
 
     .form-row {
         display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 16px;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
     }
 
     .btn {
@@ -164,6 +164,17 @@
     .btn-secondary:hover {
         background: rgba(0, 0, 0, 0.1);
         transform: translateY(-1px);
+    }
+
+    .btn-info {
+        background: #5856D6;
+        color: white;
+    }
+
+    .btn-info:hover {
+        background: #4240c7;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(88, 86, 214, 0.3);
     }
 
     .btn:disabled {
@@ -215,6 +226,7 @@
             opacity: 0;
             transform: translateX(100%);
         }
+
         to {
             opacity: 1;
             transform: translateX(0);
@@ -260,8 +272,104 @@
     }
 
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .test-results {
+        background: rgba(248, 249, 250, 0.8);
+        border-radius: 12px;
+        padding: 24px;
+        margin-top: 24px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .test-results h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: #1d1d1f;
+    }
+
+    .sample-record {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .sample-record h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #1d1d1f;
+    }
+
+    .field-status {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .badge-success {
+        background: rgba(52, 199, 89, 0.1);
+        color: #34C759;
+    }
+
+    .badge-danger {
+        background: rgba(255, 59, 48, 0.1);
+        color: #FF3B30;
+    }
+
+    .current-config {
+        background: rgba(248, 249, 250, 0.8);
+        border-radius: 12px;
+        padding: 24px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .config-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    .config-section h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #1d1d1f;
+    }
+
+    .config-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .config-list li {
+        padding: 4px 0;
+        font-size: 0.875rem;
+        color: #6e6e73;
+    }
+
+    .config-list strong {
+        color: #1d1d1f;
+        font-weight: 600;
     }
 
     @media (max-width: 768px) {
@@ -269,12 +377,17 @@
             font-size: 2rem;
         }
 
-        .form-row {
+        .form-row,
+        .config-grid {
             grid-template-columns: 1fr;
         }
 
         .btn-group {
             flex-direction: column;
+        }
+
+        .content-wrapper {
+            padding: 20px 16px;
         }
     }
 </style>
@@ -284,91 +397,446 @@
 <div class="content-wrapper">
     <div class="header">
         <h1>API Setup</h1>
-        <p>Configure external database connection for automated student data synchronization.</p>
+        <p>Configure external database connection and field mappings for automated student data synchronization.</p>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="alerts">
-                {% for category, message in messages %}
-                    <div class="alert {{ category }}">{{ message }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
+    {% if messages %}
+    <div class="alerts" id="serverAlerts">
+        {% for category, message in messages %}
+        <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
     {% endwith %}
 
-    <div class="card">
-        <div class="card-header">
-            <h2>External API Configuration</h2>
-            <p>Enter the credentials for your school's external API.</p>
+    <!-- Alert container for JavaScript alerts -->
+    <div class="alerts" id="alertArea" style="display: none;"></div>
+
+    <!-- API Credentials and Field Mappings -->
+    <div class="form-row">
+        <!-- API Credentials -->
+        <div class="card">
+            <div class="card-header">
+                <h2>API Credentials</h2>
+                <p>Enter your external API connection details.</p>
+            </div>
+            <div class="card-body">
+                <form id="apiConfigForm">
+                    <div class="form-group">
+                        <label for="apiKey" class="form-label">API Key *</label>
+                        <input type="text" class="form-control" id="apiKey" name="api_key"
+                            placeholder="Enter your API key" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="apiSecret" class="form-label">API Secret</label>
+                        <input type="password" class="form-control" id="apiSecret" name="api_secret"
+                            placeholder="Enter your API secret (leave blank to keep existing)">
+                        <small style="color: #6e6e73; font-size: 0.875rem;">Required for new configuration, optional for
+                            updates</small>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M17,9H7V7H17M17,13H7V11H17M14,17H7V15H14M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3Z" />
+                            </svg>
+                            Save Configuration
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="testConnectionBtn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M15,9H9V7H15M15,13H9V11H15M15,17H9V15H15M4,5V19H20V7H12L10,5H4Z" />
+                            </svg>
+                            Test Connection
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="card-body">
-            <form method="POST" action="{{ url_for('setup_api.save_config') }}" id="configForm">
+
+        <!-- Field Mappings -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Field Mappings</h2>
+                <p>Map external API fields to system fields.</p>
+            </div>
+            <div class="card-body">
                 <div class="form-group">
-                    <label for="api_key" class="form-label">API Key</label>
-                    <input type="text" class="form-control" id="api_key" name="api_key" 
-                           placeholder="Enter your API key" 
-                           value="{{ existing_config.api_key if existing_config else '' }}" required>
+                    <label for="emailField" class="form-label">Email Field *</label>
+                    <input type="text" class="form-control" id="emailField" name="email_field" value="email"
+                        placeholder="e.g., email, user_email" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="api_secret" class="form-label">API Secret (Optional)</label>
-                    <input type="password" class="form-control" id="api_secret" name="api_secret" 
-                           placeholder="Enter your API secret if required"
-                           value="{{ existing_config.api_secret if existing_config and existing_config.api_secret else '' }}">
+                    <label for="nameField" class="form-label">Name Field *</label>
+                    <input type="text" class="form-control" id="nameField" name="name_field" value="name"
+                        placeholder="e.g., name, full_name, student_name" required>
                 </div>
-               
+
+                <div class="form-group">
+                    <label for="courseField" class="form-label">Course Field *</label>
+                    <input type="text" class="form-control" id="courseField" name="course_field" value="course"
+                        placeholder="e.g., course, program, subject" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="idField" class="form-label">ID Field *</label>
+                    <input type="text" class="form-control" id="idField" name="id_field" value="id"
+                        placeholder="e.g., id, student_id, user_id" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="roleField" class="form-label">Role Field *</label>
+                    <input type="text" class="form-control" id="roleField" name="role_field" value="role"
+                        placeholder="e.g., role, user_type, position" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="timeframeField" class="form-label">Course Term Field *</label>
+                    <input type="text" class="form-control" id="timeframeField" name="timeframe_field"
+                        value="fyp_session" placeholder="e.g., fyp_session, academic_period, semester" required>
+                </div>
+
                 <div class="btn-group">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="button" class="btn btn-info" id="testMappingsBtn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M17,9H7V7H17M17,13H7V11H17M14,17H7V15H14M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3Z"/>
+                            <path
+                                d="M7,2V4H17V2H19V4H20A2,2 0 0,1 22,6V20A2,2 0 0,1 20,22H4A2,2 0 0,1 2,20V6A2,2 0 0,1 4,4H5V2H7M4,8V20H20V8H4M8,10H16V12H8V10M8,14H16V16H8V14Z" />
                         </svg>
-                        {{ 'Update Configuration' if existing_config else 'Save Configuration' }}
+                        Test Field Mappings
                     </button>
                 </div>
-            </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Results Section -->
+    <div class="card" id="testResultsSection" style="display: none;">
+        <div class="card-header">
+            <h2>Test Results</h2>
+            <p>Preview of how your field mappings will work with real data.</p>
+        </div>
+        <div class="card-body">
+            <div id="testResults"></div>
+        </div>
+    </div>
+
+    <!-- Current Configuration Display -->
+    <div class="card" id="currentConfigSection">
+        <div class="card-header">
+            <h2>Current Configuration</h2>
+            <p>Overview of your current API setup.</p>
+        </div>
+        <div class="card-body">
+            <div id="currentConfig" class="current-config">
+                <p style="color: #6e6e73;">No configuration found. Please set up your API credentials and field mappings
+                    above.</p>
+            </div>
         </div>
     </div>
 
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
             <div class="spinner"></div>
-            <p>Testing connection...</p>
+            <p id="loadingText">Processing...</p>
         </div>
     </div>
 </div>
 
 <script>
-    // Show alert function
-    function showAlert(type, message) {
-        const alertsContainer = document.querySelector('.alerts') || createAlertsContainer();
-        
+    // School ID from server-side rendering
+    const schoolId = {{ school.id if school else 'null' }};
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function () {
+        loadCurrentConfig();
+        autoHideServerAlerts();
+    });
+
+    // Form submission
+    document.getElementById('apiConfigForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        saveConfiguration();
+    });
+
+    // Test connection button
+    document.getElementById('testConnectionBtn').addEventListener('click', function () {
+        testConnection();
+    });
+
+    // Test mappings button
+    document.getElementById('testMappingsBtn').addEventListener('click', function () {
+        testFieldMappings();
+    });
+
+    function showAlert(message, type = 'info') {
+        const alertArea = document.getElementById('alertArea');
+        alertArea.style.display = 'block';
+
         const alert = document.createElement('div');
         alert.className = `alert ${type}`;
         alert.textContent = message;
-        
-        alertsContainer.appendChild(alert);
-        
+
+        alertArea.appendChild(alert);
+
         // Auto remove after 5 seconds
         setTimeout(() => {
-            alert.remove();
+            alert.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => {
+                alert.remove();
+                if (alertArea.children.length === 0) {
+                    alertArea.style.display = 'none';
+                }
+            }, 300);
         }, 5000);
     }
 
-    function createAlertsContainer() {
-        const container = document.createElement('div');
-        container.className = 'alerts';
-        document.body.appendChild(container);
-        return container;
+    function showLoading(text = 'Processing...') {
+        document.getElementById('loadingText').textContent = text;
+        document.getElementById('loadingOverlay').style.display = 'flex';
     }
 
-    // Auto-hide existing alerts
-    setTimeout(() => {
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(alert => {
-            alert.style.animation = 'slideOut 0.3s ease forwards';
-            setTimeout(() => alert.remove(), 300);
-        });
-    }, 5000);
+    function hideLoading() {
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+
+    function autoHideServerAlerts() {
+        const serverAlerts = document.getElementById('serverAlerts');
+        if (serverAlerts) {
+            setTimeout(() => {
+                const alerts = serverAlerts.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    alert.style.animation = 'slideOut 0.3s ease forwards';
+                    setTimeout(() => alert.remove(), 300);
+                });
+            }, 5000);
+        }
+    }
+
+    function loadCurrentConfig() {
+        if (!schoolId) return;
+
+        fetch(`/api_config/get/${schoolId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.config_exists) {
+                    const config = data.config;
+
+                    // Populate form with existing data
+                    document.getElementById('apiKey').value = config.api_key || '';
+                    document.getElementById('emailField').value = config.field_mappings.email || 'email';
+                    document.getElementById('nameField').value = config.field_mappings.name || 'name';
+                    document.getElementById('courseField').value = config.field_mappings.course || 'course';
+                    document.getElementById('idField').value = config.field_mappings.id || 'id';
+                    document.getElementById('roleField').value = config.field_mappings.role || 'role';
+                    document.getElementById('timeframeField').value = config.field_mappings.timeframe || 'fyp_session';
+
+                    // Update current config display
+                    updateCurrentConfigDisplay(config);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading configuration:', error);
+            });
+    }
+
+    function updateCurrentConfigDisplay(config) {
+        const currentConfigDiv = document.getElementById('currentConfig');
+        currentConfigDiv.innerHTML = `
+            <div class="config-grid">
+                <div class="config-section">
+                    <h3>API Credentials</h3>
+                    <ul class="config-list">
+                        <li><strong>API Key:</strong> ${config.api_key}</li>
+                        <li><strong>API Secret:</strong> ${config.api_secret_exists ? 'Configured' : 'Not set'}</li>
+                    </ul>
+                </div>
+                <div class="config-section">
+                    <h3>Field Mappings</h3>
+                    <ul class="config-list">
+                        <li><strong>Email:</strong> ${config.field_mappings.email}</li>
+                        <li><strong>Name:</strong> ${config.field_mappings.name}</li>
+                        <li><strong>Course:</strong> ${config.field_mappings.course}</li>
+                        <li><strong>ID:</strong> ${config.field_mappings.id}</li>
+                        <li><strong>Role:</strong> ${config.field_mappings.role}</li>
+                        <li><strong>Timeframe:</strong> ${config.field_mappings.timeframe}</li>
+                    </ul>
+                </div>
+            </div>
+            <p style="color: #6e6e73; font-size: 0.875rem; margin-top: 16px;">
+                Created: ${config.created_at ? new Date(config.created_at).toLocaleString() : 'Unknown'}
+            </p>
+        `;
+    }
+
+    function saveConfiguration() {
+        if (!schoolId) {
+            showAlert('School ID not found', 'error');
+            return;
+        }
+
+        showLoading('Saving configuration...');
+
+        const formData = {
+            school_id: schoolId,
+            api_key: document.getElementById('apiKey').value.trim(),
+            api_secret: document.getElementById('apiSecret').value.trim(),
+            field_mappings: {
+                email: document.getElementById('emailField').value.trim(),
+                name: document.getElementById('nameField').value.trim(),
+                course: document.getElementById('courseField').value.trim(),
+                id: document.getElementById('idField').value.trim(),
+                role: document.getElementById('roleField').value.trim(),
+                timeframe: document.getElementById('timeframeField').value.trim()
+            }
+        };
+
+        fetch('/api_config/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    loadCurrentConfig(); // Reload to show updated config
+                    document.getElementById('apiSecret').value = ''; // Clear password field
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error saving configuration:', error);
+                showAlert('Error saving configuration', 'error');
+            });
+    }
+
+    function testConnection() {
+        if (!schoolId) {
+            showAlert('School ID not found', 'error');
+            return;
+        }
+
+        showLoading('Testing connection...');
+
+        fetch('/api_config/test_connection', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ school_id: schoolId })
+        })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    showAlert(`Connection Test: ${data.message}`, 'success');
+                } else {
+                    showAlert(`Connection Test Failed: ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error testing connection:', error);
+                showAlert('Error testing connection', 'error');
+            });
+    }
+
+    function testFieldMappings() {
+        if (!schoolId) {
+            showAlert('School ID not found', 'error');
+            return;
+        }
+
+        showLoading('Testing field mappings...');
+
+        fetch('/api_config/test_field_mappings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                school_id: schoolId,
+                test_period: 'test'
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    displayTestResults(data);
+                    document.getElementById('testResultsSection').style.display = 'block';
+                    showAlert(data.message, data.all_fields_valid ? 'success' : 'warning');
+                } else {
+                    showAlert(`Field Mapping Test Failed: ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error testing field mappings:', error);
+                showAlert('Error testing field mappings', 'error');
+            });
+    }
+
+    function displayTestResults(data) {
+        const resultsDiv = document.getElementById('testResults');
+
+        let html = `
+        <div class="test-results">
+            <h3>Field Mapping Validation</h3>
+            <p><strong>Total Records Found:</strong> ${data.total_records}</p>
+            <p><strong>Overall Status:</strong> <span class="badge ${data.all_fields_valid ? 'badge-success' : 'badge-danger'}">${data.all_fields_valid ? 'All Fields Valid' : 'Issues Found'}</span></p>
+        </div>
+    `;
+
+        if (data.field_status) {
+            html += `
+            <div class="test-results" style="margin-top: 24px;">
+                <h3>Field Validation Summary</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        `;
+
+            Object.entries(data.field_status).forEach(([fieldName, status]) => {
+                html += `
+                <div style="padding: 12px; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; background: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <strong>${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}:</strong>
+                        <span class="badge ${status.status === 'valid' ? 'badge-success' : 'badge-danger'}">${status.status}</span>
+                    </div>
+                    <div style="font-size: 0.875rem; color: #6e6e73;">
+                        <div>Column: "${data.field_mappings[fieldName]}"</div>
+                        <div>Records with data: ${status.records_with_data}/${data.total_records} (${status.percentage}%)</div>
+                        <div>Column exists: ${status.column_exists ? 'Yes' : 'No'}</div>
+                    </div>
+                </div>
+            `;
+            });
+
+            html += `
+                </div>
+            </div>
+        `;
+        }
+
+        if (data.available_columns && data.available_columns.length > 0) {
+            html += `
+            <div class="test-results" style="margin-top: 24px;">
+                <h3>Available Columns in External Data</h3>
+                <p style="font-size: 0.875rem; color: #6e6e73; word-break: break-all;">
+                    ${data.available_columns.join(', ')}
+                </p>
+            </div>
+        `;
+        }
+
+        resultsDiv.innerHTML = html;
+    }
 </script>
 {% endblock %}
