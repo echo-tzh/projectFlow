@@ -57,19 +57,28 @@ def get_navigation_items(user_roles):
                 'title': 'Manage Course Term',
                 'icon': 'fas fa-calendar-alt',
                 'url': url_for('manage_timeframe_bp.manage_timeframes'),
-                'active_class': 'manage-timeframes'
-            },
-            {
-                'title': 'Load Data',
-                'icon': 'fas fa-upload',
-                'url': url_for('load_data.index'),
-                'active_class': 'load-data'
+                'active_class': 'manage-timeframes',
+                'has_children': True,
+                'children': [
+                    {
+                        'title': 'Load Data',
+                        'icon': 'fas fa-upload',
+                        'url': url_for('load_data.index'),
+                        'active_class': 'load-data'
+                    }
+                ]
             },
             {
                 'title': 'Setup Email',
                 'icon': 'fas fa-envelope-open-text',
                 'url': url_for('setup_email_bp.setup_email'),
                 'active_class': 'setup-email'
+            },
+            {
+                'title': 'Setup API',
+                'icon': 'fas fa-cogs',
+                'url': url_for('setup_api.index'),
+                'active_class': 'setup-api'
             }
         ])
     

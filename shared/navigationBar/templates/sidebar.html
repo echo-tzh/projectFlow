@@ -10,11 +10,27 @@
         <nav class="sidebar-nav">
             <ul class="nav-list">
                 {% for item in nav_items %}
-                <li class="nav-item">
-                    <a href="{{ item.url }}" class="nav-link" data-page="{{ item.active_class }}">
+                <li class="nav-item {% if item.has_children %}has-children{% endif %}">
+                    <a href="{{ item.url }}" class="nav-link" data-page="{{ item.active_class }}" 
+                       {% if item.has_children %}onclick="toggleSubNav(this, event)"{% endif %}>
                         <i class="{{ item.icon }}"></i>
                         <span class="nav-text">{{ item.title }}</span>
+                        {% if item.has_children %}
+                        <i class="fas fa-chevron-right sub-nav-arrow"></i>
+                        {% endif %}
                     </a>
+                    {% if item.has_children and item.children %}
+                    <ul class="sub-nav-list">
+                        {% for child in item.children %}
+                        <li class="sub-nav-item">
+                            <div class="sub-nav-link non-clickable" data-page="{{ child.active_class }}">
+                                <i class="{{ child.icon }}"></i>
+                                <span class="nav-text">{{ child.title }}</span>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
                 </li>
                 {% endfor %}
             </ul>
@@ -401,6 +417,112 @@
         opacity: 1;
         width: auto;
     }
+
+    /* Sub-navigation styles */
+    .nav-item.has-children .nav-link {
+        position: relative;
+    }
+
+    .sub-nav-arrow {
+        margin-left: auto !important;
+        font-size: 12px !important;
+        transition: transform 0.3s ease !important;
+        width: auto !important;
+    }
+
+    .nav-item.expanded .sub-nav-arrow {
+        transform: rotate(90deg);
+    }
+
+    .sub-nav-list {
+        list-style: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        transition: max-height 0.3s ease !important;
+        background: rgba(0, 122, 255, 0.05) !important;
+        border-radius: 0 0 8px 8px !important;
+    }
+
+    .nav-item.expanded .sub-nav-list {
+        max-height: 200px !important;
+        padding: 4px 0 !important;
+    }
+
+    .sub-nav-item {
+        margin: 0 16px 0 32px !important;
+        border-radius: 6px !important;
+    }
+
+    .sub-nav-link {
+        display: flex !important;
+        align-items: center !important;
+        padding: 8px 12px !important;
+        color: #666 !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+        gap: 10px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        border-radius: 6px !important;
+    }
+
+    .sub-nav-link:not(.non-clickable):hover {
+        background: rgba(0, 122, 255, 0.1) !important;
+        color: #007AFF !important;
+        text-decoration: none !important;
+    }
+
+    .sub-nav-link.non-clickable {
+        cursor: default !important;
+        color: #999 !important;
+    }
+
+    .sub-nav-link.non-clickable:hover {
+        background: transparent !important;
+        color: #999 !important;
+    }
+
+    .sub-nav-link.active {
+        background: #007AFF !important;
+        color: white !important;
+        box-shadow: 0 2px 6px rgba(0, 122, 255, 0.25) !important;
+        font-weight: 600 !important;
+        cursor: default !important;
+    }
+
+    .sub-nav-link.active:hover {
+        background: #007AFF !important;
+        color: white !important;
+    }
+
+    .sub-nav-link i {
+        width: 16px !important;
+        height: 16px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 14px !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Collapsed sidebar sub-nav handling */
+    .sidebar.collapsed .sub-nav-list {
+        display: none !important;
+    }
+
+    .sidebar.collapsed:hover .sub-nav-list {
+        display: block !important;
+    }
+
+    .sidebar.collapsed .sub-nav-arrow {
+        opacity: 0 !important;
+    }
+
+    .sidebar.collapsed:hover .sub-nav-arrow {
+        opacity: 1 !important;
+    }
 </style>
 
 <script>
@@ -453,17 +575,76 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set active nav link based on current page
     const currentPath = window.location.pathname;
     const navLinks = document.querySelectorAll('.nav-link');
+    const subNavLinks = document.querySelectorAll('.sub-nav-link');
     
+    console.log('Current path:', currentPath);
+    console.log('Found nav links:', navLinks.length);
+    console.log('Found sub-nav links:', subNavLinks.length);
+    
+    // Check main nav links
     navLinks.forEach(link => {
         // Remove any existing active classes
         link.classList.remove('active');
         
         // Check if this link matches the current path
         const linkHref = link.getAttribute('href');
+        console.log('Checking main nav link:', link.textContent.trim(), 'href:', linkHref);
         if (linkHref === currentPath) {
             link.classList.add('active');
+            console.log('Main nav link activated:', link.textContent.trim());
+            // If this is a parent item with children, expand it
+            const parentNavItem = link.closest('.nav-item');
+            if (parentNavItem && parentNavItem.classList.contains('has-children')) {
+                parentNavItem.classList.add('expanded');
+                console.log('Parent nav item expanded');
+            }
         }
     });
+    
+    // Check sub-nav links
+    subNavLinks.forEach(link => {
+        // Remove any existing active classes
+        link.classList.remove('active');
+        
+        // For non-clickable sub-nav items, check based on data-page attribute and current path
+        const linkHref = link.getAttribute('href');
+        const dataPage = link.getAttribute('data-page');
+        console.log('Checking sub-nav link:', link.textContent.trim(), 'href:', linkHref, 'data-page:', dataPage);
+        
+        let isMatch = false;
+        
+        if (linkHref) {
+            // For clickable links, use the href
+            isMatch = linkHref === currentPath || (linkHref.length > 1 && currentPath.startsWith(linkHref));
+        } else if (dataPage === 'load-data') {
+            // For non-clickable Load Data, check if current path starts with /load_data/
+            isMatch = currentPath.startsWith('/load_data/');
+        }
+        
+        if (isMatch) {
+            link.classList.add('active');
+            console.log('Sub-nav link activated:', link.textContent.trim(), 'for path:', currentPath);
+            // Auto-expand parent nav item
+            const parentNavItem = link.closest('.nav-item');
+            if (parentNavItem) {
+                parentNavItem.classList.add('expanded');
+                console.log('Parent nav item expanded for sub-nav');
+            }
+        }
+    });
+    
+    // Force re-check navigation state after setting active classes
+    setTimeout(() => {
+        const activeSubNavLink = document.querySelector('.sub-nav-link.active');
+        if (activeSubNavLink) {
+            console.log('Found active sub-nav link after timeout:', activeSubNavLink.textContent.trim());
+            const parentNavItem = activeSubNavLink.closest('.nav-item');
+            if (parentNavItem) {
+                parentNavItem.classList.add('expanded');
+                console.log('Force expanded parent for sub-nav');
+            }
+        }
+    }, 100);
     
     // Smooth icon rotation for toggle
     const toggleIcon = document.getElementById('toggleIcon');
